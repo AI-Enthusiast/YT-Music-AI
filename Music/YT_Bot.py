@@ -19,6 +19,7 @@ DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
+
 def isLive(title=[]):
     for i in liveVidKeyWords:
         for word in title:
