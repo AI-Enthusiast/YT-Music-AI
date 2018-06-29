@@ -15,7 +15,7 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 Fnames = []
 
-
+#cormac is such a nerd wtf
 class Data:
     def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
                  used=False):  # used, artist, tempo, ect
