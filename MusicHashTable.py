@@ -15,8 +15,9 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 Fnames = []
 
-
+#A class used to create music file objects
 class Data:
+    #Constructer
     def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
                  used=False):  # used, artist, tempo, ect
         self.Title = Title
@@ -27,7 +28,7 @@ class Data:
         self.dislikes = dislikes
         self.views = views
         self.used = used
-
+    #toString()
     def __str__(self):
         out = "{0},{1},{2},{3},{4},{5},{6}, {7}".format(
             self.Artist,
@@ -41,7 +42,7 @@ class Data:
         )
         return out
 
-    # Reads through data and outputts it as array eg out[row]
+    # Reads through data and outputs it as array eg out[row]
     def readData(self):
         with open(FileName, "r", newline='\n') as csvfile:
             DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
@@ -52,7 +53,7 @@ class Data:
             csvfile.close()
             return out
 
-    # Saves Header dataList insto csv file
+    # Saves Header dataList into csv file
     def saveHeader(self, dataList=[[]]):
         with open(FileName, 'w', newline='\n') as csvfile:
             DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
@@ -60,7 +61,7 @@ class Data:
             DataWriter.writerow(dataList)
             csvfile.close()
 
-    # Saves dataList insto csv file
+    # Saves dataList into csv file
     def saveData(self, dataList={}):
         with open(FileName, 'w', newline='\n') as csvfile:
             fnames = ["Title", "Url", "Artist", "Hash",
@@ -70,7 +71,7 @@ class Data:
             DataWriter.writerow(dataList)
             csvfile.close()
 
-    # appends dataList insto csv file
+    # appends dataList into csv file
     def appendData(self, dataList={}):
         with open(FileName, 'a', newline='\n') as csvfile:
             fnames = ["Title", "Url", "Artist", "Hash",
@@ -81,12 +82,13 @@ class Data:
             csvfile.close()
 
     # deletes data entry by it's row number shifts others up one
+    #TODO
     def deleteEntry(self, rowNum):
         data = Data.readData(self)
         a = data[:rowNum]
         b = data[rowNum + 1:]
         self.saveData(a + b)
-
+    #TODO
     def addEntry(self, rowNum, entry):
         data = Data.readData(self)
         data.insert(rowNum, entry)
@@ -151,7 +153,7 @@ def removeCommas(string):
     out = ''.join(string.split(","))
     return out
 
-
+#TODO
 def search(term=''):
     with open(FileName, "r", newline='\n') as csvfile:
         DataReader = csv.DictReader(csvfile, delimiter="\n", quotechar=" ",
@@ -162,7 +164,8 @@ def search(term=''):
         csvfile.close()
         return out
 
-
+#TODO
+#slim down and/or user control
 if __name__ == "__main__":
     ytPath = 'https://www.youtube.com/watch?v='
     if not os.path.isfile(FileName):

@@ -8,6 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 
+#different words to identify mixes and livestreams
 liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
 CurrentPath = 'C:/Users/corma/Summer2018/Project/Music/'
 
@@ -20,6 +21,10 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
+#A function to check the list to predict if its a live vide
+#params: list of title words
+#returns a Boolean depicting whether it is assumed to be live or not
+
 def isLive(title=[]):
     for i in liveVidKeyWords:
         for word in title:
@@ -27,7 +32,9 @@ def isLive(title=[]):
                 return True
     return False
 
-
+#A function to search videos, channels, and playlists from the console
+#params: options for the search itself
+#returns: N/A
 def youtube_search(options):
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                     developerKey=DEVELOPER_KEY)
@@ -41,7 +48,7 @@ def youtube_search(options):
     ).execute()
 
     videos = []
-    vids = {}
+
     channels = []
     playlists = []
 
@@ -53,11 +60,8 @@ def youtube_search(options):
         if isLive(title.split(" " or "　" or "/" or "[" or "]")):  # filters out live streams
             pass
         elif search_result["id"]["kind"] == "youtube#video":
-            vidID = search_result["id"]["videoId"]
             videos.append("%s (%s)" % (search_result["snippet"]["title"],
                                        search_result["id"]["videoId"]))
-            vids.append("%s (%s)" % (search_result["snippet"]["title"]))
-            vids[search_result["id"]["videoId"]] = search_result["snippet"]["title"]
         elif search_result["id"]["kind"] == "youtube#channel":
             channels.append("%s (%s)" % (search_result["snippet"]["title"],
                                          search_result["id"]["channelId"]))
@@ -68,9 +72,8 @@ def youtube_search(options):
     print("Videos:\n", "\n".join(videos), "\n")
     print("Channels:\n", "\n".join(channels), "\n")
     print("Playlists:\n", "\n".join(playlists), "\n")
-    s = ','.join(vids.keys())
 
-
+#A class to aide in importing -- logs errors
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -81,18 +84,18 @@ class MyLogger(object):
     def error(self, msg):
         print(msg)
 
-
+#A function to show progress in downloads
 def my_hook(d):
     if d['status'] == 'finished':
         print('Downloading ...')
 
-
+#A function to move files from general folder to New folder
 def toNew(filename):
-    NewMusicPath = 'C:/Users/corma/Summer2018/Project/Music/New/'
+    NewMusicPath = CurrentPath + '/New/'
     os.rename(CurrentPath + filename, NewMusicPath + filename)
     print("Moving File: " + filename)
 
-
+#Moves all files done converting to New
 def doneConvertion():
     arr = glob.glob(CurrentPath + '*.mp3')
     for i in arr:
@@ -106,7 +109,7 @@ def convertVid(url):
         ydl.download([videoURL])
     doneConvertion()
 
-
+#Converts playlists using youtube-dl library
 def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -114,14 +117,14 @@ def convertPlaylist(url):
 
     doneConvertion()
 
-
+#Converts channels using youtube-dl library
 def convertChannel(url):
     channelURL = "https://www.youtube.com/channel/" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channelURL])
     doneConvertion()
 
-
+#options needed for youtube-dl library
 ydl_opts = {
     'format': 'bestaudio/best',
     'postprocessors': [{
@@ -133,6 +136,7 @@ ydl_opts = {
 }
 
 if __name__ == "__main__":
+    #needed to set up the search opts
     temp = [None, None]
     argparser.add_argument("--q", help="Search term", default=temp[1])
     argparser.add_argument("--max-results", help="Max results", default=25)
@@ -151,8 +155,8 @@ if __name__ == "__main__":
             # except Error as e:
             # print("ERROR: " + e)
         elif com[0] == "p":  # if playlist p
-            # #try:
-            convertPlaylist(com[1])
+            #try:
+                convertPlaylist(com[1])
             # except Error as e:
             # print("ERROR: " + e)
         elif com[0] == "c":  # if channel c
