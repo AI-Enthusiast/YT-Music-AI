@@ -90,15 +90,18 @@ def my_hook(d):
 
 #A function to move files from general folder to New folder
 def toNew(filename):
-    NewMusicPath = BASEPATH + '/New/'
-    os.rename(BASEPATH + filename, NewMusicPath + filename)
-    print("Moving File: " + filename)
+    NewMusicPath = BASEPATH + '/Music/New/'
+    os.rename(BASEPATH + '/Music/' + filename, NewMusicPath + filename)
+    print("Moved File: " + filename)
 
 #Moves all files done converting to New
 def doneConvertion():
-    arr = glob.glob(BASEPATH + '*.mp3')
+    print(BASEPATH)
+    arr = glob.glob(BASEPATH + '/Music/' + '*.mp3')
+    print(arr)
     for i in arr:
-        file = i[40:]
+        file = i[50:]
+        print('Moving '+ file +'...')
         toNew(file)
 
 
@@ -143,10 +146,10 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     while True:
         if(BASEPATH == ''):
-            if(temp[0] == 'mg'):
-                BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/Music'
-            elif(temp[0] == 'cd'):
-                BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/Music'
+            if(temp == 'mg'):
+                BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI'
+            elif(temp == 'cd'):
+                BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI'
             elif(len(temp) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
