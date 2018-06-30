@@ -1,7 +1,12 @@
+# MusicHashTable.py started on 6/25/2018
+# Authors: Cormac Dacker, Marilyn Groppe
+# Vertion# 0.0.4
+
+
 import csv
 import glob
 import os
-import urllib3
+import urllib.request
 from Music import YT_Bot
 from bs4 import BeautifulSoup
 
@@ -78,6 +83,7 @@ def readData():
         DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
         out = []
+        print(DataReader)
         for Item in DataReader:
             out.append(Item[0])
             csvfile.close()
@@ -124,7 +130,8 @@ def force_to_unicode(text):
 
 # gets views, likes and dislikes
 def getStats(url):
-    soup = BeautifulSoup(urllib3.request.urlopen(url).read().decode('utf-8', 'ignore'), 'html.parser')
+    soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
+                         ('utf-8', 'ignore'), 'html.parser')
     ratings = soup.find_all('button')
     likes = ratings[24]
     dislikes = ratings[26]
@@ -174,17 +181,17 @@ def search(term=''):
         csvfile.close()
         return out
 
-#TODO
-#slim down and/or user control
-if __name__ == "__main__":
-    ytPath = 'https://www.youtube.com/watch?v='
-    if not os.path.isfile(FileName):
-        print("ERROR: 'MusicData.csv' could not be found")
-        quit()
 
-    numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
+# prints error message
+def error(errorMessage):
+    print("ERROR: " + errorMessage)
+
+
+# control center for MusicHashTable.py
+def updateCSV():
+    # numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
-    numOfEntrys += arr.__len__()
+    # numOfEntrys += arr.__len__()
     # Data.saveHeader(Data, dataList=[["ARTIST", 'Title', "URL", "HASH", "LIKES","DISLIKES", "VIEWS", "USED?"]])
     clear()
     for i in arr:
@@ -211,10 +218,21 @@ if __name__ == "__main__":
         if not inlist:  # checks results from list check
             Fnames.append(artist)
 
-        hs = hash(artist) % numOfEntrys  # hash by artist
+        # hs = hash(artist) % numOfEntrys  # hash by artist
+        hs = 0  # temp
         dict = {artist: [artist, title, url, hs, likes, dislikes, views, used]}
         # NewData = ([force_to_unicode(dict)])
         print("New Entry: " + artist + title + ' ' + url)
         appendData(dataList=dict)
+
+#TODO
+#slim down and/or user control
+if __name__ == "__main__":
+    ytPath = 'https://www.youtube.com/watch?v='
+    if not os.path.isfile(FileName):
+        print("ERROR: 'MusicData.csv' could not be found")
+        quit()
+
+    updateCSV()
     printRows(readData())
-    search(Fnames[3])
+#    search(Fnames[3])

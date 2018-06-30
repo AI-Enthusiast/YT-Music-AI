@@ -1,3 +1,7 @@
+# YT_Bot.py started on 6/25/2018
+# Authors: Cormac Dacker, Marilyn Groppe
+# Vertion# 0.0.4
+
 from __future__ import unicode_literals
 
 import glob
@@ -96,9 +100,11 @@ def toNew(filename):
 
 #Moves all files done converting to New
 def doneConvertion():
+    print(BASEPATH)
     arr = glob.glob(BASEPATH + '/Music/' + '*.mp3')
+    print(arr)
     for i in arr:
-        file = i[BASEPATH.__len__() + 7:]
+        file = i[50:]
         print('Moving '+ file +'...')
         toNew(file)
         print(file)
@@ -124,6 +130,16 @@ def convertChannel(url):
         ydl.download([channelURL])
     doneConvertion()
 
+
+# prints downloading. Purely OCD astetic
+def downloading():
+    print("DOWNLOADING...")
+
+
+# prints error message
+def error(errorMessage):
+    print("ERROR: " + errorMessage)
+
 #options needed for youtube-dl library
 ydl_opts = {
     'format': 'bestaudio/best',
@@ -137,18 +153,19 @@ ydl_opts = {
 
 if __name__ == "__main__":
     #needed to set up the search opts
-    temp = input('Insert the path to the directory on your computer that '
-                 'leads to the directory that contains your \'New\' and \'Current\' folders, or your initials\n')
-    argparser.add_argument("--q", help="Search term", default=temp[1])
+    print('Insert the path to the directory on your computer that '
+          'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
+    path = input('>>')
+    argparser.add_argument("--q", help="Search term", default=path[1])
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
         if(BASEPATH == ''):
-            if(temp == 'mg'):
+            if (path == 'mg'):
                 BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI'
-            elif(temp == 'cd'):
+            elif (path == 'cd'):
                 BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI'
-            elif(len(temp) < 1):
+            elif (len(path) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
                 if(len(l) < 1):
@@ -159,7 +176,7 @@ if __name__ == "__main__":
                     BASEPATH = l
             else:
                 print('Saving your path...\n')
-                BASEPATH = temp
+                BASEPATH = path
         else:
             com = input('>>').split()
             if len(com) == 0:  # if there is not input end program
@@ -170,17 +187,20 @@ if __name__ == "__main__":
                 print("ERROR: Insufficient arguments. For help type 'help'")
             elif com[0] == "v":  # if video v
                 # try:
+                downloading()
                 convertVid(com[1])
                 #    except Error as e:
                 #    print("ERROR: " + e)
             elif com[0] == "p":  # if playlist p
                 #try:
                 convertPlaylist(com[1])
+                downloading()
                 # except Error as e:
                 # print("ERROR: " + e)
             elif com[0] == "c":  # if channel c
                 # try:
                 convertChannel(com[1])
+                downloading()
                 # except Error as e:
                 # print("ERROR: " + e)
             elif com[0] == "s":  # if search s
