@@ -1,6 +1,6 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.4
+# Vertion# 0.0.5
 
 
 import csv
@@ -253,6 +253,14 @@ def updateCSV():
         appendData(dataList=dict)
 
 
+def checkResults(test, desiredResults, results):
+    if (results == desiredResults):
+        print("TEST " + test + ":\tPASS")
+    else:
+        print("TEST " + test + ":\tFAIL")
+        print("\tExpected Output: " + str(desiredResults))
+        print("\tOutput Received: " + str(results))
+
 def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
@@ -261,32 +269,112 @@ def runTests():
     # TEST saveHeader()
     desiredResult = "['Test0', 'Test1', 'Test2', 'Test3']"
     try:
-        saveHeader(Data, dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
+        saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
         result = str(readData()[0])  # gather results
     except TypeError as e:
         error(str(e))
         pass
-    if (result == desiredResult):  # check if results are correct
-        print("TEST saveHeader(): PASS")
-    else:
-        print("TEST saveHeader(): FAIL")
+    checkResults('saveHeader()', desiredResult, result)
 
     # TEST saveData()
+    desiredResult = None
     try:
-        saveData({"key": ["Test0", 'Test1', "Test2", "Test3"]})
-        result = str(readData())
+        saveData({"key": ['Test0', 'Test1', 'Test2', 'Test3']})  # Test
+        result = str(readData())  # gather results
     except ValueError as e:
         error(str(e))
         pass
+    checkResults("saveData()", desiredResult, result)
+
     # TEST addEntry()
+    desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
+    try:
+        Data.addEntry(Data, 1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
+        result = str(readData()[1])  # gather results
+    except TypeError and IndexError as e:
+        error(str(e))
+        pass
+    checkResults("addEntry()", desiredResult, result)
+
     # TEST appendData()
+    desiredResult = "['Test8', 'Test9', 'Test10', 'Test11']"
+    try:
+        appendData({"key": ['Test4', 'Test5', 'Test6', 'Test7']})
+        result = str(readData()[2])  # probably not the right way to find the results
+    except TypeError and ValueError as e:
+        error(str(e))
+        pass
+    checkResults("appendData", desiredResult, result)
+
     # TEST deleteEntry_Partial()
-    # TEST deleteENtry_Row()
+    desiredResult = None
+    try:
+        Data.deleteEntry_Partial(Data, 0, 0)
+        result = str(readData()[0])
+    except ValueError as e:
+        error(str(e))
+        pass
+    checkResults("deleteEntry_Partial()", desiredResult, result)
+
+    # TEST deleteEntry_Row()
+    desiredResult = None
+    try:
+        Data.deleteEntry_Row(Data, 0)
+        result = str(readData()[0])
+    except IndexError as e:
+        error(str(e))
+        pass
+    checkResults("deleteEntry_Row()", desiredResult, result)
+
     # TEST clear()
+    desiredResult = 0
+    try:
+        clear()
+        result = readData().__len__()
+    except ValueError as e:
+        error(str(e))
+        pass
+    checkResults("clear()", desiredResult, result)
+
     # TEST toCurrent()
+    # desiredResult = None
+    # try:
+    #     #test
+    #     #results = bla
+    # except Error as e:
+    #     error(str(e))
+    #     pass
+
+
     # TEST getStats()
+    # desiredResult = None
+    # try:
+    #     #test
+    #     #results = bla
+    # except Error as e:
+    #     error(str(e))
+    #     pass
+
+
     # TEST updateCSV()
+    # desiredResult = None
+    # try:
+    #     #test
+    #     #results = bla
+    # except Error as e:
+    #     error(str(e))
+    #     pass
+
+
     # TEST search()
+    # desiredResult = None
+    # try:
+    #     #test
+    #     #results = bla
+    # except Error as e:
+    #     error(str(e))
+    #     pass
+
 
 
 # TODO

@@ -1,6 +1,6 @@
 # YT_Bot.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.4
+# Vertion# 0.0.5
 
 from __future__ import unicode_literals
 
@@ -53,7 +53,6 @@ def youtube_search(options):
     ).execute()
 
     videos = []
-
     channels = []
     playlists = []
 
@@ -62,8 +61,7 @@ def youtube_search(options):
     for search_result in search_response.get("items", []):
         title = search_result["snippet"]["title"]
         title.lower()
-        if isLive(title.split(" " or "　" or "/" or "[" or "]")):  # filters out live streams
-            print("Sorry, that title is too long or a YouTube live stream... Please try again.")
+        if isLive(title.split(" " or "　" or "/" or "[" or "]" or "\u3000")):  # filters out live streams
             pass
         elif search_result["id"]["kind"] == "youtube#video":
             videos.append("%s (%s)" % (search_result["snippet"]["title"],

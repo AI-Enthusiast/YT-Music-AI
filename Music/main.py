@@ -1,7 +1,9 @@
+# main.py started on 6/30/2018
+# Authors: Marilyn Groppe, Cormac Dacker
+# Vertion# 0.0.5
 from __future__ import unicode_literals
 
 import MusicHashTable
-
 import youtube_dl
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
