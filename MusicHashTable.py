@@ -1,15 +1,15 @@
 import csv
 import glob
 import os
-import urllib.request
+import urllib3
 from Music import YT_Bot
 from bs4 import BeautifulSoup
 
 FileName = "MusicData.csv"
 Path = YT_Bot.BASEPATH
-NewMusicPath = Path + '/New/'
-CurrentMusicPath = Path + '/Current/'
-OldMusicPath = Path + '/Old/'
+NewMusicPath = Path + '/Music/New/'
+CurrentMusicPath = Path + '/Music/Current/'
+OldMusicPath = Path + '/Music/Old/'
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
@@ -67,7 +67,7 @@ class Data:
                     writer.writerow(data[row])
     #TODO
     def addEntry(self, rowNum, entry):
-        data = readData(self)
+        data = readData()
         data.insert(rowNum, entry)
 
 
@@ -124,7 +124,7 @@ def force_to_unicode(text):
 
 # gets views, likes and dislikes
 def getStats(url):
-    soup = BeautifulSoup(urllib.request.urlopen(url).read().decode('utf-8', 'ignore'), 'html.parser')
+    soup = BeautifulSoup(urllib3.request.urlopen(url).read().decode('utf-8', 'ignore'), 'html.parser')
     ratings = soup.find_all('button')
     likes = ratings[24]
     dislikes = ratings[26]
