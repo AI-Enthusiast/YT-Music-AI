@@ -225,6 +225,7 @@ def updateCSV():
         print("New Entry: " + artist + title + ' ' + url)
         appendData(dataList=dict)
 
+
 #TODO
 #slim down and/or user control
 if __name__ == "__main__":

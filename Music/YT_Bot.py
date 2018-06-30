@@ -105,7 +105,7 @@ def doneConvertion():
     print(arr)
     for i in arr:
         file = i[50:]
-        print('Moving '+ file +'...')
+        print('Moving ' + file + '...')
         toNew(file)
         print(file)
 
@@ -131,7 +131,7 @@ def convertChannel(url):
     doneConvertion()
 
 
-# prints downloading. Purely OCD astetic
+# prints downloading. Purely OCD aesthetic
 def downloading():
     print("DOWNLOADING...")
 
