@@ -138,13 +138,10 @@ if __name__ == "__main__":
     #needed to set up the search opts
     temp = input('Insert the path to the directory on your computer that '
                  'leads to the directory that contains your \'New\' and \'Current\' folders.\n')
-    print(temp)
-    print(len(temp))
     argparser.add_argument("--q", help="Search term", default=temp[1])
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
-        com = input('>>').split()
         if(BASEPATH == ''):
             if(len(temp) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
@@ -157,38 +154,40 @@ if __name__ == "__main__":
             else:
                 print('Saving your path...\n')
                 BASEPATH = temp
-        elif len(com) == 0:  # if there is not input end program
-            print("\n YT_Bot.py has been Terminated...")
-            doneConvertion()
-            break
-        elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
-            print("ERROR: Insufficient arguments. For help type 'help'")
-        elif com[0] == "v":  # if video v
-            # try:
-            convertVid(com[1])
-            # except Error as e:
-            # print("ERROR: " + e)
-        elif com[0] == "p":  # if playlist p
-            #try:
-                convertPlaylist(com[1])
-            # except Error as e:
-            # print("ERROR: " + e)
-        elif com[0] == "c":  # if channel c
-            # try:
-            convertChannel(com[1])
-            # except Error as e:
-            # print("ERROR: " + e)
-        elif com[0] == "s":  # if search s
-            argparser.set_defaults(q=com[1])
-            args = argparser.parse_args()
-            try:
-                youtube_search(args)
-            except HttpError as e:
-                print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
-
-        # elif com[0] == "auto":
-        # enter automatic stage
         else:
-            print("Please type 's'(for search), '>'(for next page), 'v'(for video), 'p'(for playlist), "
+            com = input('>>').split()
+            if len(com) == 0:  # if there is not input end program
+                print("\n YT_Bot.py has been Terminated...")
+                doneConvertion()
+                break
+            elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
+                print("ERROR: Insufficient arguments. For help type 'help'")
+            elif com[0] == "v":  # if video v
+                # try:
+                convertVid(com[1])
+                #    except Error as e:
+                #    print("ERROR: " + e)
+            elif com[0] == "p":  # if playlist p
+                #try:
+                convertPlaylist(com[1])
+                # except Error as e:
+                # print("ERROR: " + e)
+            elif com[0] == "c":  # if channel c
+                # try:
+                convertChannel(com[1])
+                # except Error as e:
+                # print("ERROR: " + e)
+            elif com[0] == "s":  # if search s
+                argparser.set_defaults(q=com[1])
+                args = argparser.parse_args()
+                try:
+                    youtube_search(args)
+                except HttpError as e:
+                    print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+
+            # elif com[0] == "auto":
+            # enter automatic stage
+            else:
+                print("Please type 's'(for search), '>'(for next page), 'v'(for video), 'p'(for playlist), "
                   "or 'c'(for channel) followed by the end url or the search term. "
                   "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
