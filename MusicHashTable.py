@@ -41,13 +41,30 @@ class Data:
             self.used
         )
         return out
+
+    # partially deletes data entry by it's row and col number shifts others up one
+    # TODO
+    def deleteEntry_Partial(self, rowNum, colNum):
+        data = readData()
+        with open(FileName, 'wb'):
+            writer = csv.writer(FileName)
+            row = 0
+            while row < data.__len__():
+                if row != rowNum:
+                    writer.writerow(data[row])
+                else:
+                    writer.writerow("")
+
     # deletes data entry by it's row number shifts others up one
     #TODO
-    def deleteEntry(self, rowNum):
+    def deleteEntry_Row(self, rowNum):
         data = readData()
-        a = data[:rowNum]
-        b = data[rowNum + 1:]
-        saveData(a + b)
+        with open(FileName, 'wb'):
+            writer = csv.writer(FileName)
+            row = 0
+            while row < data.__len__():
+                if row != rowNum:
+                    writer.writerow(data[row])
     #TODO
     def addEntry(self, rowNum, entry):
         data = readData(self)

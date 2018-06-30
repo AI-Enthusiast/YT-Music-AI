@@ -100,6 +100,7 @@ def doneConvertion():
     for i in arr:
         file = i[40:]
         toNew(file)
+        print(file)
 
 
 def convertVid(url):
@@ -113,7 +114,6 @@ def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlistURL])
-
     doneConvertion()
 
 #Converts channels using youtube-dl library
@@ -151,6 +151,7 @@ if __name__ == "__main__":
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
                 if(len(l) < 1):
+                    doneConvertion()
                     quit()
                 else:
                     print('Saving your path...\n')
