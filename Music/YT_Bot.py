@@ -143,7 +143,11 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     while True:
         if(BASEPATH == ''):
-            if(len(temp) < 1):
+            if(temp[0] == 'm'):
+                BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/Music'
+            elif(temp[0] == 'c'):
+                BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/Music'
+            elif(len(temp) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
                 if(len(l) < 1):

@@ -2,14 +2,14 @@ import csv
 import glob
 import os
 import urllib.request
-
+from Music import YT_Bot
 from bs4 import BeautifulSoup
 
 FileName = "MusicData.csv"
-Path = 'C:/Users/corma/Summer2018/Project/Music/'
-NewMusicPath = 'C:/Users/corma/Summer2018/Project/Music/New/'
-CurrentMusicPath = 'C:/Users/corma/Summer2018/Project/Music/Current/'
-OldMusicPath = 'C:/Users/corma/Summer2018/Project/Music/Old/'
+Path = YT_Bot.BASEPATH
+NewMusicPath = Path + '/New/'
+CurrentMusicPath = Path + '/Current/'
+OldMusicPath = Path + '/Old/'
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
@@ -47,10 +47,10 @@ class Data:
         data = readData()
         a = data[:rowNum]
         b = data[rowNum + 1:]
-        self.saveData(a + b)
+        saveData(a + b)
     #TODO
     def addEntry(self, rowNum, entry):
-        data = Data.readData(self)
+        data = readData(self)
         data.insert(rowNum, entry)
 
 
