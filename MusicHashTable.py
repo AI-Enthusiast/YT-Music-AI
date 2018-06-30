@@ -24,7 +24,7 @@ Fnames = []
 class Data:
     #Constructer
     def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
-                 used=False):  # used, artist, tempo, ect
+                 used=False):  # used, artist, tempo, etc
         self.Title = Title
         self.Url = Url
         self.Artist = Artist
