@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 
 import MusicHashTable
-import glob
-import os
 
 import youtube_dl
 from googleapiclient.discovery import build
@@ -16,9 +14,20 @@ from Music import YT_Bot
 from bs4 import BeautifulSoup
 
 
+class User:
+    def __init__(self, BASEPATH, code):
+        self.BASEPATH = BASEPATH
+        self.code = code
 
+        self.MusicPath = self.BASEPATH + '/Music/'
+        self.NewPath = self.MusicPath + '/New/'
+        self.OldPath = self.MusicPath + '/Old/'
+        self.CurrentPath = self.MusicPath + '/Current/'
+
+
+codes = {'mg':'C:/Users/mjgro/Documents/GitHub/YT-Music-AI', 'cd':'C:/Users/corma/Documents/GitHub/YT-Music-AI'}
+user = User('', '')
 if __name__ == "__main__":
-        #needed to set up the search opts
     print('Insert the path to the directory on your computer that '
           'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
     path = input('>>')
@@ -26,11 +35,11 @@ if __name__ == "__main__":
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
-        if(YT_Bot.BASEPATH == ''):
-            if (path == 'mg'):
-                YT_Bot.BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI'
-            elif (path == 'cd'):
-                YT_Bot.BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI'
+        if(user.BASEPATH == ''):
+            if codes.__contains__(path):
+                user = User(codes.get(path), path)
+                YT_Bot.user = user
+                MusicHashTable.user = user
             elif (len(path) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
@@ -39,10 +48,14 @@ if __name__ == "__main__":
                     quit()
                 else:
                     print('Saving your path...\n')
-                    YT_Bot.BASEPATH = l
+                    user = User(l, 'nu')
+                    YT_Bot.user = user
+                    MusicHashTable.user = user
             else:
                 print('Saving your path...\n')
-                YT_Bot.BASEPATH = path
+                user = User(path, 'nu')
+                YT_Bot.user = user
+                MusicHashTable.user = user
         else:
             com = input('>>').split()
             if len(com) == 0:  # if there is not input end program

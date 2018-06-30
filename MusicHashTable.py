@@ -9,12 +9,14 @@ import os
 import urllib.request
 from Music import YT_Bot
 from bs4 import BeautifulSoup
+from Music import main
 
 FileName = "MusicData.csv"
-Path = YT_Bot.BASEPATH
-NewMusicPath = Path + '/Music/New/'
-CurrentMusicPath = Path + '/Music/Current/'
-OldMusicPath = Path + '/Music/Old/'
+user = main.User('', '')
+Path = user.BASEPATH
+NewMusicPath = user.NewPath
+CurrentMusicPath = user.CurrentPath
+OldMusicPath = user.OldPath
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"

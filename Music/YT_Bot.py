@@ -11,10 +11,12 @@ import youtube_dl
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
+from Music import main
 
 #different words to identify mixes and livestreams
 liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
-BASEPATH = ''
+user = main.User('', '')
+BASEPATH = user.BASEPATH
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
 # tab of
 #   https://cloud.google.com/console
@@ -61,6 +63,7 @@ def youtube_search(options):
         title = search_result["snippet"]["title"]
         title.lower()
         if isLive(title.split(" " or "　" or "/" or "[" or "]")):  # filters out live streams
+            print("Sorry, that title is too long or a YouTube live stream... Please try again.")
             pass
         elif search_result["id"]["kind"] == "youtube#video":
             videos.append("%s (%s)" % (search_result["snippet"]["title"],
@@ -94,15 +97,12 @@ def my_hook(d):
 
 #A function to move files from general folder to New folder
 def toNew(filename):
-    NewMusicPath = BASEPATH + '/Music/New/'
-    os.rename(BASEPATH + '/Music/' + filename, NewMusicPath + filename)
+    os.rename(user.MusicPath + filename, user.NewPath + filename)
     print("Moved File: " + filename)
 
 #Moves all files done converting to New
 def doneConvertion():
-    print(BASEPATH)
-    arr = glob.glob(BASEPATH + '/Music/' + '*.mp3')
-    print(arr)
+    arr = glob.glob(user.MusicPath + '*.mp3')
     for i in arr:
         file = i[50:]
         print('Moving ' + file + '...')
