@@ -90,7 +90,7 @@ class MyLogger(object):
 #A function to show progress in downloads
 def my_hook(d):
     if d['status'] == 'finished':
-        print('Downloading ...')
+        print('>CONVERTING...')
 
 #A function to move files from general folder to New folder
 def toNew(filename):
@@ -133,7 +133,7 @@ def convertChannel(url):
 
 # prints downloading. Purely OCD astetic
 def downloading():
-    print("DOWNLOADING...")
+    print(">DOWNLOADING...")
 
 
 # prints error message
