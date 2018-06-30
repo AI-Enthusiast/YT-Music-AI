@@ -1,7 +1,7 @@
 import csv
 import glob
 import os
-import urllib3
+import urllib.request
 from Music import YT_Bot
 from bs4 import BeautifulSoup
 
@@ -19,7 +19,7 @@ Fnames = []
 class Data:
     #Constructer
     def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
-                 used=False):  # used, artist, tempo, ect
+                 used=False):  # used, artist, tempo, etc
         self.Title = Title
         self.Url = Url
         self.Artist = Artist
@@ -124,7 +124,7 @@ def force_to_unicode(text):
 
 # gets views, likes and dislikes
 def getStats(url):
-    soup = BeautifulSoup(urllib3.request.urlopen(url).read().decode('utf-8', 'ignore'), 'html.parser')
+    soup = BeautifulSoup(urllib.request.urlopen(url).read().decode('utf-8', 'ignore'), 'html.parser')
     ratings = soup.find_all('button')
     likes = ratings[24]
     dislikes = ratings[26]
