@@ -96,11 +96,9 @@ def toNew(filename):
 
 #Moves all files done converting to New
 def doneConvertion():
-    print(BASEPATH)
     arr = glob.glob(BASEPATH + '/Music/' + '*.mp3')
-    print(arr)
     for i in arr:
-        file = i[50:]
+        file = i[BASEPATH.__len__() + 7:]
         print('Moving '+ file +'...')
         toNew(file)
         print(file)
