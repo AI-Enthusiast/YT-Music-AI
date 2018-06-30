@@ -137,15 +137,15 @@ ydl_opts = {
 if __name__ == "__main__":
     #needed to set up the search opts
     temp = input('Insert the path to the directory on your computer that '
-                 'leads to the directory that contains your \'New\' and \'Current\' folders.\n')
+                 'leads to the directory that contains your \'New\' and \'Current\' folders, or your initials\n')
     argparser.add_argument("--q", help="Search term", default=temp[1])
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
         if(BASEPATH == ''):
-            if(temp[0] == 'm'):
+            if(temp[0] == 'mg'):
                 BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/Music'
-            elif(temp[0] == 'c'):
+            elif(temp[0] == 'cd'):
                 BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/Music'
             elif(len(temp) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
