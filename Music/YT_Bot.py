@@ -10,8 +10,7 @@ from oauth2client.tools import argparser
 
 #different words to identify mixes and livestreams
 liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
-CurrentPath = 'C:/Users/corma/Summer2018/Project/Music/'
-
+BASEPATH = ''
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
 # tab of
 #   https://cloud.google.com/console
@@ -91,13 +90,13 @@ def my_hook(d):
 
 #A function to move files from general folder to New folder
 def toNew(filename):
-    NewMusicPath = CurrentPath + '/New/'
-    os.rename(CurrentPath + filename, NewMusicPath + filename)
+    NewMusicPath = BASEPATH + '/New/'
+    os.rename(BASEPATH + filename, NewMusicPath + filename)
     print("Moving File: " + filename)
 
 #Moves all files done converting to New
 def doneConvertion():
-    arr = glob.glob(CurrentPath + '*.mp3')
+    arr = glob.glob(BASEPATH + '*.mp3')
     for i in arr:
         file = i[40:]
         toNew(file)
@@ -137,13 +136,28 @@ ydl_opts = {
 
 if __name__ == "__main__":
     #needed to set up the search opts
-    temp = [None, None]
+    temp = input('Insert the path to the directory on your computer that '
+                 'leads to the directory that contains your \'New\' and \'Current\' folders.\n')
+    print(temp)
+    print(len(temp))
     argparser.add_argument("--q", help="Search term", default=temp[1])
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
         com = input('>>').split()
-        if len(com) == 0:  # if there is not input end program
+        if(BASEPATH == ''):
+            if(len(temp) < 1):
+                l = input('That didn\'t work... Insert the path to the directory on your computer that '
+                          'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
+                if(len(l) < 1):
+                    quit()
+                else:
+                    print('Saving your path...\n')
+                    BASEPATH = l
+            else:
+                print('Saving your path...\n')
+                BASEPATH = temp
+        elif len(com) == 0:  # if there is not input end program
             print("\n YT_Bot.py has been Terminated...")
             doneConvertion()
             break

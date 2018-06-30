@@ -41,50 +41,10 @@ class Data:
             self.used
         )
         return out
-
-    # Reads through data and outputs it as array eg out[row]
-    def readData(self):
-        with open(FileName, "r", newline='\n') as csvfile:
-            DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC)
-            out = []
-            for Item in DataReader:
-                out.append(Item[0])
-            csvfile.close()
-            return out
-
-    # Saves Header dataList into csv file
-    def saveHeader(self, dataList=[[]]):
-        with open(FileName, 'w', newline='\n') as csvfile:
-            DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC)
-            DataWriter.writerow(dataList)
-            csvfile.close()
-
-    # Saves dataList into csv file
-    def saveData(self, dataList={}):
-        with open(FileName, 'w', newline='\n') as csvfile:
-            fnames = ["Title", "Url", "Artist", "Hash",
-                      "views", "dislikes", "likes"]
-            DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
-                                        quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
-            DataWriter.writerow(dataList)
-            csvfile.close()
-
-    # appends dataList into csv file
-    def appendData(self, dataList={}):
-        with open(FileName, 'a', newline='\n') as csvfile:
-            fnames = ["Title", "Url", "Artist", "Hash",
-                      "views", "dislikes", "likes"]
-            DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
-                                        quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
-            DataWriter.writerow(dataList)
-            csvfile.close()
-
     # deletes data entry by it's row number shifts others up one
     #TODO
     def deleteEntry(self, rowNum):
-        data = Data.readData(self)
+        data = readData()
         a = data[:rowNum]
         b = data[rowNum + 1:]
         self.saveData(a + b)
@@ -93,22 +53,55 @@ class Data:
         data = Data.readData(self)
         data.insert(rowNum, entry)
 
-    def clear(self):
-        with open(FileName, 'w', newline='\n') as csvfile:
+
+
+# Reads through data and outputs it as array eg out[row]
+def readData():
+    with open(FileName, "r", newline='\n') as csvfile:
+        DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
+                                    quoting=csv.QUOTE_NONNUMERIC)
+        out = []
+        for Item in DataReader:
+            out.append(Item[0])
             csvfile.close()
+        return out
 
-    def toCurrent(self, musicFile):
-        os.rename(NewMusicPath + musicFile, CurrentMusicPath + musicFile)
+# Saves Header dataList into csv file
+def saveHeader(dataList=[[]]):
+    with open(FileName, 'w', newline='\n') as csvfile:
+        DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
+                                    quoting=csv.QUOTE_NONNUMERIC)
+        DataWriter.writerow(dataList)
+        csvfile.close()
 
-    def toOld(self, musicFile):
-        os.rename(CurrentMusicPath + musicFile, OldMusicPath + musicFile)
+# Saves dataList into csv file
+def saveData(dataList={}):
+    with open(FileName, 'w', newline='\n') as csvfile:
+        DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
+                                        quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
+        DataWriter.writerow(dataList)
+        csvfile.close()
 
+# appends dataList into csv file
+def appendData(dataList={}):
+    with open(FileName, 'a', newline='\n') as csvfile:
+        DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
+                                        quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
+        DataWriter.writerow(dataList)
+        csvfile.close()
 
-#  def cleanCSV(self):
+def clear():
+    with open(FileName, 'w', newline='\n') as csvfile:
+        csvfile.close()
+
+def toCurrent(musicFile):
+    os.rename(NewMusicPath + musicFile, CurrentMusicPath + musicFile)
+
+def toOld(musicFile):
+    os.rename(CurrentMusicPath + musicFile, OldMusicPath + musicFile)
+#def cleanCSV(self):
 
 def force_to_unicode(text):
-    test = str(text)
-    "If text is unicode, it is returned as is. If it's str, convert it to Unicode using UTF-8 encoding"
     return text if isinstance(text, bytes) else text.encode('utf8')
 
 
@@ -172,11 +165,11 @@ if __name__ == "__main__":
         print("ERROR: 'MusicData.csv' could not be found")
         quit()
 
-    numOfEntrys = Data.readData(Data).__len__() - 1  # -1 because headers at the top of the csv
+    numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
     numOfEntrys += arr.__len__()
     # Data.saveHeader(Data, dataList=[["ARTIST", 'Title', "URL", "HASH", "LIKES","DISLIKES", "VIEWS", "USED?"]])
-    Data.clear(Data)
+    clear()
     for i in arr:
         file = i[44:]
         url = file[file.__len__() - 15:file.__len__() - 4]
@@ -205,6 +198,6 @@ if __name__ == "__main__":
         dict = {artist: [artist, title, url, hs, likes, dislikes, views, used]}
         # NewData = ([force_to_unicode(dict)])
         print("New Entry: " + artist + title + ' ' + url)
-        Data.appendData(Data, dataList=dict)
-    printRows(Data.readData(Data))
+        appendData(dataList=dict)
+    printRows(readData())
     search(Fnames[3])
