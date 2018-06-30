@@ -7,13 +7,22 @@ import csv
 import glob
 import os
 import urllib.request
-from Music import YT_Bot
 from bs4 import BeautifulSoup
-from Music import main
 
-FileName = "MusicData.csv"
-user = main.User('', '')
+class User:
+    def __init__(self, BASEPATH, code):
+        self.BASEPATH = BASEPATH
+        self.code = code
+
+        self.MusicPath = self.BASEPATH + '/Music/'
+        self.NewPath = self.MusicPath + '/New/'
+        self.OldPath = self.MusicPath + '/Old/'
+        self.CurrentPath = self.MusicPath + '/Current/'
+
+
+user = User('', '')
 Path = user.BASEPATH
+FileName = user.BASEPATH + "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
 OldMusicPath = user.OldPath
@@ -51,39 +60,39 @@ class Data:
         )
         return out
 
-    # partially deletes data entry by it's row and col number shifts others up one
-    # TO TEST
-    def deleteEntry_Partial(self, rowNum, colNum):
-        data = readData()
-        with open(FileName, 'wb'):
-            writer = csv.writer(FileName)
-            row = 0
-            while row < data.__len__():
-                if row != rowNum:
-                    writer.writerow(data[row])
-                else:
-                    writer.writerow("")
+# partially deletes data entry by it's row and col number shifts others up one
+# TO TEST
+def deleteEntry_Partial(rowNum, colNum):
+    data = readData()
+    with open(FileName, 'wb'):
+        writer = csv.writer(FileName)
+        row = 0
+        while row < data.__len__():
+            if row != rowNum:
+                writer.writerow(data[row])
+            else:
+                writer.writerow("")
 
-    # deletes data entry by it's row number shifts others up one
-    # TO TEST
-    def deleteEntry_Row(self, rowNum):
-        data = readData()
-        with open(FileName, 'wb'):
-            writer = csv.writer(FileName)
-            row = 0
-            while row < data.__len__():
-                if row != rowNum:
-                    writer.writerow(data[row])
+# deletes data entry by it's row number shifts others up one
+# TO TEST
+def deleteEntry_Row(rowNum):
+    data = readData()
+    with open(FileName, 'wb'):
+        writer = csv.writer(FileName)
+        row = 0
+        while row < data.__len__():
+            if row != rowNum:
+                writer.writerow(data[row])
 
-    # adds data entry by desired row num
-    # TO TEST
-    # TODO
-    def addEntry(self, rowNum, entry):
-        # reads data
-        # must probe data row to check there are no conflicts
-        # copy data before and after row num with entry occupying the new row
-        data = readData()
-        data.insert(rowNum, entry)
+# adds data entry by desired row num
+# TO TEST
+# TODO
+def addEntry(rowNum, entry):
+    # reads data
+    # must probe data row to check there are no conflicts
+    # copy data before and after row num with entry occupying the new row
+    data = readData()
+    data.insert(rowNum, entry)
 
 
 # Reads through data and outputs it as array eg out[row]
@@ -101,26 +110,30 @@ def readData():
 
 # Saves Header dataList into csv file
 # TO TEST
-def saveHeader(dataList=[]):
+#DataList is a LIST object
+def saveHeader(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
-        DataWriter.writeheader(dataList)
+        DataWriter.writerow(dataList)
         csvfile.close()
 
 
 # Saves dataList into csv file
 # TO TEST
-def saveData(dataList={}):
+#DataList is a dictionary
+def saveData(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
         DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
-        DataWriter.writerow(dataList)
+        for key in dataList.keys():
+            val = dataList.get(key)
+            DataWriter.writerow(val)
         csvfile.close()
 
 
 # appends dataList into csv file
-def appendData(dataList={}):
+def appendData(dataList):
     with open(FileName, 'a', newline='\n') as csvfile:
         DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
@@ -182,7 +195,7 @@ def getStats(url):
     return [likes, dislikes, views]
 
 
-def printRows(arr=[]):
+def printRows(arr):
     count = 0
     while count < arr.__len__():
         print("[" + str(count) + "]" + str(arr[count]))
@@ -196,7 +209,7 @@ def removeCommas(string):
 
 # TO TEST
 # TODO
-def search(term=''):
+def search():
     with open(FileName, "r", newline='\n') as csvfile:
         DataReader = csv.DictReader(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
@@ -256,32 +269,47 @@ def updateCSV():
 def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
-    desiredResult = None  # stores desired result of each test
-
-    # TEST saveHeader()
-    desiredResult = "['Test0', 'Test1', 'Test2', 'Test3']"
+    desiredResult = ''  # stores desired result of each test
     try:
-        saveHeader(Data, dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
+        readData()
+        result = readData()
+    except TypeError as e:
+        error(str(e))
+        pass
+    if result == []:
+        print("TEST readData(): PASS")
+    else:
+        print("TEST readData: FAIL")
+    # TEST saveHeader()
+    desiredResult = ['Test0', 'Test1', 'Test2', 'Test3']
+    try:
+        saveHeader(desiredResult)  # Test
         result = str(readData()[0])  # gather results
     except TypeError as e:
         error(str(e))
         pass
-    if (result == desiredResult):  # check if results are correct
+    if result is desiredResult:  # check if results are correct
         print("TEST saveHeader(): PASS")
     else:
         print("TEST saveHeader(): FAIL")
 
     # TEST saveData()
     try:
-        saveData({"key": ["Test0", 'Test1', "Test2", "Test3"]})
+        saveData({"key": desiredResult})
         result = str(readData())
     except ValueError as e:
         error(str(e))
         pass
+    if result is desiredResult:
+        print("TEST saveData(): PASS")
+    else:
+        print("TEST saveData(): FAIL")
+
+
     # TEST addEntry()
     # TEST appendData()
     # TEST deleteEntry_Partial()
-    # TEST deleteENtry_Row()
+    # TEST deleteEntry_Row()
     # TEST clear()
     # TEST toCurrent()
     # TEST getStats()
