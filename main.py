@@ -1,6 +1,6 @@
 # main.py started on 6/30/2018
 # Authors: Marilyn Groppe, Cormac Dacker
-# Vertion# 0.0.6
+# Vertion# 0.0.5
 from __future__ import unicode_literals
 
 from Music import MusicHashTable
@@ -78,11 +78,13 @@ if __name__ == "__main__":
                     YT_Bot.youtube_search(args)
                 except HttpError as e:
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
-
+            elif com[0] == "updateCSV":
+                MusicHashTable.updateCSV()
+            elif com[0] == "runTests":
+                MusicHashTable.runTests()
             # elif com[0] == "auto":
             # enter automatic stage
             else:
-                print("Please type 's'(for search), '>'(for next page), 'v'(for video), 'p'(for playlist), "
+                print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
                       "or 'c'(for channel) followed by the end url or the search term. "
                       "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
-    MusicHashTable.runTests()

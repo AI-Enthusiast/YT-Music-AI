@@ -64,8 +64,8 @@ class Data:
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
     data = readData()
-    with open(FileName, 'wb'):
-        writer = csv.writer(FileName)
+    with open(FileName, 'wb') as csvFile:
+        writer = csv.writer(csvFile)
         row = 0
         while row < data.__len__():
             if row != rowNum:
@@ -78,8 +78,8 @@ def deleteEntry_Partial(rowNum, colNum):
 # TO TEST
 def deleteEntry_Row(rowNum):
     data = readData()
-    with open(FileName, 'wb'):
-        writer = csv.writer(FileName)
+    with open(FileName, 'wb') as csvFile:
+        writer = csv.writer(csvFile)
         row = 0
         while row < data.__len__():
             if row != rowNum:
@@ -280,12 +280,13 @@ def checkResults(test, desiredResults, results):
 def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
+
     clear()
     # TEST readData()
     desiredResult = []  # stores desired result of each test
     try:
         result = readData()
-    except TypeError and ValueError as e:
+    except TypeError and ValueError and FileNotFoundError as e:
         error(str(e))
         pass
     checkResults("readData()", desiredResult, result)
@@ -295,7 +296,7 @@ def runTests():
     try:
         saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
         result = str(readData())  # gather results
-    except TypeError as e:
+    except TypeError and ValueError as e:
         result = str(readData()[0])  # gather results
     except TypeError and ValueError as e:
         error(str(e))
@@ -319,7 +320,7 @@ def runTests():
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
     try:
         addEntry(1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
-        result = str(readData()[1])  # gather results
+        result = str(readData())  # gather results
     except TypeError and IndexError and AttributeError as e:
         error(str(e))
         pass
@@ -333,14 +334,14 @@ def runTests():
     except TypeError and ValueError as e:
         error(str(e))
         pass
-    checkResults("appendData", desiredResult, result)
+    checkResults("appendData()", desiredResult, result)
 
     # TEST deleteEntry_Partial()
     desiredResult = None
     try:
         deleteEntry_Partial( 0, 0)
         result = str(readData())
-    except ValueError and AttributeError as e:
+    except ValueError and TypeError and AttributeError as e:
         error(str(e))
         pass
     checkResults("deleteEntry_Partial()", desiredResult, result)

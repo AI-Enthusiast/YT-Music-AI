@@ -191,14 +191,14 @@ if __name__ == "__main__":
                 #    print("ERROR: " + e)
             elif com[0] == "p":  # if playlist p
                 #try:
-                convertPlaylist(com[1])
                 downloading()
+                convertPlaylist(com[1])
                 # except Error as e:
                 # print("ERROR: " + e)
             elif com[0] == "c":  # if channel c
                 # try:
-                convertChannel(com[1])
                 downloading()
+                convertChannel(com[1])
                 # except Error as e:
                 # print("ERROR: " + e)
             elif com[0] == "s":  # if search s
