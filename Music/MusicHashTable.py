@@ -1,14 +1,12 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.5
-
+# Vertion# 0.0.6
 
 import csv
 import glob
 import os
 import urllib.request
 from bs4 import BeautifulSoup
-
 
 class User:
     def __init__(self, BASEPATH, code):
@@ -23,7 +21,7 @@ class User:
 
 user = User('', '')
 Path = user.BASEPATH
-FileName = user.BASEPATH + "MusicData.csv"
+FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
 OldMusicPath = user.OldPath
@@ -105,10 +103,9 @@ def readData():
         DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         out = []
-        print(DataReader)
         for Item in DataReader:
             out.append(Item[0])
-            csvfile.close()
+        csvfile.close()
         return out
 
 
@@ -283,10 +280,10 @@ def checkResults(test, desiredResults, results):
 def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
+    clear()
     # TEST readData()
     desiredResult = []  # stores desired result of each test
     try:
-        readData()
         result = readData()
     except TypeError and ValueError as e:
         error(str(e))
@@ -297,6 +294,8 @@ def runTests():
     desiredResult = "['Test0', 'Test1', 'Test2', 'Test3']"
     try:
         saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
+        result = str(readData())  # gather results
+    except TypeError as e:
         result = str(readData()[0])  # gather results
     except TypeError and ValueError as e:
         error(str(e))
@@ -306,7 +305,10 @@ def runTests():
     # TEST saveData()
     desiredResult = None
     try:
-        saveData({"key": ['Test0', 'Test1', 'Test2', 'Test3']})  # Test
+        test = dict()
+        testSong = Data("TestSong", "test--notreal", "00", 0, 45, 23, 123456)
+        test["key"] = {testSong}
+        saveData(test)  # Test
         result = str(readData())  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
@@ -316,7 +318,7 @@ def runTests():
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
     try:
-        Data.addEntry(Data, 1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
+        addEntry(1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
         result = str(readData()[1])  # gather results
     except TypeError and IndexError and AttributeError as e:
         error(str(e))
@@ -336,8 +338,8 @@ def runTests():
     # TEST deleteEntry_Partial()
     desiredResult = None
     try:
-        Data.deleteEntry_Partial(Data, 0, 0)
-        result = str(readData()[0])
+        deleteEntry_Partial( 0, 0)
+        result = str(readData())
     except ValueError and AttributeError as e:
         error(str(e))
         pass
@@ -346,8 +348,8 @@ def runTests():
     # TEST deleteEntry_Row()
     desiredResult = None
     try:
-        Data.deleteEntry_Row(Data, 0)
-        result = str(readData()[0])
+        deleteEntry_Row(0)
+        result = str(readData())
     except IndexError and AttributeError as e:
         error(str(e))
         pass

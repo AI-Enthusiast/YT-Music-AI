@@ -1,6 +1,6 @@
 # main.py started on 6/30/2018
 # Authors: Marilyn Groppe, Cormac Dacker
-# Vertion# 0.0.5
+# Vertion# 0.0.6
 from __future__ import unicode_literals
 
 from Music import MusicHashTable
@@ -26,8 +26,8 @@ if __name__ == "__main__":
     argparser.add_argument("--max-results", help="Max results", default=25)
     args = argparser.parse_args()
     while True:
-        if (user.BASEPATH == ''):
-            if codes.__contains__(path):
+        if user.BASEPATH == '':
+            if codes.keys().__contains__(path):
                 user = MusicHashTable.User(codes.get(path), path)
                 YT_Bot.user = user
                 MusicHashTable.user = user
