@@ -129,7 +129,7 @@ def saveHeader(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
-        DataWriter.writerow(dataList)
+        DataWriter.writerow([dataList])
         csvfile.close()
 
 
@@ -143,7 +143,7 @@ def saveData(dataList):
                                     quoting=csv.QUOTE_NONNUMERIC)
         for key in lst:
             val = dataList.get(key)
-            DataWriter.writerow(val.split(","))
+            DataWriter.writerow([val.split(",")])
         csvfile.close()
 
 
@@ -152,7 +152,7 @@ def appendData(dataList):
     with open(FileName, 'a', newline='\n') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
-        DataWriter.writerows([[[i] for i in dataList.get(el).split(",")] for el in dataList.keys()])
+        DataWriter.writerows([[i for i in dataList.get(el)] for el in dataList.keys()])
         csvfile.close()
 
 
@@ -287,7 +287,7 @@ def updateCSV():
 
 
 def checkResults(test, desiredResults, results):
-    if (results == desiredResults):
+    if results.__eq__(desiredResults) :
         print("TEST " + test + ":\tPASS")
     else:
         print("TEST " + test + ":\tFAIL")
@@ -313,7 +313,7 @@ def runTests():
     desiredResult = "['Test0', 'Test1', 'Test2', 'Test3']"
     try:
         saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
-        result = str(readData())  # gather results
+        result = str(readData()[0])  # gather results
     except TypeError and ValueError as e:
         error(str(e))
         pass
@@ -325,7 +325,7 @@ def runTests():
         testSong = Data("TestSong", "test--notreal", "00", 0, 45, 23, 123456)
         test = {"00" : testSong.__str__()}
         saveData(test)  # Test
-        result = str(readData()[4:])  # gather results
+        result = str(readData()[1])  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
@@ -334,7 +334,7 @@ def runTests():
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
     try:
-        addEntry(1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
+        addEntry(2, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
         result = str(readData())  # gather results
     except TypeError and IndexError and AttributeError as e:
         error(str(e))
