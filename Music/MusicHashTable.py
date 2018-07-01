@@ -9,6 +9,7 @@ import os
 import urllib.request
 from bs4 import BeautifulSoup
 
+
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
@@ -60,6 +61,7 @@ class Data:
         )
         return out
 
+
 # partially deletes data entry by it's row and col number shifts others up one
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
@@ -73,6 +75,7 @@ def deleteEntry_Partial(rowNum, colNum):
             else:
                 writer.writerow("")
 
+
 # deletes data entry by it's row number shifts others up one
 # TO TEST
 def deleteEntry_Row(rowNum):
@@ -83,6 +86,7 @@ def deleteEntry_Row(rowNum):
         while row < data.__len__():
             if row != rowNum:
                 writer.writerow(data[row])
+
 
 # adds data entry by desired row num
 # TO TEST
@@ -110,7 +114,7 @@ def readData():
 
 # Saves Header dataList into csv file
 # TO TEST
-#DataList is a LIST object
+# DataList is a LIST object
 def saveHeader(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
@@ -121,7 +125,7 @@ def saveHeader(dataList):
 
 # Saves dataList into csv file
 # TO TEST
-#DataList is a dictionary
+# DataList is a dictionary
 def saveData(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
         DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
@@ -228,6 +232,7 @@ def error(errorMessage):
 # TO TEST
 # control center for MusicHashTable.py
 def updateCSV():
+    ytPath = 'https://www.youtube.com/watch?v='
     # numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
     # numOfEntrys += arr.__len__()
@@ -274,6 +279,7 @@ def checkResults(test, desiredResults, results):
         print("\tExpected Output: " + str(desiredResults))
         print("\tOutput Received: " + str(results))
 
+
 def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
@@ -282,7 +288,7 @@ def runTests():
     try:
         readData()
         result = readData()
-    except TypeError as e:
+    except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("readData()", desiredResult, result)
@@ -292,7 +298,7 @@ def runTests():
     try:
         saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
         result = str(readData()[0])  # gather results
-    except TypeError as e:
+    except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults('saveHeader()', desiredResult, result)
@@ -302,7 +308,7 @@ def runTests():
     try:
         saveData({"key": ['Test0', 'Test1', 'Test2', 'Test3']})  # Test
         result = str(readData())  # gather results
-    except ValueError as e:
+    except ValueError and AttributeError as e:
         error(str(e))
         pass
     checkResults("saveData()", desiredResult, result)
@@ -312,7 +318,7 @@ def runTests():
     try:
         Data.addEntry(Data, 1, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
         result = str(readData()[1])  # gather results
-    except TypeError and IndexError as e:
+    except TypeError and IndexError and AttributeError as e:
         error(str(e))
         pass
     checkResults("addEntry()", desiredResult, result)
@@ -332,7 +338,7 @@ def runTests():
     try:
         Data.deleteEntry_Partial(Data, 0, 0)
         result = str(readData()[0])
-    except ValueError as e:
+    except ValueError and AttributeError as e:
         error(str(e))
         pass
     checkResults("deleteEntry_Partial()", desiredResult, result)
@@ -342,7 +348,7 @@ def runTests():
     try:
         Data.deleteEntry_Row(Data, 0)
         result = str(readData()[0])
-    except IndexError as e:
+    except IndexError and AttributeError as e:
         error(str(e))
         pass
     checkResults("deleteEntry_Row()", desiredResult, result)
@@ -366,7 +372,6 @@ def runTests():
     #     error(str(e))
     #     pass
 
-
     # TEST getStats()
     # desiredResult = None
     # try:
@@ -376,7 +381,6 @@ def runTests():
     #     error(str(e))
     #     pass
 
-
     # TEST updateCSV()
     # desiredResult = None
     # try:
@@ -385,7 +389,6 @@ def runTests():
     # except Error as e:
     #     error(str(e))
     #     pass
-
 
     # TEST search()
     # desiredResult = None
@@ -397,23 +400,22 @@ def runTests():
     #     pass
 
 
-
 # TODO
 # slim down and/or user control
 if __name__ == "__main__":
-    ytPath = 'https://www.youtube.com/watch?v='
     if not os.path.isfile(FileName):
         error("'MusicData.csv' could not be found")
+        clear()
         quit()
     print("Commands are: updateCSV(), runTests()")
     while True:
         com = input('>>').split()
         if len(com) > 1:
             error("Just one command please")
+        elif com[0] == '':
+            quit()
         elif com[0] == "updateCSV()":
             updateCSV()
             printRows(readData())
         elif com[0] == "runTests()":
             runTests()
-        elif com[0] == '':
-            quit()
