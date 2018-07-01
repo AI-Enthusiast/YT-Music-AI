@@ -64,22 +64,35 @@ class Data:
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
     data = readData()
-    with open(FileName, 'wb') as csvFile:
-        writer = csv.writer(csvFile)
+    print(data)
+    with open(FileName, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
+                                quoting=csv.QUOTE_NONNUMERIC)
         row = 0
         while row < data.__len__():
             if row != rowNum:
                 writer.writerow(data[row])
             else:
-                writer.writerow("")
+                song = data[row].split(',')
+                if colNum < song.__len__():
+                    song[colNum] = ""
+                    str = ""
+                    for el in song:
+                        str += el
+                    writer.writerow(str.encode('utf8', 'ignore'))
+                else:
+                    print("That is out of range for this row. Try again.")
+                    pass
+
 
 
 # deletes data entry by it's row number shifts others up one
 # TO TEST
 def deleteEntry_Row(rowNum):
     data = readData()
-    with open(FileName, 'wb') as csvFile:
-        writer = csv.writer(csvFile)
+    with open(FileName, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
+                                quoting=csv.QUOTE_NONNUMERIC)
         row = 0
         while row < data.__len__():
             if row != rowNum:
@@ -124,21 +137,23 @@ def saveHeader(dataList):
 # TO TEST
 # DataList is a dictionary
 def saveData(dataList):
-    with open(FileName, 'w', newline='\n') as csvfile:
-        DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
-        for key in dataList.keys():
+    lst = [*dataList.keys()]
+    with open(FileName, 'a', newline='\n') as csvfile:
+        DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
+                                    quoting=csv.QUOTE_NONNUMERIC)
+        for key in lst:
             val = dataList.get(key)
-            DataWriter.writerow(val)
+            print(val)
+            DataWriter.writerow(val.split(","))
         csvfile.close()
 
 
 # appends dataList into csv file
 def appendData(dataList):
     with open(FileName, 'a', newline='\n') as csvfile:
-        DataWriter = csv.DictWriter(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC, fieldnames=Fnames)
-        DataWriter.writerow(dataList)
+        DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
+                                    quoting=csv.QUOTE_NONNUMERIC)
+        DataWriter.writerows([[dataList.get(el)] for el in dataList.keys()])
         csvfile.close()
 
 
@@ -297,20 +312,17 @@ def runTests():
         saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
         result = str(readData())  # gather results
     except TypeError and ValueError as e:
-        result = str(readData()[0])  # gather results
-    except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults('saveHeader()', desiredResult, result)
 
     # TEST saveData()
-    desiredResult = None
+    desiredResult = "['00', 'TestSong', 'test--notreal', '0', '45', '23', '123456', ' False']"
     try:
-        test = dict()
         testSong = Data("TestSong", "test--notreal", "00", 0, 45, 23, 123456)
-        test["key"] = {testSong}
+        test = {"00" : testSong.__str__()}
         saveData(test)  # Test
-        result = str(readData())  # gather results
+        result = str(readData()[4:])  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
@@ -329,8 +341,9 @@ def runTests():
     # TEST appendData()
     desiredResult = "['Test8', 'Test9', 'Test10', 'Test11']"
     try:
+        Fnames.append("key")
         appendData({"key": ['Test4', 'Test5', 'Test6', 'Test7']})
-        result = str(readData()[2])  # probably not the right way to find the results
+        result = str(readData())  # probably not the right way to find the results
     except TypeError and ValueError as e:
         error(str(e))
         pass
@@ -339,7 +352,7 @@ def runTests():
     # TEST deleteEntry_Partial()
     desiredResult = None
     try:
-        deleteEntry_Partial( 0, 0)
+        deleteEntry_Partial(0, 0)
         result = str(readData())
     except ValueError and TypeError and AttributeError as e:
         error(str(e))
