@@ -65,7 +65,6 @@ class Data:
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
     data = readData()
-    print(data)
     with open(FileName, 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
@@ -144,7 +143,6 @@ def saveData(dataList):
                                     quoting=csv.QUOTE_NONNUMERIC)
         for key in lst:
             val = dataList.get(key)
-            print(val)
             DataWriter.writerow(val.split(","))
         csvfile.close()
 
@@ -154,7 +152,7 @@ def appendData(dataList):
     with open(FileName, 'a', newline='\n') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
-        DataWriter.writerows([[dataList.get(el)] for el in dataList.keys()])
+        DataWriter.writerows([[[i] for i in dataList.get(el).split(",")] for el in dataList.keys()])
         csvfile.close()
 
 

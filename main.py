@@ -88,3 +88,4 @@ if __name__ == "__main__":
                 print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
                       "or 'c'(for channel) followed by the end url or the search term. "
                       "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
+MusicHashTable.runTests()
