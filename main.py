@@ -55,7 +55,7 @@ if __name__ == "__main__":
                 break
             elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
                 print("ERROR: Insufficient arguments. For help type 'help'")
-            elif com[0] == "v":  # if video v
+            elif com[0] == "v":  # if video
                 # try:
                 YT_Bot.doneConvertion()
                 YT_Bot.convertVid(com[1])

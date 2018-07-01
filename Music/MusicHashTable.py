@@ -8,6 +8,7 @@ import os
 import urllib.request
 from bs4 import BeautifulSoup
 
+
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
@@ -230,13 +231,16 @@ def error(errorMessage):
 # control center for MusicHashTable.py
 def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
-    # numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
+    numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
-    # numOfEntrys += arr.__len__()
-    # Data.saveHeader(Data, dataList=[["ARTIST", 'Title', "URL", "HASH", "LIKES"
-    # ,"DISLIKES", "VIEWS", "USED?"]])
-    clear()
+    print(NewMusicPath)
+    printRows(arr)
+    numOfEntrys += arr.__len__()
+    # TODO integrate new data with previouse data
+    # clear() #errases all previose data
+    saveHeader(dataList=[["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"]])
     for i in arr:
+        print(i)
         file = i[44:]
         url = file[file.__len__() - 15:file.__len__() - 4]
         fx = file.split('-')
@@ -266,6 +270,7 @@ def updateCSV():
         # NewData = ([force_to_unicode(dict)])
         print("New Entry: " + artist + title + ' ' + url)
         appendData(dataList=dict)
+    printRows(readData())
 
 
 def checkResults(test, desiredResults, results):
@@ -339,7 +344,7 @@ def runTests():
     # TEST deleteEntry_Partial()
     desiredResult = None
     try:
-        deleteEntry_Partial( 0, 0)
+        deleteEntry_Partial(0, 0)
         result = str(readData())
     except ValueError and TypeError and AttributeError as e:
         error(str(e))
@@ -413,8 +418,9 @@ if __name__ == "__main__":
     print("Commands are: updateCSV(), runTests()")
     while True:
         com = input('>>').split()
-        if len(com) > 1:
+        if len(com) != 1:
             error("Just one command please")
+            pass
         elif com[0] == '':
             quit()
         elif com[0] == "updateCSV()":
