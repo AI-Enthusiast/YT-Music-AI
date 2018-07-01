@@ -100,6 +100,7 @@ def toNew(filename):
 
 #Moves all files done converting to New
 def doneConvertion():
+    print(user.MusicPath)
     arr = glob.glob(user.MusicPath + '*.mp3')
     for i in arr:
         file = i[50:]
@@ -154,9 +155,7 @@ if __name__ == "__main__":
     print('Insert the path to the directory on your computer that '
           'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
     path = input('>>')
-    argparser.add_argument("--q", help="Search term", default=path[1])
-    argparser.add_argument("--max-results", help="Max results", default=25)
-    args = argparser.parse_args()
+
     while True:
         if(BASEPATH == ''):
             if (path == 'mg'):
@@ -202,6 +201,10 @@ if __name__ == "__main__":
                 # except Error as e:
                 # print("ERROR: " + e)
             elif com[0] == "s":  # if search s
+                argparser.add_argument("--q", help="Search term", default=path[1])
+                argparser.add_argument("--max-results", help="Max results", default=25)
+                args = argparser.parse_args()
+
                 argparser.set_defaults(q=com[1])
                 args = argparser.parse_args()
                 try:

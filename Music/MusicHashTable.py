@@ -20,7 +20,7 @@ class User:
         self.CurrentPath = self.MusicPath + '/Current/'
 
 
-user = User('', '')
+user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI', 'cd')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
@@ -48,7 +48,7 @@ class Data:
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6}, {7}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6},{7}".format(
             self.Artist,
             self.Title,
             self.Url,
@@ -112,12 +112,12 @@ def addEntry(rowNum, entry):
 
 # Reads through data and outputs it as array eg out[row]
 def readData():
-    with open(FileName, "r", newline='\n') as csvfile:
+    with open(FileName, "r", newline='') as csvfile:
         DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         out = []
         for Item in DataReader:
-            out.append(Item[0])
+            out.append(Item)
         csvfile.close()
         return out
 
@@ -138,20 +138,24 @@ def saveHeader(dataList):
 # DataList is a dictionary
 def saveData(dataList):
     lst = [*dataList.keys()]
-    with open(FileName, 'a', newline='\n') as csvfile:
+    with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
         for key in lst:
             val = dataList.get(key)
-            DataWriter.writerow([val.split(",")])
+            data = []
+            for el in val:
+                data.append(force_to_unicode(el))
+            DataWriter.writerow([i for i in data])
         csvfile.close()
 
 
 # appends dataList into csv file
 def appendData(dataList):
-    with open(FileName, 'a', newline='\n') as csvfile:
+    with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
+
         DataWriter.writerows([[i for i in dataList.get(el)] for el in dataList.keys()])
         csvfile.close()
 
@@ -244,17 +248,15 @@ def error(errorMessage):
 # control center for MusicHashTable.py
 def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
+    print(readData())
     numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
-    print(NewMusicPath)
-    printRows(arr)
     numOfEntrys += arr.__len__()
-    # TODO integrate new data with previouse data
-    # clear() #errases all previose data
-    saveHeader(dataList=[["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"]])
+    # TODO integrate new data with previous data
+    clear()  # erases all previous data
+    saveHeader(dataList=["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"])
     for i in arr:
-        print(i)
-        file = i[44:]
+        file = i[NewMusicPath.__len__():]
         url = file[file.__len__() - 15:file.__len__() - 4]
         fx = file.split('-')
         artist = removeCommas(fx[0])
@@ -265,7 +267,7 @@ def updateCSV():
         likes = removeCommas(data[0])
         dislikes = removeCommas(data[1])
         views = removeCommas(data[2])
-
+        '''
         index = 0
         inlist = False
         while index < Fnames.__len__():  # check Fnames list to see if artist is already in it
@@ -276,14 +278,12 @@ def updateCSV():
 
         if not inlist:  # checks results from list check
             Fnames.append(artist)
-
-        # hs = hash(artist) % numOfEntrys  # hash by artist
-        hs = 0  # temp
-        dict = {artist: [artist, title, url, hs, likes, dislikes, views, used]}
-        # NewData = ([force_to_unicode(dict)])
+        '''
+        hs = hash(artist) % numOfEntrys  # hash by artist
+        entry = Data(title, url, artist, hs, likes, dislikes, views, used)
+        dict = {artist: [entry.__str__()]}
         print("New Entry: " + artist + title + ' ' + url)
-        appendData(dataList=dict)
-    printRows(readData())
+        saveData(dataList=dict)
 
 
 def checkResults(test, desiredResults, results):
@@ -434,8 +434,11 @@ if __name__ == "__main__":
             pass
         elif com[0] == '':
             quit()
-        elif com[0] == "updateCSV()":
+        elif com[0] == "updateCSV()" or com[0] == "u":
             updateCSV()
-            printRows(readData())
         elif com[0] == "runTests()":
             runTests()
+        elif com[0] == "clear":
+            clear()
+        elif com[0] == "read":
+            printRows(readData())
