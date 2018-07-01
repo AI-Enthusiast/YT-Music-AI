@@ -11,11 +11,11 @@ import youtube_dl
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-from Music import main
+from Music import MusicHashTable
 
 #different words to identify mixes and livestreams
 liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
-user = main.User('', '')
+user = MusicHashTable.User('', '')
 BASEPATH = user.BASEPATH
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
 # tab of

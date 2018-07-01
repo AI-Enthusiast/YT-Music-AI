@@ -3,7 +3,8 @@
 # Vertion# 0.0.5
 from __future__ import unicode_literals
 
-import MusicHashTable
+from Music import MusicHashTable
+
 import youtube_dl
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -16,19 +17,11 @@ from Music import YT_Bot
 from bs4 import BeautifulSoup
 
 
-class User:
-    def __init__(self, BASEPATH, code):
-        self.BASEPATH = BASEPATH
-        self.code = code
 
-        self.MusicPath = self.BASEPATH + '/Music/'
-        self.NewPath = self.MusicPath + '/New/'
-        self.OldPath = self.MusicPath + '/Old/'
-        self.CurrentPath = self.MusicPath + '/Current/'
 
 
 codes = {'mg':'C:/Users/mjgro/Documents/GitHub/YT-Music-AI', 'cd':'C:/Users/corma/Documents/GitHub/YT-Music-AI'}
-user = User('', '')
+user = MusicHashTable.User('', '')
 if __name__ == "__main__":
     print('Insert the path to the directory on your computer that '
           'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
@@ -39,7 +32,7 @@ if __name__ == "__main__":
     while True:
         if(user.BASEPATH == ''):
             if codes.__contains__(path):
-                user = User(codes.get(path), path)
+                user = MusicHashTable.User(codes.get(path), path)
                 YT_Bot.user = user
                 MusicHashTable.user = user
             elif (len(path) < 1):
@@ -50,12 +43,12 @@ if __name__ == "__main__":
                     quit()
                 else:
                     print('Saving your path...\n')
-                    user = User(l, 'nu')
+                    user = MusicHashTable.User(l, 'nu')
                     YT_Bot.user = user
                     MusicHashTable.user = user
             else:
                 print('Saving your path...\n')
-                user = User(path, 'nu')
+                user = MusicHashTable.User(path, 'nu')
                 YT_Bot.user = user
                 MusicHashTable.user = user
         else:
@@ -96,3 +89,4 @@ if __name__ == "__main__":
                 print("Please type 's'(for search), '>'(for next page), 'v'(for video), 'p'(for playlist), "
                   "or 'c'(for channel) followed by the end url or the search term. "
                   "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
+    MusicHashTable.runTests()
