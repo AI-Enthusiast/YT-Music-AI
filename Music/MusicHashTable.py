@@ -20,7 +20,7 @@ class User:
         self.CurrentPath = self.MusicPath + '/Current/'
 
 
-user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI', 'cd')
+user = User('', '')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
@@ -331,6 +331,17 @@ def runTests():
         pass
     checkResults("saveData()", desiredResult, result)
 
+    # TEST appendData()
+    desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
+    try:
+        Fnames.append("key")
+        appendData({"key": ['Test4', 'Test5', 'Test6', 'Test7']})
+        result = str(readData()[2])  # probably not the right way to find the results
+    except TypeError and ValueError as e:
+        error(str(e))
+        pass
+    checkResults("appendData()", desiredResult, result)
+'''
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
     try:
@@ -340,18 +351,7 @@ def runTests():
         error(str(e))
         pass
     checkResults("addEntry()", desiredResult, result)
-
-    # TEST appendData()
-    desiredResult = "['Test8', 'Test9', 'Test10', 'Test11']"
-    try:
-        Fnames.append("key")
-        appendData({"key": ['Test4', 'Test5', 'Test6', 'Test7']})
-        result = str(readData())  # probably not the right way to find the results
-    except TypeError and ValueError as e:
-        error(str(e))
-        pass
-    checkResults("appendData()", desiredResult, result)
-
+    
     # TEST deleteEntry_Partial()
     desiredResult = None
     try:
@@ -418,7 +418,7 @@ def runTests():
     #     error(str(e))
     #     pass
 
-
+'''
 # TODO
 # slim down and/or user control
 if __name__ == "__main__":
