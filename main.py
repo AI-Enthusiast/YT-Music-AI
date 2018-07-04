@@ -55,8 +55,14 @@ if __name__ == "__main__":
                 print("\n YT_Bot.py has been Terminated...")
                 YT_Bot.doneConvertion()
                 break
-            elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
-                print("ERROR: Insufficient arguments. For help type 'help'")
+            elif com[0] == "test":  # if wanting to run test for MusicHashTable.py
+                MusicHashTable.runTests()
+            elif com[0] == "read":  # if wanting to read MusicData.csv
+                MusicHashTable.printRows(MusicHashTable.readData())
+            elif com[0] == "clear":  # if wishing to clear of create a new instance of MusicData.csv
+                MusicHashTable.clear()
+            elif com[0] == "done":  # if wishing to clear BASEPATH of *.mp3 files
+                YT_Bot.doneConvertion()
             elif com[0] == "v":  # if video v
                 try:
                     YT_Bot.downloading()
@@ -90,6 +96,8 @@ if __name__ == "__main__":
             # elif com[0] == "auto":
             # enter automatic stage
             else:
-                print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
-                      "or 'c'(for channel) followed by the end url or the search term. "
-                      "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
+                print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), or 'c'(for channel)"
+                      "\nfollowed by the end url or the search term."
+                      "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'"
+                      "\nOr: 'done'(transfers *.mp3 to /New/ for processing), 'read'(reads MusicData.csv),"
+                      "\n'clear'(clears MusicData.csv), or 'test'(run tests)")
