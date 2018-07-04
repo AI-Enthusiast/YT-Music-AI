@@ -1,20 +1,15 @@
 # main.py started on 6/30/2018
 # Authors: Marilyn Groppe, Cormac Dacker
-# Vertion# 0.0.5
+# Version # 0.0.6
 from __future__ import unicode_literals
 
-from Music import MusicHashTable
+import os
 
-import youtube_dl
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
-import csv
-import glob
-import os
-import urllib.request
+
+from Music import MusicHashTable
 from Music import YT_Bot
-from bs4 import BeautifulSoup
 
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI'}
 user = MusicHashTable.User('', '')
@@ -34,6 +29,10 @@ if __name__ == "__main__":
                 user = MusicHashTable.User(codes.get(path), path)
                 YT_Bot.user = user
                 MusicHashTable.user = user
+                if path == "cd":
+                    print("Welcome Cormac :)")
+                elif path == "cd":
+                    print("Welcome Marilyn :)")
             elif (len(path) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')

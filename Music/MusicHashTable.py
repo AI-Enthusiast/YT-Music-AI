@@ -1,11 +1,12 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.6
+# Version # 0.0.7
 
 import csv
 import glob
 import os
 import urllib.request
+
 from bs4 import BeautifulSoup
 
 
