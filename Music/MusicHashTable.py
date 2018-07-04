@@ -9,6 +9,8 @@ import urllib.request
 from bs4 import BeautifulSoup
 
 
+def force_to_unicode(text):
+    return text if isinstance(text, bytes) else text.encode('utf8')
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
@@ -31,15 +33,17 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 Fnames = []
 
+music = {}
+
 
 # A class used to create music file objects
 class Data:
     # Constructer
     def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
                  used=False):  # used, artist, tempo, etc
-        self.Title = Title
+        self.Title = force_to_unicode(Title).decode('utf8')
         self.Url = Url
-        self.Artist = Artist
+        self.Artist = force_to_unicode(Artist).decode('utf8')
         self.Hash = Hash
         self.likes = likes
         self.dislikes = dislikes
@@ -60,7 +64,10 @@ class Data:
         )
         return out
 
-
+music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", hash("Khalid")%4,1900000, 80000,297339999)
+music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", hash("Flight of the Conchords")%4, 4100, 59, 559964)
+music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", hash("Tessa Violet")%4, 111000, 4300, 1969889)
+music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", hash("gnash")%4, 120000, 20000, 20243102)
 # partially deletes data entry by it's row and col number shifts others up one
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
@@ -137,16 +144,16 @@ def saveHeader(dataList):
 # TO TEST
 # DataList is a dictionary
 def saveData(dataList):
-    lst = [*dataList.keys()]
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
-        for key in lst:
+        dd = []
+        for key in dataList.keys():
             val = dataList.get(key)
-            data = []
-            for el in val:
-                data.append(force_to_unicode(el))
-            DataWriter.writerow([i for i in data])
+            string = val.__str__()
+            el = [string]
+            dd.append(el)
+        DataWriter.writerows(dd)
         csvfile.close()
 
 
@@ -156,7 +163,7 @@ def appendData(dataList):
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
 
-        DataWriter.writerows([[i for i in dataList.get(el)] for el in dataList.keys()])
+        DataWriter.writerows([[force_to_unicode(i) for i in dataList.get(el)] for el in dataList.keys()])
         csvfile.close()
 
 
@@ -178,8 +185,6 @@ def toOld(musicFile):
 
 # def cleanCSV(self):
 
-def force_to_unicode(text):
-    return text if isinstance(text, bytes) else text.encode('utf8')
 
 
 # TO TEST
@@ -280,7 +285,7 @@ def updateCSV():
             Fnames.append(artist)
         '''
         hs = hash(artist) % numOfEntrys  # hash by artist
-        entry = Data(title, url, artist, hs, likes, dislikes, views, used)
+        entry = Data(title, url, artist, hs, int(likes), int(dislikes), int(views), used)
         dict = {artist: [entry.__str__()]}
         print("New Entry: " + artist + title + ' ' + url)
         saveData(dataList=dict)
@@ -310,9 +315,9 @@ def runTests():
     checkResults("readData()", desiredResult, result)
 
     # TEST saveHeader()
-    desiredResult = "['Test0', 'Test1', 'Test2', 'Test3']"
+    desiredResult = "[\"['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?']\"]"
     try:
-        saveHeader(dataList=['Test0', 'Test1', 'Test2', 'Test3'])  # Test
+        saveHeader(dataList=['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'])  # Test
         result = str(readData()[0])  # gather results
     except TypeError and ValueError as e:
         error(str(e))
@@ -320,27 +325,26 @@ def runTests():
     checkResults('saveHeader()', desiredResult, result)
 
     # TEST saveData()
-    desiredResult = "['00', 'TestSong', 'test--notreal', '0', '45', '23', '123456', ' False']"
+    desiredResult = "[\"['Test4', 'Test5', 'Test6', 'Test7']\"]"
     try:
-        testSong = Data("TestSong", "test--notreal", "00", 0, 45, 23, 123456)
-        test = {"00" : testSong.__str__()}
-        saveData(test)  # Test
-        result = str(readData()[1])  # gather results
+        saveData(music)
+        result = str(readData())  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
     checkResults("saveData()", desiredResult, result)
 
     # TEST appendData()
-    desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
+    desiredResult = "[\"['Test8', 'Test9', 'Test10', 'Test11']\"]"
     try:
-        Fnames.append("key")
-        appendData({"key": ['Test4', 'Test5', 'Test6', 'Test7']})
-        result = str(readData()[2])  # probably not the right way to find the results
+        clear()
+        appendData(music)
+        result = str(readData())
     except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("appendData()", desiredResult, result)
+    printRows(readData())
 '''
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
@@ -417,8 +421,10 @@ def runTests():
     # except Error as e:
     #     error(str(e))
     #     pass
+    '''
 
-'''
+
+
 # TODO
 # slim down and/or user control
 if __name__ == "__main__":
@@ -434,7 +440,7 @@ if __name__ == "__main__":
             pass
         elif com[0] == '':
             quit()
-        elif com[0] == "updateCSV()" or com[0] == "u":
+        elif com[0] == "updateCSV()":
             updateCSV()
         elif com[0] == "runTests()":
             runTests()
