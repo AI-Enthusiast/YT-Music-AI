@@ -97,7 +97,7 @@ def my_hook(d):
 #A function to move files from general folder to New folder
 def toNew(filename):
     os.rename(user.MusicPath + filename, user.NewPath + filename)
-    print("Moved File: " + filename)
+    print(">FILE Moved: " + str(filename) + " to /Music/New/")
 
 #Moves all files done converting to New
 def doneConvertion():
@@ -138,7 +138,7 @@ def downloading():
 
 # prints error message
 def error(errorMessage):
-    print("ERROR: " + str(errorMessage))
+    print(">ERROR: " + str(errorMessage))
 
 #options needed for youtube-dl library
 ydl_opts = {
