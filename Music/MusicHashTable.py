@@ -40,12 +40,11 @@ music = {}
 # A class used to create music file objects
 class Data:
     # Constructer
-    def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
+    def __init__(self, Title="", Url="", Artist="", likes=0, dislikes=0, views=0,
                  used=False):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title).decode('utf8')
         self.Url = Url
         self.Artist = force_to_unicode(Artist).decode('utf8')
-        self.Hash = Hash
         self.likes = likes
         self.dislikes = dislikes
         self.views = views
@@ -53,11 +52,10 @@ class Data:
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6},{7}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6}".format(
             self.Artist,
             self.Title,
             self.Url,
-            self.Hash,
             self.likes,
             self.dislikes,
             self.views,
@@ -65,10 +63,10 @@ class Data:
         )
         return out
 
-music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", hash("Khalid")%4,1900000, 80000,297339999)
-music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", hash("Flight of the Conchords")%4, 4100, 59, 559964)
-music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", hash("Tessa Violet")%4, 111000, 4300, 1969889)
-music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", hash("gnash")%4, 120000, 20000, 20243102)
+music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid",1900000, 80000,297339999)
+music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)
+music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
+music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
 # partially deletes data entry by it's row and col number shifts others up one
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
@@ -159,15 +157,14 @@ def saveData(dataList):
 
 
 # appends dataList into csv file
-def appendData(dataList):
+def appendData(song):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
-        try:
-            DataWriter.writerows([[force_to_unicode(i) for i in dataList.get(el)] for el in dataList.keys()])
-        except TypeError as e:
-            error(e)
+        music[song.Artist] = song
+        DataWriter.writerow([song.__str__()])
         csvfile.close()
+
 
 
 # TO TEST
@@ -263,7 +260,7 @@ def updateCSV():
     numOfEntrys += arr.__len__()
     # TODO integrate new data with previous data
     clear()  # erases all previous data
-    saveHeader(dataList=["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"])
+    saveHeader(dataList=["ARTIST", 'Title', "URL", "LIKES", "DISLIKES", "VIEWS", "USED?"])
     for i in arr:
         file = i[NewMusicPath.__len__():]
         url = file[file.__len__() - 15:file.__len__() - 4]
@@ -276,23 +273,12 @@ def updateCSV():
         likes = removeCommas(data[0])
         dislikes = removeCommas(data[1])
         views = removeCommas(data[2])
-        '''
-        index = 0
-        inlist = False
-        while index < Fnames.__len__():  # check Fnames list to see if artist is already in it
-            if Fnames[index] == artist:
-                inlist = True
-                break
-            index += 1
+        entry = Data(title, url, artist, int(likes), int(dislikes), int(views), used)
 
-        if not inlist:  # checks results from list check
-            Fnames.append(artist)
-        '''
-        hs = hash(artist) % numOfEntrys  # hash by artist
-        entry = Data(title, url, artist, hs, int(likes), int(dislikes), int(views), used)
-        dict = {artist: [entry.__str__()]}
-        print("New Entry: " + artist + title + ' ' + url)
-        saveData(dataList=dict)
+        if not music.get(artist).__contains__(entry):
+            music[artist] = entry
+            print("New Entry: " + artist + title + ' ' + url)
+    saveData(dataList=music)
     printRows(">FILE Updated: " + str(FileName) + "in /Music/")
 
 
@@ -330,26 +316,27 @@ def runTests():
     checkResults('saveHeader()', desiredResult, result)
 
     # TEST saveData()
-    desiredResult = "[\"['Test4', 'Test5', 'Test6', 'Test7']\"]"
+    desiredResult = "[['Khalid,Location,by3yRdlQvzs,1900000,80000,297339999,False'], " \
+                    "['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False']," \
+                    " ['Tessa Violet,Crush,SiAuAJBZuGs,111000,4300,1969889,False'], " \
+                    "['gnash,home,bYBLt_1HcQE,120000,20000,20243102,False']]"
     try:
         saveData(music)
-        result = str(readData())  # gather results
+        result = str(readData()[1:])  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
     checkResults("saveData()", desiredResult, result)
 
     # TEST appendData()
-    desiredResult = "[\"['Test8', 'Test9', 'Test10', 'Test11']\"]"
+    desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
     try:
-        clear()
-        appendData(music)
-        result = str(readData())
+        appendData(Data("in cold blood","rP0uuI80wuY" , "alt-j", 74000, 2000, 9059467, False))
+        result = str(readData()[readData().__len__()-1:])
     except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("appendData()", desiredResult, result)
-    printRows(readData())
 
     # TEST getStats()
 
@@ -361,7 +348,7 @@ def runTests():
         error(str(e))
         pass
     checkResults("getStats()", desiredResult, result)
-
+    printRows(readData())
     # TEST clear()
     desiredResult = 0
     try:
@@ -371,8 +358,7 @@ def runTests():
         error(str(e))
         pass
     checkResults("clear()", desiredResult, result)
-
-'''
+    '''
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
     try:
