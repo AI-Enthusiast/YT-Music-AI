@@ -1,11 +1,12 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.6
+# Version # 0.0.7
 
 import csv
 import glob
 import os
 import urllib.request
+
 from bs4 import BeautifulSoup
 
 
@@ -162,8 +163,10 @@ def appendData(dataList):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
-
-        DataWriter.writerows([[force_to_unicode(i) for i in dataList.get(el)] for el in dataList.keys()])
+        try:
+            DataWriter.writerows([[force_to_unicode(i) for i in dataList.get(el)] for el in dataList.keys()])
+        except TypeError as e:
+            error(e)
         csvfile.close()
 
 
@@ -215,7 +218,8 @@ def getStats(url):
     views = Views[0]
     views = (str(views).split('>'))[1]
     views = views[:views.__len__() - 11]
-
+    if (str(views) == "No"):  # if no views
+        views = '0'
     return [likes, dislikes, views]
 
 
@@ -246,7 +250,7 @@ def search():
 
 # prints error message
 def error(errorMessage):
-    print(">ERROR: " + errorMessage)
+    print(">ERROR: " + str(errorMessage))
 
 
 # TO TEST
@@ -289,13 +293,14 @@ def updateCSV():
         dict = {artist: [entry.__str__()]}
         print("New Entry: " + artist + title + ' ' + url)
         saveData(dataList=dict)
+    printRows(">FILE Updated: " + str(FileName) + "in /Music/")
 
 
 def checkResults(test, desiredResults, results):
     if results.__eq__(desiredResults) :
-        print("TEST " + test + ":\tPASS")
+        print(">TEST " + test + ":\tPASS")
     else:
-        print("TEST " + test + ":\tFAIL")
+        print(">TEST " + test + ":\tFAIL")
         print("\tExpected Output: " + str(desiredResults))
         print("\tOutput Received: " + str(results))
 
@@ -345,6 +350,28 @@ def runTests():
         pass
     checkResults("appendData()", desiredResult, result)
     printRows(readData())
+
+    # TEST getStats()
+
+    desiredResult = ['0', '0', '0']
+    ytPath = 'https://www.youtube.com/watch?v='
+    try:
+        result = getStats(ytPath + "6cwBLBCehGg")
+    except TypeError as e:
+        error(str(e))
+        pass
+    checkResults("getStats()", desiredResult, result)
+
+    # TEST clear()
+    desiredResult = 0
+    try:
+        clear()
+        result = readData().__len__()
+    except ValueError as e:
+        error(str(e))
+        pass
+    checkResults("clear()", desiredResult, result)
+
 '''
     # TEST addEntry()
     desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
@@ -376,26 +403,9 @@ def runTests():
         pass
     checkResults("deleteEntry_Row()", desiredResult, result)
 
-    # TEST clear()
-    desiredResult = 0
-    try:
-        clear()
-        result = readData().__len__()
-    except ValueError as e:
-        error(str(e))
-        pass
-    checkResults("clear()", desiredResult, result)
+    
 
     # TEST toCurrent()
-    # desiredResult = None
-    # try:
-    #     #test
-    #     #results = bla
-    # except Error as e:
-    #     error(str(e))
-    #     pass
-
-    # TEST getStats()
     # desiredResult = None
     # try:
     #     #test

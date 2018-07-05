@@ -1,6 +1,6 @@
 # YT_Bot.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Vertion# 0.0.6
+# Version # 0.0.7
 
 from __future__ import unicode_literals
 
@@ -11,6 +11,7 @@ import youtube_dl
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
+
 from Music import MusicHashTable
 
 #different words to identify mixes and livestreams
@@ -96,7 +97,7 @@ def my_hook(d):
 #A function to move files from general folder to New folder
 def toNew(filename):
     os.rename(user.MusicPath + filename, user.NewPath + filename)
-    print("Moved File: " + filename)
+    print(">FILE Moved: " + str(filename) + " to /Music/New/")
 
 #Moves all files done converting to New
 def doneConvertion():
@@ -137,7 +138,7 @@ def downloading():
 
 # prints error message
 def error(errorMessage):
-    print("ERROR: " + errorMessage)
+    print(">ERROR: " + str(errorMessage))
 
 #options needed for youtube-dl library
 ydl_opts = {
@@ -183,23 +184,23 @@ if __name__ == "__main__":
             elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
                 print("ERROR: Insufficient arguments. For help type 'help'")
             elif com[0] == "v":  # if video v
-                # try:
-                downloading()
-                convertVid(com[1])
-                #    except Error as e:
-                #    print("ERROR: " + e)
+                try:
+                    downloading()
+                    convertVid(com[1])
+                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
+                    error(e)
             elif com[0] == "p":  # if playlist p
-                #try:
-                downloading()
-                convertPlaylist(com[1])
-                # except Error as e:
-                # print("ERROR: " + e)
+                try:
+                    downloading()
+                    convertPlaylist(com[1])
+                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
+                    error(e)
             elif com[0] == "c":  # if channel c
-                # try:
-                downloading()
-                convertChannel(com[1])
-                # except Error as e:
-                # print("ERROR: " + e)
+                try:
+                    downloading()
+                    convertChannel(com[1])
+                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
+                    error(e)
             elif com[0] == "s":  # if search s
                 argparser.add_argument("--q", help="Search term", default=path[1])
                 argparser.add_argument("--max-results", help="Max results", default=25)
@@ -215,6 +216,6 @@ if __name__ == "__main__":
             # elif com[0] == "auto":
             # enter automatic stage
             else:
-                print("Please type 's'(for search), '>'(for next page), 'v'(for video), 'p'(for playlist), "
+                print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
                   "or 'c'(for channel) followed by the end url or the search term. "
                   "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
