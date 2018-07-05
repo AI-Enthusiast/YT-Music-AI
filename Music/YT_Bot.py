@@ -1,6 +1,6 @@
 # YT_Bot.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Version # 0.0.7
+# Version # 0.0.8
 
 from __future__ import unicode_literals
 

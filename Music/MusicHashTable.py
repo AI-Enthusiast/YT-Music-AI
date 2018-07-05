@@ -1,6 +1,6 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Version # 0.0.7
+# Version # 0.0.8
 
 import csv
 import glob
@@ -13,14 +13,16 @@ from bs4 import BeautifulSoup
 def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
 class User:
+
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
         self.code = code
 
-        self.MusicPath = self.BASEPATH + '/Music/'
-        self.NewPath = self.MusicPath + '/New/'
-        self.OldPath = self.MusicPath + '/Old/'
-        self.CurrentPath = self.MusicPath + '/Current/'
+        self.MusicPath = self.BASEPATH + 'Music/'
+        self.NewPath = self.MusicPath + 'New/'
+        self.OldPath = self.MusicPath + 'Old/'
+        self.CurrentPath = self.MusicPath + 'Current/'
+        self.TestPath = self.BASEPATH + 'Test/'
 
 
 user = User('', '')
@@ -178,7 +180,7 @@ def clear():
 
 # TO TEST
 def toCurrent(musicFile):
-    os.rename(NewMusicPath + musicFile, CurrentMusicPath + musicFile)
+    os.rename(Path + musicFile, CurrentMusicPath + musicFile)
 
 
 # TO TEST
@@ -259,13 +261,13 @@ def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
     print(readData())
     numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
-    arr = glob.glob(NewMusicPath + '*.mp3')
-    numOfEntrys += arr.__len__()
+    musicList = glob.glob(NewMusicPath + '*.mp3')
+    numOfEntrys += musicList.__len__()
     # TODO integrate new data with previous data
     clear()  # erases all previous data
     saveHeader(dataList=["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"])
-    for i in arr:
-        file = i[NewMusicPath.__len__():]
+    for track in musicList:
+        file = track[NewMusicPath.__len__():]
         url = file[file.__len__() - 15:file.__len__() - 4]
         fx = file.split('-')
         artist = removeCommas(fx[0])
@@ -297,58 +299,61 @@ def updateCSV():
 
 
 def checkResults(test, desiredResults, results):
+    test = test + ':'
+    if str(test).__len__() < 9:
+        test = test + '\t'
     if results.__eq__(desiredResults) :
-        print(">TEST " + test + ":\tPASS")
+        print(">TEST " + test + "\tPASS")
     else:
-        print(">TEST " + test + ":\tFAIL")
-        print("\tExpected Output: " + str(desiredResults))
-        print("\tOutput Received: " + str(results))
+        print(">TEST " + test + "\tFAIL")
+        print("\tExpected Output:\t" + str(desiredResults))
+        print("\tOutput Received:\t" + str(results))
 
 
 def runTests():
     print(">COMMENCE TESTING...")
-    result = None  # stores result of each test
+    results = None  # stores result of each test
 
     clear()
     # TEST readData()
     desiredResult = []  # stores desired result of each test
     try:
-        result = readData()
+        results = readData()
     except TypeError and ValueError and FileNotFoundError as e:
         error(str(e))
         pass
-    checkResults("readData()", desiredResult, result)
+    checkResults("readData()", desiredResult, results)
 
     # TEST saveHeader()
     desiredResult = "[\"['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?']\"]"
     try:
         saveHeader(dataList=['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'])  # Test
-        result = str(readData()[0])  # gather results
+        results = str(readData()[0])  # gather results
     except TypeError and ValueError as e:
         error(str(e))
         pass
-    checkResults('saveHeader()', desiredResult, result)
+    checkResults('saveHeader()', desiredResult, results)
 
     # TEST saveData()
     desiredResult = "[\"['Test4', 'Test5', 'Test6', 'Test7']\"]"
     try:
         saveData(music)
-        result = str(readData())  # gather results
+        results = str(readData())  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
-    checkResults("saveData()", desiredResult, result)
+    checkResults("saveData()", desiredResult, results)
 
     # TEST appendData()
     desiredResult = "[\"['Test8', 'Test9', 'Test10', 'Test11']\"]"
     try:
         clear()
         appendData(music)
-        result = str(readData())
+        results = str(readData())
     except TypeError and ValueError as e:
         error(str(e))
         pass
-    checkResults("appendData()", desiredResult, result)
+    checkResults("appendData()", desiredResult, results)
     printRows(readData())
 
     # TEST getStats()
@@ -356,21 +361,39 @@ def runTests():
     desiredResult = ['0', '0', '0']
     ytPath = 'https://www.youtube.com/watch?v='
     try:
-        result = getStats(ytPath + "6cwBLBCehGg")
+        results = getStats(ytPath + "6cwBLBCehGg")
     except TypeError as e:
         error(str(e))
         pass
-    checkResults("getStats()", desiredResult, result)
+    checkResults("getStats()", desiredResult, results)
 
     # TEST clear()
     desiredResult = 0
     try:
         clear()
-        result = readData().__len__()
+        results = readData().__len__()
     except ValueError as e:
         error(str(e))
         pass
-    checkResults("clear()", desiredResult, result)
+    checkResults("clear()", desiredResult, results)
+
+    # TEST toCurrent()
+    desiredResult = "['Music/Current/Test 1-zGDzdps75ns.mp3', 'Music/Current/Test 0-zGDzdps75ns.mp3', " \
+                    "'Music/Current/Test 4-zGDzdps75ns.mp3', 'Music/Current/Test 2-zGDzdps75ns.mp3', " \
+                    "'Music/Current/Test 3-zGDzdps75ns.mp3']"
+    try:
+        musicList = glob.glob(user.TestPath + '*.mp3')
+        for track in musicList:
+            if track.split(' ')[0] == "Test":
+                toCurrent(track)
+        results = glob.glob(CurrentMusicPath + '*.mp3')
+        for track in musicList:
+            os.rename(CurrentMusicPath + track, user.TestPath + track)
+
+    except TypeError and FileNotFoundError and AttributeError as e:
+        error(str(e))
+        pass
+    checkResults("toCurrent()", desiredResult, results)
 
 '''
     # TEST addEntry()
@@ -402,17 +425,6 @@ def runTests():
         error(str(e))
         pass
     checkResults("deleteEntry_Row()", desiredResult, result)
-
-    
-
-    # TEST toCurrent()
-    # desiredResult = None
-    # try:
-    #     #test
-    #     #results = bla
-    # except Error as e:
-    #     error(str(e))
-    #     pass
 
     # TEST updateCSV()
     # desiredResult = None

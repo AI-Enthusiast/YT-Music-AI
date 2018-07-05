@@ -1,6 +1,6 @@
 # main.py started on 6/30/2018
 # Authors: Marilyn Groppe, Cormac Dacker
-# Version # 0.0.6
+# Version # 0.0.8
 from __future__ import unicode_literals
 
 import os
@@ -40,12 +40,12 @@ if __name__ == "__main__":
                     YT_Bot.doneConvertion()
                     quit()
                 else:
-                    print('Saving your path...\n')
+                    print('>SAVING PATH...\n')
                     user = MusicHashTable.User(l, 'nu')
                     YT_Bot.user = user
                     MusicHashTable.user = user
             else:
-                print('Saving your path...\n')
+                print('>SAVING PATH...\n')
                 user = MusicHashTable.User(path, 'nu')
                 YT_Bot.user = user
                 MusicHashTable.user = user
