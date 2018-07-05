@@ -217,7 +217,7 @@ def getStats(url):
     views = views[:views.__len__() - 11]
     if (str(views) == "No"):  # if no views
         views = '0'
-    return [likes, dislikes, views]
+    return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
 
 
 def printRows(arr):
@@ -249,35 +249,30 @@ def search():
 def error(errorMessage):
     print(">ERROR: " + str(errorMessage))
 
+def getTrackInfo(file):
 
+    url = file[file.__len__() - 15:file.__len__() - 4]
+    fx = file.split('-')
+    artist = removeCommas(fx[0])
+    title = removeCommas(fx[1])
+    return [artist, title, url]
 # TO TEST
 # control center for MusicHashTable.py
 def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
-    print(readData())
-    numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
     arr = glob.glob(NewMusicPath + '*.mp3')
-    numOfEntrys += arr.__len__()
     # TODO integrate new data with previous data
     clear()  # erases all previous data
-    saveHeader(dataList=["ARTIST", 'Title', "URL", "LIKES", "DISLIKES", "VIEWS", "USED?"])
+    saveHeader(dataList=["ARTIST", 'TITLE', "URL", "LIKES", "DISLIKES", "VIEWS", "USED?"])
     for i in arr:
         file = i[NewMusicPath.__len__():]
-        url = file[file.__len__() - 15:file.__len__() - 4]
-        fx = file.split('-')
-        artist = removeCommas(fx[0])
-        title = removeCommas(fx[1])
-        used = False
+        info = getTrackInfo(file)
+        data = getStats(ytPath + info[2])  # gets views, likes and dislikes
+        entry = Data(info[1], info[2], info[0], data[0], data[1], data[2], False)
 
-        data = getStats(ytPath + url)  # gets views, likes and dislikes
-        likes = removeCommas(data[0])
-        dislikes = removeCommas(data[1])
-        views = removeCommas(data[2])
-        entry = Data(title, url, artist, int(likes), int(dislikes), int(views), used)
-
-        if not music.get(artist).__contains__(entry):
-            music[artist] = entry
-            print("New Entry: " + artist + title + ' ' + url)
+        if not music.get(info[0]).__contains__(entry):
+            music[info[0]] = entry
+            print("New Entry: " + info[0] + info[1] + ' ' + info[2])
     saveData(dataList=music)
     printRows(">FILE Updated: " + str(FileName) + "in /Music/")
 
@@ -340,7 +335,7 @@ def runTests():
 
     # TEST getStats()
 
-    desiredResult = ['0', '0', '0']
+    desiredResult = [0, 0, 0]
     ytPath = 'https://www.youtube.com/watch?v='
     try:
         result = getStats(ytPath + "6cwBLBCehGg")
