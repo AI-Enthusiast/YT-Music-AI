@@ -14,7 +14,7 @@ from oauth2client.tools import argparser
 
 from Music import MusicHashTable
 
-#different words to identify mixes and livestreams
+# different words to identify mixes and livestreams
 liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
 user = MusicHashTable.User('', '')
 BASEPATH = user.BASEPATH
@@ -27,9 +27,9 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
-#A function to check the list to predict if its a live vide
-#params: list of title words
-#returns a Boolean depicting whether it is assumed to be live or not
+# A function to check the list to predict if its a live vide
+# params: list of title words
+# returns a Boolean depicting whether it is assumed to be live or not
 
 def isLive(title=[]):
     for i in liveVidKeyWords:
@@ -38,9 +38,10 @@ def isLive(title=[]):
                 return True
     return False
 
-#A function to search videos, channels, and playlists from the console
-#params: options for the search itself
-#returns: N/A
+
+# A function to search videos, channels, and playlists from the console
+# params: options for the search itself
+# returns: N/A
 def youtube_search(options):
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                     developerKey=DEVELOPER_KEY)
@@ -78,7 +79,8 @@ def youtube_search(options):
     print("Channels:\n", "\n".join(channels), "\n")
     print("Playlists:\n", "\n".join(playlists), "\n")
 
-#A class to aide in importing -- logs errors
+
+# A class to aide in importing -- logs errors
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -89,43 +91,55 @@ class MyLogger(object):
     def error(self, msg):
         print(msg)
 
-#A function to show progress in downloads
+
+def printRows(arr):
+    count = 0
+    while count < arr.__len__():
+        print("[" + str(count) + "]" + str(arr[count]))
+        count += 1
+
+
+# A function to show progress in downloads
 def my_hook(d):
     if d['status'] == 'finished':
         print('>CONVERTING...')
 
-#A function to move files from general folder to New folder
-def toNew(filename):
-    os.rename(user.MusicPath + filename, user.NewPath + filename)
-    print(">FILE Moved: " + str(filename) + " to /Music/New/")
 
-#Moves all files done converting to New
+# A function to move files from general folder to New folder
+def toNew(filename):
+    try:
+        os.rename(user.BASEPATH + filename, user.NewPath + filename)
+        print(">FILE Moved: " + str(filename) + " to /Music/New/")
+    except FileNotFoundError as e:
+        error(e)
+
+
+# Moves all files done converting to New
 def doneConvertion():
-    print(user.MusicPath)
-    arr = glob.glob(user.MusicPath + '*.mp3')
+    arr = glob.glob(user.BASEPATH + '*.mp3')
     for i in arr:
-        file = i[50:]
-        print('Moving ' + file + '...')
+        file = i[44:]
         toNew(file)
-        print(file)
 
 
 def convertVid(url):
-    videoURL = "https://www.youtube.com/watch?v=" + url
+    videoURL = "https://www.youtube.userIN/watch?v=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([videoURL])
     doneConvertion()
 
-#Converts playlists using youtube-dl library
+
+# Converts playlists using youtube-dl library
 def convertPlaylist(url):
-    playlistURL = "https://www.youtube.com/playlist?list=" + url
+    playlistURL = "https://www.youtube.userIN/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlistURL])
     doneConvertion()
 
-#Converts channels using youtube-dl library
+
+# Converts channels using youtube-dl library
 def convertChannel(url):
-    channelURL = "https://www.youtube.com/channel/" + url
+    channelURL = "https://www.youtube.userIN/channel/" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channelURL])
     doneConvertion()
@@ -140,7 +154,8 @@ def downloading():
 def error(errorMessage):
     print(">ERROR: " + str(errorMessage))
 
-#options needed for youtube-dl library
+
+# options needed for youtube-dl library
 ydl_opts = {
     'format': 'bestaudio/best',
     'postprocessors': [{
@@ -152,13 +167,13 @@ ydl_opts = {
 }
 
 if __name__ == "__main__":
-    #needed to set up the search opts
+    # needed to set up the search opts
     print('Insert the path to the directory on your computer that '
           'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
     path = input('>>')
 
     while True:
-        if(BASEPATH == ''):
+        if (BASEPATH == ''):
             if (path == 'mg'):
                 BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI'
             elif (path == 'cd'):
@@ -166,7 +181,7 @@ if __name__ == "__main__":
             elif (len(path) < 1):
                 l = input('That didn\'t work... Insert the path to the directory on your computer that '
                           'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
-                if(len(l) < 1):
+                if (len(l) < 1):
                     doneConvertion()
                     quit()
                 else:
@@ -213,9 +228,9 @@ if __name__ == "__main__":
                 except HttpError as e:
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
 
-            # elif com[0] == "auto":
+            # elif userIN[0] == "auto":
             # enter automatic stage
             else:
                 print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
-                  "or 'c'(for channel) followed by the end url or the search term. "
-                  "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
+                      "or 'c'(for channel) followed by the end url or the search term. "
+                      "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
