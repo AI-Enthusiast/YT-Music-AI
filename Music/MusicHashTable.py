@@ -108,18 +108,6 @@ def deleteEntry_Row(rowNum):
             if row != rowNum:
                 writer.writerow(data[row])
 
-
-# adds data entry by desired row num
-# TO TEST
-# TODO
-def addEntry(rowNum, entry):
-    # reads data
-    # must probe data row to check there are no conflicts
-    # copy data before and after row num with entry occupying the new row
-    data = readData()
-    data.insert(rowNum, entry)
-
-
 # Reads through data and outputs it as array eg out[row]
 def readData():
     with open(FileName, "r", newline='') as csvfile:
@@ -313,10 +301,19 @@ def updateCSV():
 
 
 def checkResults(test, desiredResults, results):
+    test += ":"
+    if test.__len__() <= 9:
+        test += '\t'
+    if test.__len__() <= 13:
+        test += '\t'
+    if test.__len__() <= 16:
+        test += '\t'
+    if test.__len__() < 19:
+        test += '\t'
     if results.__eq__(desiredResults):
-        print(">TEST " + test + ":\tPASS")
+        print(">TEST " + test + "\tPASS")
     else:
-        print(">TEST " + test + ":\tFAIL")
+        print(">TEST " + test + "\tFAIL")
         print("\tExpected Output: " + str(desiredResults))
         print("\tOutput Received: " + str(results))
 
@@ -387,16 +384,6 @@ def runTests():
         error(str(e))
         pass
     checkResults("clear()", desiredResult, result)
-    '''
-    # TEST addEntry()
-    desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
-    try:
-        addEntry(2, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
-        result = str(readData())  # gather results
-    except TypeError and IndexError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("addEntry()", desiredResult, result)
     
     # TEST deleteEntry_Partial()
     desiredResult = None
@@ -417,8 +404,6 @@ def runTests():
         error(str(e))
         pass
     checkResults("deleteEntry_Row()", desiredResult, result)
-
-    
 
     # TEST toCurrent()
     # desiredResult = None
@@ -446,7 +431,6 @@ def runTests():
     # except Error as e:
     #     error(str(e))
     #     pass
-    '''
 
 
 # TODO
