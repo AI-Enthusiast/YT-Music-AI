@@ -84,15 +84,12 @@ if __name__ == "__main__":
             elif com[0] == "s":  # if search s
                 argparser.add_argument("--q", help="Search term", default=path[1])
                 argparser.add_argument("--max-results", help="Max results", default=25)
-                args = argparser.parse_args()
-
                 argparser.set_defaults(q=com[1])
                 args = argparser.parse_args()
                 try:
                     YT_Bot.youtube_search(args)
                 except HttpError as e:
                     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
-
             # elif com[0] == "auto":
             # enter automatic stage
             else:

@@ -42,12 +42,11 @@ music = {}
 # A class used to create music file objects
 class Data:
     # Constructer
-    def __init__(self, Title="", Url="", Artist="", Hash=0, likes=0, dislikes=0, views=0,
+    def __init__(self, Title="", Url="", Artist="", likes=0, dislikes=0, views=0,
                  used=False):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title).decode('utf8')
         self.Url = Url
         self.Artist = force_to_unicode(Artist).decode('utf8')
-        self.Hash = Hash
         self.likes = likes
         self.dislikes = dislikes
         self.views = views
@@ -55,11 +54,10 @@ class Data:
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6},{7}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6}".format(
             self.Artist,
             self.Title,
             self.Url,
-            self.Hash,
             self.likes,
             self.dislikes,
             self.views,
@@ -67,10 +65,10 @@ class Data:
         )
         return out
 
-music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", hash("Khalid")%4,1900000, 80000,297339999)
-music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", hash("Flight of the Conchords")%4, 4100, 59, 559964)
-music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", hash("Tessa Violet")%4, 111000, 4300, 1969889)
-music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", hash("gnash")%4, 120000, 20000, 20243102)
+music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid",1900000, 80000,297339999)
+music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)
+music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
+music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
 # partially deletes data entry by it's row and col number shifts others up one
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
@@ -161,15 +159,17 @@ def saveData(dataList):
 
 
 # appends dataList into csv file
-def appendData(dataList):
+def appendData(song):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                     quoting=csv.QUOTE_NONNUMERIC)
+        music[song.Artist] = song
         try:
-            DataWriter.writerows([[force_to_unicode(i) for i in dataList.get(el)] for el in dataList.keys()])
+            DataWriter.writerow([song.__str__()])
         except TypeError as e:
             error(e)
         csvfile.close()
+
 
 
 # TO TEST
@@ -222,7 +222,7 @@ def getStats(url):
     views = views[:views.__len__() - 11]
     if (str(views) == "No"):  # if no views
         views = '0'
-    return [likes, dislikes, views]
+    return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
 
 
 def printRows(arr):
@@ -254,47 +254,30 @@ def search():
 def error(errorMessage):
     print(">ERROR: " + str(errorMessage))
 
-
+def getTrackInfo(file):
+    url = file[file.__len__() - 15:file.__len__() - 4]
+    fx = file.split('-')
+    artist = removeCommas(fx[0])
+    title = removeCommas(fx[1])
+    return [artist, title, url]
 # TO TEST
 # control center for MusicHashTable.py
 def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
-    print(readData())
-    numOfEntrys = readData().__len__() - 1  # -1 because headers at the top of the csv
-    musicList = glob.glob(NewMusicPath + '*.mp3')
-    numOfEntrys += musicList.__len__()
+    arr = glob.glob(NewMusicPath + '*.mp3')
     # TODO integrate new data with previous data
     clear()  # erases all previous data
-    saveHeader(dataList=["ARTIST", 'Title', "URL", "HASH", "LIKES", "DISLIKES", "VIEWS", "USED?"])
-    for track in musicList:
-        file = track[NewMusicPath.__len__():]
-        url = file[file.__len__() - 15:file.__len__() - 4]
-        fx = file.split('-')
-        artist = removeCommas(fx[0])
-        title = removeCommas(fx[1])
-        used = False
+    saveHeader(dataList=["ARTIST", 'TITLE', "URL", "LIKES", "DISLIKES", "VIEWS", "USED?"])
+    for i in arr:
+        file = i[NewMusicPath.__len__():]
+        info = getTrackInfo(file)
+        data = getStats(ytPath + info[2])  # gets views, likes and dislikes
+        entry = Data(info[1], info[2], info[0], data[0], data[1], data[2], False)
 
-        data = getStats(ytPath + url)  # gets views, likes and dislikes
-        likes = removeCommas(data[0])
-        dislikes = removeCommas(data[1])
-        views = removeCommas(data[2])
-        '''
-        index = 0
-        inlist = False
-        while index < Fnames.__len__():  # check Fnames list to see if artist is already in it
-            if Fnames[index] == artist:
-                inlist = True
-                break
-            index += 1
-
-        if not inlist:  # checks results from list check
-            Fnames.append(artist)
-        '''
-        hs = hash(artist) % numOfEntrys  # hash by artist
-        entry = Data(title, url, artist, hs, int(likes), int(dislikes), int(views), used)
-        dict = {artist: [entry.__str__()]}
-        print("New Entry: " + artist + title + ' ' + url)
-        saveData(dataList=dict)
+        if not music.get(info[0]).__contains__(entry):
+            music[info[0]] = entry
+            print("New Entry: " + info[0] + info[1] + ' ' + info[2])
+    saveData(dataList=music)
     printRows(">FILE Updated: " + str(FileName) + "in /Music/")
 
 
@@ -335,30 +318,36 @@ def runTests():
     checkResults('saveHeader()', desiredResult, results)
 
     # TEST saveData()
-    desiredResult = "[\"['Test4', 'Test5', 'Test6', 'Test7']\"]"
+    desiredResult = "[['Khalid,Location,by3yRdlQvzs,1900000,80000,297339999,False'], " \
+                    "['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False']," \
+                    " ['Tessa Violet,Crush,SiAuAJBZuGs,111000,4300,1969889,False'], " \
+                    "['gnash,home,bYBLt_1HcQE,120000,20000,20243102,False']]"
     try:
         saveData(music)
-        results = str(readData())  # gather results
+        results = str(readData()[1:])  # gather results
     except ValueError and AttributeError as e:
         error(str(e))
         pass
     checkResults("saveData()", desiredResult, results)
 
     # TEST appendData()
-    desiredResult = "[\"['Test8', 'Test9', 'Test10', 'Test11']\"]"
+    desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
     try:
         clear()
         appendData(music)
         results = str(readData())
+        appendData(Data("in cold blood","rP0uuI80wuY" , "alt-j", 74000, 2000, 9059467, False))
+        result = str(readData()[readData().__len__()-1:])
     except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("appendData()", desiredResult, results)
     printRows(readData())
+    checkResults("appendData()", desiredResult, result)
 
     # TEST getStats()
 
-    desiredResult = ['0', '0', '0']
+    desiredResult = [0, 0, 0]
     ytPath = 'https://www.youtube.com/watch?v='
     try:
         results = getStats(ytPath + "6cwBLBCehGg")
@@ -367,6 +356,8 @@ def runTests():
         pass
     checkResults("getStats()", desiredResult, results)
 
+    checkResults("getStats()", desiredResult, result)
+    printRows(readData())
     # TEST clear()
     desiredResult = 0
     try:
@@ -375,6 +366,8 @@ def runTests():
     except ValueError as e:
         error(str(e))
         pass
+    checkResults("clear()", desiredResult, result)
+    '''
     checkResults("clear()", desiredResult, results)
 
     # TEST toCurrent()
