@@ -12,15 +12,17 @@ from bs4 import BeautifulSoup
 
 def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
+
+
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
         self.code = code
 
-        self.MusicPath = self.BASEPATH + '/Music/'
-        self.NewPath = self.MusicPath + '/New/'
-        self.OldPath = self.MusicPath + '/Old/'
-        self.CurrentPath = self.MusicPath + '/Current/'
+        self.MusicPath = self.BASEPATH + 'Music/'
+        self.NewPath = self.MusicPath + 'New/'
+        self.OldPath = self.MusicPath + 'Old/'
+        self.CurrentPath = self.MusicPath + 'Current/'
 
 
 user = User('', '')
@@ -63,17 +65,20 @@ class Data:
         )
         return out
 
-music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid",1900000, 80000,297339999)
+
+music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", 1900000, 80000, 297339999)
 music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)
 music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
 music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
+
+
 # partially deletes data entry by it's row and col number shifts others up one
 # TO TEST
 def deleteEntry_Partial(rowNum, colNum):
     data = readData()
     with open(FileName, 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                                quoting=csv.QUOTE_NONNUMERIC)
+                            quoting=csv.QUOTE_NONNUMERIC)
         row = 0
         while row < data.__len__():
             if row != rowNum:
@@ -91,14 +96,13 @@ def deleteEntry_Partial(rowNum, colNum):
                     pass
 
 
-
 # deletes data entry by it's row number shifts others up one
 # TO TEST
 def deleteEntry_Row(rowNum):
     data = readData()
     with open(FileName, 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                                quoting=csv.QUOTE_NONNUMERIC)
+                            quoting=csv.QUOTE_NONNUMERIC)
         row = 0
         while row < data.__len__():
             if row != rowNum:
@@ -145,14 +149,18 @@ def saveHeader(dataList):
 def saveData(dataList):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC)
+                                quoting=csv.QUOTE_NONNUMERIC)
         dd = []
         for key in dataList.keys():
             val = dataList.get(key)
             string = val.__str__()
             el = [string]
             dd.append(el)
-        DataWriter.writerows(dd)
+        try:
+            DataWriter.writerows(dd)
+        except UnicodeEncodeError as e:
+            error(e)
+            pass
         csvfile.close()
 
 
@@ -160,11 +168,10 @@ def saveData(dataList):
 def appendData(song):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC)
+                                quoting=csv.QUOTE_NONNUMERIC)
         music[song.Artist] = song
         DataWriter.writerow([song.__str__()])
         csvfile.close()
-
 
 
 # TO TEST
@@ -184,7 +191,6 @@ def toOld(musicFile):
 
 
 # def cleanCSV(self):
-
 
 
 # TO TEST
@@ -223,7 +229,11 @@ def getStats(url):
 def printRows(arr):
     count = 0
     while count < arr.__len__():
-        print("[" + str(count) + "]" + str(arr[count]))
+        try:
+            print("[" + str(count) + "]" + str(arr[count]))
+        except KeyError as e:
+            error(e)
+            break
         count += 1
 
 
@@ -247,38 +257,63 @@ def search():
 
 # prints error message
 def error(errorMessage):
-    print(">ERROR: " + str(errorMessage))
+    print(">ERROR:\t" + str(errorMessage))
 
+
+# get's the info of the track (url, artist, title)
 def getTrackInfo(file):
-
     url = file[file.__len__() - 15:file.__len__() - 4]
     fx = file.split('-')
     artist = removeCommas(fx[0])
     title = removeCommas(fx[1])
     return [artist, title, url]
+
+
+# TODO convert CSV to Dict
+def convertCSVtoDict():
+    data = readData()
+    dic = {}
+    count = 0
+    while count < data.__len__():  # data to dict
+        artist = (str(data[count]).split(',')[0])
+        artist = artist[2:]
+        print(artist)
+        dic[artist] = data[count]
+        count += 1
+    return dic
+
+
 # TO TEST
 # control center for MusicHashTable.py
 def updateCSV():
     ytPath = 'https://www.youtube.com/watch?v='
-    arr = glob.glob(NewMusicPath + '*.mp3')
+    musicFileList = glob.glob(NewMusicPath + '*.mp3')
     # TODO integrate new data with previous data
-    clear()  # erases all previous data
-    saveHeader(dataList=["ARTIST", 'TITLE', "URL", "LIKES", "DISLIKES", "VIEWS", "USED?"])
-    for i in arr:
-        file = i[NewMusicPath.__len__():]
-        info = getTrackInfo(file)
-        data = getStats(ytPath + info[2])  # gets views, likes and dislikes
+    music = convertCSVtoDict()
+    clear()
+    saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'")
+    for musicFile in musicFileList:
+        file = musicFile[NewMusicPath.__len__():]
+        info = getTrackInfo(file)  # (artist, title, url)
+        data = getStats(ytPath + info[2])  # (likes, dislikes, views)
         entry = Data(info[1], info[2], info[0], data[0], data[1], data[2], False)
+        if music.get(info[0]) != None:
+            song = str(music.get(info[0])).split(',')[1]
+            if (song == info[1]):  # if both the artists and the songs match
+                print(">FILE DUPLICATE FOUND:\t" + str(musicFile))
+                # TODO delete duplicate file
+                continue  # determin tracks to be the same, add no entry
 
-        if not music.get(info[0]).__contains__(entry):
-            music[info[0]] = entry
-            print("New Entry: " + info[0] + info[1] + ' ' + info[2])
+        music[info[0]] = entry
+        print(">NEW ENTRY:\t" + info[0] + info[1] + ' ' + info[2])
     saveData(dataList=music)
-    printRows(">FILE Updated: " + str(FileName) + "in /Music/")
+    print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
+    for k, v in music.items():
+        print(k, ':',v)
 
 
 def checkResults(test, desiredResults, results):
-    if results.__eq__(desiredResults) :
+    if results.__eq__(desiredResults):
         print(">TEST " + test + ":\tPASS")
     else:
         print(">TEST " + test + ":\tFAIL")
@@ -290,9 +325,9 @@ def runTests():
     print(">COMMENCE TESTING...")
     result = None  # stores result of each test
 
-    clear()
     # TEST readData()
     desiredResult = []  # stores desired result of each test
+    clear()
     try:
         result = readData()
     except TypeError and ValueError and FileNotFoundError as e:
@@ -326,15 +361,14 @@ def runTests():
     # TEST appendData()
     desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
     try:
-        appendData(Data("in cold blood","rP0uuI80wuY" , "alt-j", 74000, 2000, 9059467, False))
-        result = str(readData()[readData().__len__()-1:])
+        appendData(Data("in cold blood", "rP0uuI80wuY", "alt-j", 74000, 2000, 9059467, False))
+        result = str(readData()[readData().__len__() - 1:])
     except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("appendData()", desiredResult, result)
 
     # TEST getStats()
-
     desiredResult = [0, 0, 0]
     ytPath = 'https://www.youtube.com/watch?v='
     try:
@@ -343,7 +377,7 @@ def runTests():
         error(str(e))
         pass
     checkResults("getStats()", desiredResult, result)
-    printRows(readData())
+
     # TEST clear()
     desiredResult = 0
     try:
@@ -415,27 +449,7 @@ def runTests():
     '''
 
 
-
 # TODO
 # slim down and/or user control
 if __name__ == "__main__":
-    if not os.path.isfile(FileName):
-        error("'MusicData.csv' could not be found")
-        clear()
-        quit()
-    print("Commands are: updateCSV(), runTests()")
-    while True:
-        com = input('>>').split()
-        if len(com) != 1:
-            error("Just one command please")
-            pass
-        elif com[0] == '':
-            quit()
-        elif com[0] == "updateCSV()":
-            updateCSV()
-        elif com[0] == "runTests()":
-            runTests()
-        elif com[0] == "clear":
-            clear()
-        elif com[0] == "read":
-            printRows(readData())
+    print(error("Please run from main.py"))
