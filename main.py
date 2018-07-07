@@ -31,7 +31,7 @@ if __name__ == "__main__":
                 MusicHashTable.user = user
                 if path == "cd":
                     print("Welcome Cormac :)")
-                elif path == "cd":
+                elif path == "mg":
                     print("Welcome Marilyn :)")
                 elif (len(path) < 1):
                     path = str(input("TERMINATE PROGRAM (Y/N)?: ")).lower()
@@ -43,7 +43,7 @@ if __name__ == "__main__":
                         pass
                 else:
                     print('>SAVING PATH...\n')
-                    user = MusicHashTable.User(l, 'nu')
+                    user = MusicHashTable.User(path, 'nu')
                     YT_Bot.user = user
                     MusicHashTable.user = user
             else:

@@ -32,6 +32,7 @@ FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
 OldMusicPath = user.OldPath
+TestMusicPath = user.TestPath
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
@@ -72,42 +73,6 @@ music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the 
 music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
 music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
 
-
-# partially deletes data entry by it's row and col number shifts others up one
-# TO TEST
-def deleteEntry_Partial(rowNum, colNum):
-    data = readData()
-    with open(FileName, 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                            quoting=csv.QUOTE_NONNUMERIC)
-        row = 0
-        while row < data.__len__():
-            if row != rowNum:
-                writer.writerow(data[row])
-            else:
-                song = data[row].split(',')
-                if colNum < song.__len__():
-                    song[colNum] = ""
-                    str = ""
-                    for el in song:
-                        str += el
-                    writer.writerow(str.encode('utf8', 'ignore'))
-                else:
-                    print("That is out of range for this row. Try again.")
-                    pass
-
-
-# deletes data entry by it's row number shifts others up one
-# TO TEST
-def deleteEntry_Row(rowNum):
-    data = readData()
-    with open(FileName, 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter="\n", quotechar=" ",
-                            quoting=csv.QUOTE_NONNUMERIC)
-        row = 0
-        while row < data.__len__():
-            if row != rowNum:
-                writer.writerow(data[row])
 
 # Reads through data and outputs it as array eg out[row]
 def readData():
@@ -158,10 +123,10 @@ def appendData(song):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
-        music[song.Artist] = song
         try:
+            music[song.Artist] = song
             DataWriter.writerow([song.__str__()])
-        except TypeError as e:
+        except TypeError and AttributeError as e:
             error(e)
         csvfile.close()
 
@@ -173,13 +138,13 @@ def clear():
 
 
 # TO TEST
-def toCurrent(musicFile):
-    os.rename(Path + musicFile, CurrentMusicPath + musicFile)
+def toCurrent(musicFile, setting):
+    if str(setting) == '-1':  # if in testing mode
+        path = TestMusicPath
+    else:
+        path = Path
 
-
-# TO TEST
-def toOld(musicFile):
-    os.rename(CurrentMusicPath + musicFile, OldMusicPath + musicFile)
+    os.rename(path + musicFile, CurrentMusicPath + musicFile)
 
 
 # def cleanCSV(self):
@@ -234,19 +199,6 @@ def removeCommas(string):
     return out
 
 
-# TO TEST
-# TODO
-def search():
-    with open(FileName, "r", newline='\n') as csvfile:
-        DataReader = csv.DictReader(csvfile, delimiter="\n", quotechar=" ",
-                                    quoting=csv.QUOTE_NONNUMERIC)
-        out = {}
-        for Item in DataReader:
-            print(Item.keys())
-        csvfile.close()
-        return out
-
-
 # prints error message
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
@@ -277,31 +229,36 @@ def convertCSVtoDict():
 
 # TO TEST
 # control center for MusicHashTable.py
-def updateCSV():
+def updateCSV(setting):
+    if setting == -1:  # if testing mode
+        path = TestMusicPath
+    else:
+        path = NewMusicPath
     ytPath = 'https://www.youtube.com/watch?v='
-    musicFileList = glob.glob(NewMusicPath + '*.mp3')
+    musicFileList = glob.glob(path + '*.mp3')
     # TODO integrate new data with previous data
     music = convertCSVtoDict()
     clear()
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'")
     for musicFile in musicFileList:
-        file = musicFile[NewMusicPath.__len__():]
+        file = musicFile[path.__len__():]
         info = getTrackInfo(file)  # (artist, title, url)
         data = getStats(ytPath + info[2])  # (likes, dislikes, views)
         entry = Data(info[1], info[2], info[0], data[0], data[1], data[2], False)
         if music.get(info[0]) != None:
             song = str(music.get(info[0])).split(',')[1]
             if (song == info[1]):  # if both the artists and the songs match
-                print(">FILE DUPLICATE FOUND:\t" + str(musicFile))
+                if setting != -1:
+                    print(">FILE DUPLICATE FOUND:\t" + str(musicFile))
                 # TODO delete duplicate file
                 continue  # determin tracks to be the same, add no entry
-
         music[info[0]] = entry
-        print(">NEW ENTRY:\t" + info[0] + info[1] + ' ' + info[2])
+        if setting != -1:
+            print(">NEW ENTRY:\t" + info[0] + info[1] + ' ' + info[2])
     saveData(dataList=music)
-    print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
-    for k, v in music.items():
-        print(k, ':',v)
+    if setting != -1:
+        print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
+
 
 
 def checkResults(test, desiredResults, results):
@@ -314,7 +271,7 @@ def checkResults(test, desiredResults, results):
         test += '\t'
     if test.__len__() < 19:
         test += '\t'
-    if results.__eq__(desiredResults):
+    if str(results) == str(desiredResults):
         print(">TEST " + test + "\tPASS")
     else:
         print(">TEST " + test + "\tFAIL")
@@ -363,21 +320,14 @@ def runTests():
     desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
     try:
         clear()
-        appendData(music)
-        results = str(readData())
-        appendData(Data("in cold blood","rP0uuI80wuY" , "alt-j", 74000, 2000, 9059467, False))
-        result = str(readData()[readData().__len__()-1:])
         appendData(Data("in cold blood", "rP0uuI80wuY", "alt-j", 74000, 2000, 9059467, False))
-        result = str(readData()[readData().__len__() - 1:])
+        results = str(readData()[readData().__len__() - 1:])
     except TypeError and ValueError as e:
         error(str(e))
         pass
     checkResults("appendData()", desiredResult, results)
-    printRows(readData())
-    checkResults("appendData()", desiredResult, result)
 
     # TEST getStats()
-
     desiredResult = [0, 0, 0]
     ytPath = 'https://www.youtube.com/watch?v='
     try:
@@ -387,8 +337,6 @@ def runTests():
         pass
     checkResults("getStats()", desiredResult, results)
 
-    checkResults("getStats()", desiredResult, result)
-
     # TEST clear()
     desiredResult = 0
     try:
@@ -397,87 +345,45 @@ def runTests():
     except ValueError as e:
         error(str(e))
         pass
-    checkResults("clear()", desiredResult, result)
-    '''
     checkResults("clear()", desiredResult, results)
 
     # TEST toCurrent()
-    desiredResult = "['Music/Current/Test 1-zGDzdps75ns.mp3', 'Music/Current/Test 0-zGDzdps75ns.mp3', " \
-                    "'Music/Current/Test 4-zGDzdps75ns.mp3', 'Music/Current/Test 2-zGDzdps75ns.mp3', " \
-                    "'Music/Current/Test 3-zGDzdps75ns.mp3']"
+    desiredResult = "['Music/Current\\\\Test 0-title-6cwBLBCehGg.mp3', " \
+                    "'Music/Current\\\\Test 1-title-6cwBLBCehGg.mp3', " \
+                    "'Music/Current\\\\Test 2-title-6cwBLBCehGg.mp3', " \
+                    "'Music/Current\\\\Test 3-title-6cwBLBCehGg.mp3', " \
+                    "'Music/Current\\\\Test 4-title-6cwBLBCehGg.mp3']"
     try:
-        musicList = glob.glob(user.TestPath + '*.mp3')
+        musicList = glob.glob(TestMusicPath + '*.mp3')
         for track in musicList:
-            if track.split(' ')[0] == "Test":
-                toCurrent(track)
+            if str(track.split(' ')[0])[-4:] == "Test":
+                track = track[TestMusicPath.__len__():]
+                toCurrent(track, '-1')
         results = glob.glob(CurrentMusicPath + '*.mp3')
-        for track in musicList:
-            os.rename(CurrentMusicPath + track, user.TestPath + track)
-
-    except TypeError and FileNotFoundError and AttributeError as e:
+        for track in results:
+            track = track[CurrentMusicPath.__len__():]
+            if track.split(' ')[0] == "Test":
+                os.rename(CurrentMusicPath + track, TestMusicPath + track)
+    except TypeError and FileNotFoundError and AttributeError and OSError as e:
         error(str(e))
         pass
     checkResults("toCurrent()", desiredResult, results)
 
-'''
-    # TEST addEntry()
-    desiredResult = "['Test4', 'Test5', 'Test6', 'Test7']"
-    try:
-        addEntry(2, ['Test4', 'Test5', 'Test6', 'Test7'])  # Test
-        result = str(readData())  # gather results
-    except TypeError and IndexError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("addEntry()", desiredResult, result)
-    
-    # TEST deleteEntry_Partial()
-    desiredResult = None
-    try:
-        deleteEntry_Partial(0, 0)
-        result = str(readData())
-    except ValueError and TypeError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("deleteEntry_Partial()", desiredResult, result)
-
-    # TEST deleteEntry_Row()
-    desiredResult = None
-    try:
-        deleteEntry_Row(0)
-        result = str(readData())
-    except IndexError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("deleteEntry_Row()", desiredResult, result)
-
-    # TEST toCurrent()
-    # desiredResult = None
-    # try:
-    #     #test
-    #     #results = bla
-    # except Error as e:
-    #     error(str(e))
-    #     pass
-
     # TEST updateCSV()
-    # desiredResult = None
-    # try:
-    #     #test
-    #     #results = bla
-    # except Error as e:
-    #     error(str(e))
-    #     pass
-
-    # TEST search()
-    # desiredResult = None
-    # try:
-    #     #test
-    #     #results = bla
-    # except Error as e:
-    #     error(str(e))
-    #     pass
-
-
+    desiredResult = str([["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'"],
+                         ['Test 0,title,6cwBLBCehGg,0,0,0,False'],
+                         ['Test 1,title,6cwBLBCehGg,0,0,0,False'],
+                         ['Test 2,title,6cwBLBCehGg,0,0,0,False'],
+                         ['Test 3,title,6cwBLBCehGg,0,0,0,False'],
+                         ['Test 4,title,6cwBLBCehGg,0,0,0,False']])
+    clear()
+    try:
+        updateCSV(-1)
+        results = readData()
+    except TypeError as e:
+        error(str(e))
+        pass
+    checkResults("updateCSV()", desiredResult, results)
 
 # TODO
 # slim down and/or user control
