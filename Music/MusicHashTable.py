@@ -164,7 +164,7 @@ def toCurrent(musicFile, setting):
 
 
 # TO TEST
-# gets views, likes and dislikes
+# gets (likes, dislikes, and views)
 def getStats(url):
     soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
                          ('utf-8', 'ignore'), 'html.parser')
@@ -208,6 +208,15 @@ def getStats(url):
         error(e)
 
 
+# get's the info of the track (url, artist, title)
+def getTrackInfo(file):
+    url = file[file.__len__() - 15:file.__len__() - 4]
+    fx = file.split('-')
+    artist = removeCommas(fx[0])
+    title = removeCommas(fx[1])
+    return [artist, title, url]
+
+
 def printRows(arr):
     count = 0
     while count < arr.__len__():
@@ -227,15 +236,6 @@ def removeCommas(string):
 # prints error message
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
-
-
-# get's the info of the track (url, artist, title)
-def getTrackInfo(file):
-    url = file[file.__len__() - 15:file.__len__() - 4]
-    fx = file.split('-')
-    artist = removeCommas(fx[0])
-    title = removeCommas(fx[1])
-    return [artist, title, url]
 
 
 # TODO convert CSV to Dict
@@ -400,7 +400,6 @@ def runTests():
         for track in results:  # return Test*.mp3 to /Test/
             track = track[CurrentMusicPath.__len__():]
             if track.split(' ')[0] == "Test":
-
                 os.rename(CurrentMusicPath + track, TestMusicPath + track)
     except TypeError and FileNotFoundError and AttributeError and OSError as e:
         error(str(e))
