@@ -170,6 +170,15 @@ def getStats(url):
         dislikes = str(dislikes).split('>')
         dislikes = dislikes[dislikes.__len__() - 3]
         dislikes = dislikes[:dislikes.__len__() - 6]
+    elif likes == "Transcript":
+        likes = ratings[26]
+        dislikes = ratings[28]
+        likes = str(likes).split('>')
+        likes = likes[likes.__len__() - 3]
+        likes = likes[:likes.__len__() - 6]
+        dislikes = str(dislikes).split('>')
+        dislikes = dislikes[dislikes.__len__() - 3]
+        dislikes = dislikes[:dislikes.__len__() - 6]
     else:
         dislikes = str(dislikes).split('>')
         dislikes = dislikes[dislikes.__len__() - 3]
@@ -180,7 +189,10 @@ def getStats(url):
     views = views[:views.__len__() - 11]
     if (str(views) == "No"):  # if no views
         views = '0'
-    return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
+    try:
+        return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
+    except ValueError and AttributeError as e:
+        error(e)
 
 
 def printRows(arr):
@@ -215,50 +227,61 @@ def getTrackInfo(file):
 
 # TODO convert CSV to Dict
 def convertCSVtoDict():
-    data = readData()
+    dataList = readData()
     dic = {}
-    count = 0
-    while count < data.__len__():  # data to dict
-        artist = (str(data[count]).split(',')[0])
+    index = 1
+    while index < dataList.__len__():  # dataList to dict
+        artist = (str(dataList[index]).split(',')[0])
         artist = artist[2:]
-        print(artist)
-        dic[artist] = data[count]
-        count += 1
+        dic[artist] = dataList[index]
+        index += 1
     return dic
 
 
-# TO TEST
 # control center for MusicHashTable.py
 def updateCSV(setting):
     if setting == -1:  # if testing mode
         path = TestMusicPath
     else:
         path = NewMusicPath
+
     ytPath = 'https://www.youtube.com/watch?v='
+    # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
-    # TODO integrate new data with previous data
+    # creating a dictionary and shoving those in there
     music = convertCSVtoDict()
     clear()
+    # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'")
     for musicFile in musicFileList:
         file = musicFile[path.__len__():]
-        info = getTrackInfo(file)  # (artist, title, url)
-        data = getStats(ytPath + info[2])  # (likes, dislikes, views)
-        entry = Data(info[1], info[2], info[0], data[0], data[1], data[2], False)
-        if music.get(info[0]) != None:
-            song = str(music.get(info[0])).split(',')[1]
-            if (song == info[1]):  # if both the artists and the songs match
-                if setting != -1:
-                    print(">FILE DUPLICATE FOUND:\t" + str(musicFile))
-                # TODO delete duplicate file
-                continue  # determin tracks to be the same, add no entry
+        try:
+            info = getTrackInfo(file)  # (artist, title, url)
+            data = getStats(ytPath + info[2])  # (likes, dislikes, views)
+        except urllib.error.HTTPError and ValueError as e:
+            error(str(e) + ' ' + file)
+            continue
+        entry = Data(force_to_unicode(info[1]).decode('utf8'),
+                     force_to_unicode(info[2]).decode('utf8'),
+                     force_to_unicode(info[0]).decode('utf8'), data[0], data[1], data[2], False)
+        if music.get(info[0]) != None:  # if there is an existing entry under the same artist
+            song = str(music.get(info[0])).split(',')[1]  # get the song from the entry
+            if (song == info[1]):  # if the song names match
+                if setting != -1:  # if not a test
+                    print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[10:])
+                    os.remove(musicFile)
+                continue  # determine tracks to be the same, add no entry
+            # TODO iterate through songs by artist (key) to ensure track does not already exist
+            else:  # if new track under existing artist
+                print(">NEW ENTRY UNDER:\t" + info[0])
+                # TODO double hash the data
         music[info[0]] = entry
-        if setting != -1:
-            print(">NEW ENTRY:\t" + info[0] + info[1] + ' ' + info[2])
+        if setting != -1:  # if not a test
+            toCurrent(musicFile, 0)  # send track to /Current/
+            print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
     saveData(dataList=music)
-    if setting != -1:
+    if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
-
 
 
 def checkResults(test, desiredResults, results):
@@ -282,7 +305,7 @@ def checkResults(test, desiredResults, results):
 def runTests():
     print(">COMMENCE TESTING...")
     results = None  # stores result of each test
-
+    dic = convertCSVtoDict()  # stored so that info is not lost
     # TEST readData()
     desiredResult = []  # stores desired result of each test
     clear()
@@ -354,15 +377,17 @@ def runTests():
                     "'Music/Current\\\\Test 3-title-6cwBLBCehGg.mp3', " \
                     "'Music/Current\\\\Test 4-title-6cwBLBCehGg.mp3']"
     try:
-        musicList = glob.glob(TestMusicPath + '*.mp3')
+        musicList = glob.glob(TestMusicPath + '*.mp3')  # gather a list of tracks in /Test/
         for track in musicList:
             if str(track.split(' ')[0])[-4:] == "Test":
                 track = track[TestMusicPath.__len__():]
                 toCurrent(track, '-1')
-        results = glob.glob(CurrentMusicPath + '*.mp3')
-        for track in results:
+
+        results = glob.glob(CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
+        for track in results:  # return Test*.mp3 to /Test/
             track = track[CurrentMusicPath.__len__():]
             if track.split(' ')[0] == "Test":
+
                 os.rename(CurrentMusicPath + track, TestMusicPath + track)
     except TypeError and FileNotFoundError and AttributeError and OSError as e:
         error(str(e))
@@ -376,16 +401,18 @@ def runTests():
                          ['Test 2,title,6cwBLBCehGg,0,0,0,False'],
                          ['Test 3,title,6cwBLBCehGg,0,0,0,False'],
                          ['Test 4,title,6cwBLBCehGg,0,0,0,False']])
-    clear()
     try:
+        clear()
         updateCSV(-1)
         results = readData()
+        clear()
     except TypeError as e:
         error(str(e))
         pass
     checkResults("updateCSV()", desiredResult, results)
 
-# TODO
-# slim down and/or user control
+    saveData(dic)  # return original data to csv
+
+
 if __name__ == "__main__":
     print(error("Please run from main.py"))
