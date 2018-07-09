@@ -9,6 +9,8 @@ import urllib.request
 
 from bs4 import BeautifulSoup
 
+from Music import HashTable as ht
+
 
 def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
@@ -57,10 +59,11 @@ class Data:
             self.pos = hash(Artist)%(1000)
         except ZeroDivisionError:
             self.pos = 0
+        self.isDoubleHashed = False
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6},{7}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6},{7},{8}".format(
             self.Artist,
             self.Title,
             self.Url,
@@ -68,7 +71,8 @@ class Data:
             self.dislikes,
             self.views,
             self.used,
-            self.pos
+            self.pos,
+            self.isDoubleHashed
         )
         return out
 
@@ -241,12 +245,12 @@ def error(errorMessage):
 # TODO convert CSV to Dict
 def convertCSVtoDict():
     dataList = readData()
-    dic = {}
+    dic = ht
     index = 1
     while index < dataList.__len__():  # dataList to dict
         artist = (str(dataList[index]).split(',')[0])
         artist = artist[2:]
-        dic[artist] = dataList[index]
+        dic.put(artist, dataList[index])
         index += 1
     return dic
 
@@ -265,13 +269,13 @@ def updateCSV(setting):
     music = convertCSVtoDict()
     clear()
     # Setting up the basic CSV
-    saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'")
+    saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'DOUBLE-HASHED?'")
     for musicFile in musicFileList:
         file = musicFile[path.__len__():]
         try:
             info = getTrackInfo(file)  # (artist, title, url)
             data = getStats(ytPath + info[2])  # (likes, dislikes, views)
-        except urllib.error.HTTPError and ValueError as e:
+        except urllib.request.error.HTTPError and ValueError as e:
             error(str(e) + ' ' + file)
             continue
         entry = Data(force_to_unicode(info[1]).decode('utf8'),
