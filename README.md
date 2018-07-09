@@ -57,7 +57,7 @@ Please read [CONTRIBUTING.md](httpsgist.github.comPurpleBoothb24679402957c63ec42
 ## Authors
 
  * Cormac Dacker - Author - [AI-Enthusiast](httpsgithub.comAI-Enthusiast)
- * Marilyn Groppe - Co Author - [MJGroppe][httpsgithub.commjgroppe]
+ * Marilyn Groppe - Co Author - [MJGroppe](httpsgithub.commjgroppe)
 
 
 ## Acknowledgments
