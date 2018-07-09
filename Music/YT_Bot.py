@@ -88,8 +88,8 @@ class MyLogger(object):
     def warning(self, msg):
         pass
 
-    def error(self, msg):
-        print(msg)
+    def error(self, errorMessage):
+        print(str(errorMessage))
 
 
 def printRows(arr):
@@ -123,7 +123,7 @@ def doneConvertion():
 
 
 def convertVid(url):
-    videoURL = "https://www.youtube.userIN/watch?v=" + url
+    videoURL = "https://www.youtube.com/watch?v=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([videoURL])
     doneConvertion()
@@ -131,7 +131,7 @@ def convertVid(url):
 
 # Converts playlists using youtube-dl library
 def convertPlaylist(url):
-    playlistURL = "https://www.youtube.userIN/playlist?list=" + url
+    playlistURL = "https://www.youtube.com/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlistURL])
     doneConvertion()
@@ -139,7 +139,7 @@ def convertPlaylist(url):
 
 # Converts channels using youtube-dl library
 def convertChannel(url):
-    channelURL = "https://www.youtube.userIN/channel/" + url
+    channelURL = "https://www.youtube.com/channel/" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channelURL])
     doneConvertion()
@@ -152,7 +152,7 @@ def downloading():
 
 # prints error message
 def error(errorMessage):
-    print(">ERROR: " + str(errorMessage))
+    print(">ERROR:\t" + str(errorMessage))
 
 
 # options needed for youtube-dl library
@@ -167,70 +167,4 @@ ydl_opts = {
 }
 
 if __name__ == "__main__":
-    # needed to set up the search opts
-    print('Insert the path to the directory on your computer that '
-          'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
-    path = input('>>')
-
-    while True:
-        if (BASEPATH == ''):
-            if (path == 'mg'):
-                BASEPATH = 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI'
-            elif (path == 'cd'):
-                BASEPATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI'
-            elif (len(path) < 1):
-                l = input('That didn\'t work... Insert the path to the directory on your computer that '
-                          'leads to the directory that contains your \'New\' and \'Current\' folders, in one string.\n')
-                if (len(l) < 1):
-                    doneConvertion()
-                    quit()
-                else:
-                    print('Saving your path...\n')
-                    BASEPATH = l
-            else:
-                print('Saving your path...\n')
-                BASEPATH = path
-        else:
-            com = input('>>').split()
-            if len(com) == 0:  # if there is not input end program
-                print("\n YT_Bot.py has been Terminated...")
-                doneConvertion()
-                break
-            elif len(com) < 2 and str(com[0]) != "help":  # if there is not enough input
-                print("ERROR: Insufficient arguments. For help type 'help'")
-            elif com[0] == "v":  # if video v
-                try:
-                    downloading()
-                    convertVid(com[1])
-                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
-                    error(e)
-            elif com[0] == "p":  # if playlist p
-                try:
-                    downloading()
-                    convertPlaylist(com[1])
-                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
-                    error(e)
-            elif com[0] == "c":  # if channel c
-                try:
-                    downloading()
-                    convertChannel(com[1])
-                except youtube_dl.utils.PostProcessingError and youtube_dl.utils.DownloadError as e:
-                    error(e)
-            elif com[0] == "s":  # if search s
-                argparser.add_argument("--q", help="Search term", default=path[1])
-                argparser.add_argument("--max-results", help="Max results", default=25)
-                args = argparser.parse_args()
-
-                argparser.set_defaults(q=com[1])
-                args = argparser.parse_args()
-                try:
-                    youtube_search(args)
-                except HttpError as e:
-                    print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
-
-            # elif userIN[0] == "auto":
-            # enter automatic stage
-            else:
-                print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), "
-                      "or 'c'(for channel) followed by the end url or the search term. "
-                      "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'")
+    print(error("Please run from main.py"))
