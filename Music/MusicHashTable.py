@@ -319,109 +319,12 @@ def runTests():
     print(">COMMENCE TESTING...")
     results = None  # stores result of each test
     dic = convertCSVtoDict()  # stored so that info is not lost
-    # TEST readData()
-    desiredResult = []  # stores desired result of each test
-    clear()
-    try:
-        results = readData()
-    except TypeError and ValueError and FileNotFoundError as e:
-        error(str(e))
-        pass
-    checkResults("readData()", desiredResult, results)
-
-    # TEST saveHeader()
-    desiredResult = "[\"['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?']\"]"
-    try:
-        saveHeader(dataList=['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'])  # Test
-        results = str(readData()[0])  # gather results
-    except TypeError and ValueError as e:
-        error(str(e))
-        pass
-    checkResults('saveHeader()', desiredResult, results)
-
-    # TEST saveData()
-    desiredResult = "[['Khalid,Location,by3yRdlQvzs,1900000,80000,297339999,False'], " \
-                    "['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False']," \
-                    " ['Tessa Violet,Crush,SiAuAJBZuGs,111000,4300,1969889,False'], " \
-                    "['gnash,home,bYBLt_1HcQE,120000,20000,20243102,False']]"
-    try:
-        saveData(music)
-        results = str(readData()[1:])  # gather results
-    except ValueError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("saveData()", desiredResult, results)
-
-    # TEST appendData()
-    desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
-    try:
-        clear()
-        appendData(Data("in cold blood", "rP0uuI80wuY", "alt-j", 74000, 2000, 9059467, False))
-        results = str(readData()[readData().__len__() - 1:])
-    except TypeError and ValueError as e:
-        error(str(e))
-        pass
-    checkResults("appendData()", desiredResult, results)
-
-    # TEST getStats()
-    desiredResult = [0, 0, 0]
-    ytPath = 'https://www.youtube.com/watch?v='
-    try:
-        results = getStats(ytPath + "6cwBLBCehGg")
-    except TypeError as e:
-        error(str(e))
-        pass
-    checkResults("getStats()", desiredResult, results)
-
-    # TEST clear()
-    desiredResult = 0
-    try:
-        clear()
-        results = readData().__len__()
-    except ValueError as e:
-        error(str(e))
-        pass
-    checkResults("clear()", desiredResult, results)
 
     # TEST toCurrent()
-    desiredResult = "['Music/Current\\\\Test 0-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 1-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 2-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 3-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 4-title-6cwBLBCehGg.mp3']"
-    try:
-        musicList = glob.glob(TestMusicPath + '*.mp3')  # gather a list of tracks in /Test/
-        for track in musicList:
-            if str(track.split(' ')[0])[-4:] == "Test":
-                track = track[TestMusicPath.__len__():]
-                toCurrent(track, '-1')
 
-        results = glob.glob(CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
-        for track in results:  # return Test*.mp3 to /Test/
-            track = track[CurrentMusicPath.__len__():]
-            if track.split(' ')[0] == "Test":
-                os.rename(CurrentMusicPath + track, TestMusicPath + track)
-    except TypeError and FileNotFoundError and AttributeError and OSError as e:
-        error(str(e))
-        pass
-    checkResults("toCurrent()", desiredResult, results)
 
     # TEST updateCSV()
-    desiredResult = str([["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'"],
-                         ['Test 0,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 1,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 2,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 3,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 4,title,6cwBLBCehGg,0,0,0,False']])
-    try:
-        clear()
-        updateCSV(-1)
-        results = readData()
-        clear()
-    except TypeError as e:
-        error(str(e))
-        pass
-    checkResults("updateCSV()", desiredResult, results)
+
 
     saveData(dic)  # return original data to csv
 

@@ -1,19 +1,23 @@
 from Music import MusicHashTable as mh
+import random
+
 
 class HashTable:
 
+    # Constructor
     def __init__(self):
         self.size = 0
         self.capacity = 1000
         self.table = []
-        self.seed = 37
+        self.seed = random.random(37)
         for i in range(self.capacity):
             self.table.append([])
         self.resize = 2
         self.values = []
         self.keys = []
 
-
+    # TODO return string instead of printing
+    # toString()
     def __str__(self):
         for i in range(self.capacity):
             if self.table[i]:
@@ -23,14 +27,17 @@ class HashTable:
         print(self.capacity)
         print(self.size)
 
+    # a hashing functionality
     def h1(self, key):
-        return hash(key)%self.capacity
+        return hash(key) % self.capacity
 
+    # needed for doubleHashing algorithm
     def h2(self, key):
-        return hash(key)%self.seed
+        return hash(key) % self.seed
 
+    # tells the program when to double hash and when to rehash
     def cutoff(self):
-        if (self.capacity - self.size) < self.capacity//2:
+        if (self.capacity - self.size) < self.capacity // 2:
             return True
         else:
             return False
@@ -38,7 +45,7 @@ class HashTable:
     # method to resolve collision by quadratic probing method
     def doubleHashing(self, key, value):
         posFound = False
-        limit = self.capacity*.8
+        limit = self.capacity * .8
         i = 2
         newPosition = 0
         while i <= limit:
@@ -52,14 +59,60 @@ class HashTable:
         return posFound, newPosition
 
     def get(self, key):
-        return self.table[self.h1(key)]
+        if self.table[self.h1(key)] == []:
+            return None
+        elif self.table[self.h1(key)][0].Artist == key:
+            return self.table[self.h1(key)]
+        else:
+            print('temp')
+
+    # method that searches for an element in the table
+    # returns position of element if found
+    # else returns False
+    def search(self, element):
+        found = False
+        position = self.h1(element)
+        self.comparisons += 1
+        if (self.table[position] == element):
+            return position
+        # if element is not found at position returned hash function
+        # then we search element using double hashing
+        else:
+            limit = 50
+            i = 2
+            newPosition = position
+            # start a loop to find the position
+            while i <= limit:
+                # calculate new position by double Hashing
+                position = (i * self.h1(element) + self.h2(element)) % self.size
+                self.comparisons += 1
+                # if element at newPosition is equal to the required element
+                if self.table[position] == element:
+                    found = True
+                    break
+                elif self.table[position] == 0:
+                    found = False
+                    break
+                else:
+                    # as the position is not empty increase i
+                    i += 1
+            if found:
+                return position
+            else:
+                print("Element not Found")
+                return found
 
     def rehash(self):
+        # increases the number of artists
         self.capacity *= self.resize
         print("Rehashing... capacity is now " + str(self.capacity))
+        # resets all other vars
         self.table = [[] for i in range(0, self.capacity)]
+        vals = self.values
+        self.values = []
+        self.keys = []
         self.size = 0
-        for value in self.values:
+        for value in vals:
             self.put(value.Artist, value)
 
     def put(self, key, value):
@@ -99,8 +152,8 @@ if __name__ == '__main__':
     songs = [
         mh.Data('A Real Life Happily Ever After', 'bCgjhkl08', 'Cast of Galavant', 34, 5, 45),
         mh.Data('Whatever Happened to My Part', 'hgIG1Jlk0', 'Quinn Thomashow', 356, 1, 145),
-        mh.Data('Skinny Love', 'ghk1245UP', 'Quinn Thomashow', 1466, 224, 1352), 
-        mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316) 
+        mh.Data('Skinny Love', 'ghk1245UP', 'Quinn Thomashow', 1466, 224, 1352),
+        mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316)
     ]
     for song in songs:
         table.put(song.Artist, song)
