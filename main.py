@@ -10,7 +10,7 @@ from oauth2client.tools import argparser
 
 from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
-
+import UnitTests as ut
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
 user = mh.User('', '')
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
                     yt.doneConvertion()
                     break
                 elif userIN[0] == "test":  # if wanting to run test for mh.py
-                    mh.runTests()
+                    ut.ut.main()
                 elif userIN[0] == "read":  # if wanting to read MusicData.csv
                     mh.printRows(mh.readData())
                 elif userIN[0] == "clear":  # if wishing to clear of create a new instance of MusicData.csv

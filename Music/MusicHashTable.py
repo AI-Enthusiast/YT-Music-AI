@@ -53,14 +53,11 @@ class Data:
         self.dislikes = dislikes
         self.views = views
         self.used = used
-        try:
-            self.pos = hash(Artist)%(1000)
-        except ZeroDivisionError:
-            self.pos = 0
+
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6},{7}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6}".format(
             self.Artist,
             self.Title,
             self.Url,
@@ -68,7 +65,6 @@ class Data:
             self.dislikes,
             self.views,
             self.used,
-            self.pos
         )
         return out
 
@@ -80,6 +76,7 @@ class Data:
                 return False
         else:
             return False
+
 
 music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", 1900000, 80000, 297339999)
 music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)

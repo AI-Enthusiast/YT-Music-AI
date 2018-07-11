@@ -1,1 +1,1 @@
-# Convolutional NN
+# Convolutional DNN

@@ -9,7 +9,7 @@ class HashTable:
         self.size = 0
         self.capacity = 1000
         self.table = []
-        self.seed = random.random(37)
+        self.seed = 37
         for i in range(self.capacity):
             self.table.append([])
         self.resize = 2
@@ -26,14 +26,13 @@ class HashTable:
                     print(j.__str__())
         print(self.capacity)
         print(self.size)
-
     # a hashing functionality
     def h1(self, key):
-        return hash(key) % self.capacity
-
+        return int(key, 36) % self.capacity
     # needed for doubleHashing algorithm
+
     def h2(self, key):
-        return hash(key) % self.seed
+        return int(key, 36) % self.seed
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
@@ -72,7 +71,6 @@ class HashTable:
     def search(self, element):
         found = False
         position = self.h1(element)
-        self.comparisons += 1
         if (self.table[position] == element):
             return position
         # if element is not found at position returned hash function
@@ -85,7 +83,6 @@ class HashTable:
             while i <= limit:
                 # calculate new position by double Hashing
                 position = (i * self.h1(element) + self.h2(element)) % self.size
-                self.comparisons += 1
                 # if element at newPosition is equal to the required element
                 if self.table[position] == element:
                     found = True
@@ -116,26 +113,31 @@ class HashTable:
             self.put(value.Artist, value)
 
     def put(self, key, value):
-        if self.table[self.h1(key)] == []:
-            self.table[self.h1(key)].append(value)
-            value.pos = self.h1(key)
+        location = self.h1(key)
+        if self.table[location] == []:  # if the desired location in the hashtable is empty
+            self.table[location].append(value)  # add the Data object to the list
+            value.pos = location  # assigns the "position" variable for the Data object to be the hash just found
+            # upkeep
             self.size += 1
             self.values.append(value)
             self.keys.append(key)
-        elif self.table[self.h1(key)][0].Artist == key:
-            self.table[self.h1(key)].append(value)
-            value.pos = self.h1(key)
+        elif self.table[location][0].Artist == key:  # that artist already exists in the table
+            self.table[location].append(value)
+            value.pos = location
+            # upkeep
             self.size += 1
             self.values.append(value)
-            self.keys.append(key)
-        elif self.cutoff():
+        elif self.cutoff():  # if the table is too full and needs to be rehashed
             self.rehash()
             self.put(key, value)
-        else:
+        else:  # there needs to be a second try (aka double hash it, baby!)
             poss = self.doubleHashing(key, value)
             newPos = poss[1]
             value.pos = newPos
             self.table[newPos] = [value]
+            self.size += 1
+            self.values.append(value)
+            self.keys.append(key)
 
     def remove(self, item):
         try:
