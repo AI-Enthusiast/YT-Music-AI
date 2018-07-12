@@ -7,6 +7,8 @@ from Music import HashTable as ht
 from Music import MusicAI as ai
 
 
+TEST_VIDEO = '6cwBLBCehGg'
+
 # prints error message
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
@@ -76,7 +78,7 @@ class TestMusicHashTable(ut.TestCase):
         desiredResult = [0, 0, 0]
         ytPath = 'https://www.youtube.com/watch?v='
         try:
-            results = mht.getStats(ytPath + "6cwBLBCehGg")
+            results = mht.getStats(ytPath + TEST_VIDEO)
             self.assertEqual(results, desiredResult)
         except TypeError as e:
             error(str(e))
@@ -131,6 +133,152 @@ class TestMusicHashTable(ut.TestCase):
         except TypeError as e:
             error(str(e))
             pass
+
+
+class TestHashTable(ut.TestCase):
+    def testH1(self):
+        desiredResult = 205
+        Table = ht.HashTable()
+        result = Table.h1(key="test")
+        self.assertEqual(result, desiredResult)
+
+    def testH2(self):
+        desiredResult = 23
+        Table = ht.HashTable()
+        result = Table.h2(key="test")
+        self.assertEqual(result, desiredResult)
+
+    def testCutOff(self):
+        desiredResult = True
+        Table = ht.HashTable()
+        Table.capacity = 10
+        Table.size = 4
+        result = Table.cutoff()
+        self.assertEqual(result, desiredResult)
+        desiredResult = False
+        Table.capacity = 10
+        Table.size = 5
+        result = Table.cutoff()
+        self.assertEqual(result, desiredResult)
+
+    def testDoubleHashing(self):
+        desiredResult = True
+        Table = ht.HashTable()
+        Table.capacity = 10
+        result = Table.doubleHashing('testKey0', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = False
+        result = Table.doubleHashing('testKey1', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = True
+        result = Table.doubleHashing('testKey2', "[test0, test1, test2]")
+        print(result)
+        Table.__str__()
+        self.assertEqual(result, desiredResult)
+
+    def testGet(self):
+        desiredResult = '' #key exist
+        Table = ht.HashTable()
+        Table.put('testKey0', "[test0, test1, test2]")
+        result = Table.get('testKey0')
+        print(result)
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = '' #key but different title
+        Table.put('testKey0', "[test3, test4, test5]")
+        result = Table.get('testKey0')
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = None # key does not exist
+        Table.put('testKey1', "[test0, test1, test2]")
+        result = Table.get('testKey2')# key does not exist
+        self.assertEqual(result, desiredResult)
+
+    def testSearch(self):
+        Table = ht.HashTable()
+
+        desiredResult = ''
+        result = Table.put('testKey0', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = ''
+        result = Table.put('testKey1', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = ''
+        result = Table.put('testKey2', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+    def testRehash(self):
+        desiredResult1 = 10
+        desiredResult2 = 37
+        desiredResult3 = ['BROCKHAMPTON', 'Milo', 'gnash']
+        desiredResult4 = [mht.Data('SWEET', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0),
+                          mht.Data('Almost Cut My Hair (For Crosby)', TEST_VIDEO, 'Milo', 0, 0, 0),
+                          mht.Data('i hate u, i love u', TEST_VIDEO, 'gnash', 0, 0, 0),
+                          mht.Data('CINEMA 1', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0)]
+        desiredResult5 = 4
+        desiredResult6 = 1
+        Table = ht.HashTable(5)
+        Table.put('BROCKHAMPTON', mht.Data('SWEET', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0))
+        Table.put('Milo', mht.Data('Almost Cut My Hair (For Crosby)', TEST_VIDEO, 'Milo', 0, 0, 0))
+        Table.put('gnash', mht.Data('i hate u, i love u', TEST_VIDEO, 'gnash', 0, 0, 0))
+        Table.put('BROCKHAMPTON', mht.Data('CINEMA 1', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0))
+
+        Table.rehash()
+        self.assertEqual(desiredResult6, Table.rehashed)
+
+        self.assertEqual(desiredResult1, Table.capacity)
+        self.assertNotEqual(desiredResult2, Table.seed)
+        Table.keys.sort()
+        self.assertEqual(desiredResult3, Table.keys)
+        self.assertEqual(desiredResult4, Table.values)
+        self.assertEqual(desiredResult5, Table.size)
+
+    def testPut(self):
+        Table = ht.HashTable(5)
+        Table.put('Gregory Alan Isakov', mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0))
+        self.assertEqual(1, Table.size)
+        self.assertEqual(['Gregory Alan Isakov'], Table.keys)
+        self.assertEqual([ mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0)], Table.values)
+        self.assertEqual([ mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0)],
+                         Table.table[Table.h1('Gregory Alan Isakov')])
+
+    def testRemove(self):
+        Table = ht.HashTable(10)
+        Table.put('One Direction', mht.Data('What Makes You Beautiful', TEST_VIDEO, 'One Direction', 0, 0, 0))
+        desiredResult1 = 1
+        desiredResult2 = 0
+        desiredResult3 = []
+        desiredResult4 = [mht.Data('What Makes You Beautiful', TEST_VIDEO, 'One Direction', 0, 0, 0)]
+        desiredResult5 = [[], [], [], [], [], [], [], [], [], []]
+        desiredResult6 = ['One Direction']
+        self.assertEqual(desiredResult1, Table.size)
+        self.assertEqual(desiredResult4, Table.values)
+        self.assertEqual(desiredResult6, Table.keys)
+        Table.remove('One Direction')
+        self.assertEqual(desiredResult2, Table.size)
+        self.assertEqual(desiredResult3, Table.keys)
+        self.assertEqual(desiredResult3, Table.values)
+        self.assertEqual(desiredResult5, Table.table)
+
+
+    def testHas(self):
+        desiredResult = ''
+        Table = ht.HashTable(10)
+        result = Table.doubleHashing('testKey0', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = ''
+        result = Table.doubleHashing('testKey1', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+
+        desiredResult = ''
+        result = Table.doubleHashing('testKey2', "[test0, test1, test2]")
+        self.assertEqual(result, desiredResult)
+        self.assertEqual(result, desiredResult)
 
 
 if __name__ == '__main__':

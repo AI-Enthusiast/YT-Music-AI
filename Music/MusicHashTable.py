@@ -316,13 +316,6 @@ def runTests():
     print(">COMMENCE TESTING...")
     results = None  # stores result of each test
     dic = convertCSVtoDict()  # stored so that info is not lost
-
-    # TEST toCurrent()
-
-
-    # TEST updateCSV()
-
-
     saveData(dic)  # return original data to csv
 
 
