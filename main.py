@@ -4,13 +4,17 @@
 from __future__ import unicode_literals
 
 import os
+import unittest
+from io import StringIO
+from pprint import pprint
 
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 
+import UnitTests as ut
 from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
-import UnitTests as ut
+
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
 user = mh.User('', '')
 
@@ -18,12 +22,12 @@ user = mh.User('', '')
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
+
 if __name__ == "__main__":
     if not os.path.isfile(mh.FileName):
         mh.error("'MusicData.csv' could not be found")
         mh.clear()
         print(">FILE CREATED: 'MusicData.csv' in /Music/")
-
 
     print('Insert the path to the directory on your computer that '
           'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
@@ -64,8 +68,27 @@ if __name__ == "__main__":
                     print("\n yt.py has been Terminated...")
                     yt.doneConvertion()
                     break
-                elif userIN[0] == "test":  # if wanting to run test for mh.py
-                    ut.ut.main()
+                elif userIN[0] == "test":  # if wanting to run tests
+                    stream = StringIO()
+                    runner = unittest.TextTestRunner(stream=stream)
+                    result = runner.run(unittest.makeSuite(ut.TestHashTable))
+                    print('Tests run ', result.testsRun)
+                    print('Errors ', result.errors)
+                    pprint(result.failures)
+                    stream.seek(0)
+                    print('Test output\n', stream.read())
+                    result = runner.run(unittest.makeSuite(ut.TestMusicHashTable))
+                    print('Tests run ', result.testsRun)
+                    print('Errors ', result.errors)
+                    pprint(result.failures)
+                    stream.seek(0)
+                    print('Test output\n', stream.read())
+                    result = runner.run(unittest.makeSuite(ut.TestYT_Bot))
+                    print('Tests run ', result.testsRun)
+                    print('Errors ', result.errors)
+                    pprint(result.failures)
+                    stream.seek(0)
+                    print('Test output\n', stream.read())
                 elif userIN[0] == "read":  # if wanting to read MusicData.csv
                     mh.printRows(mh.readData())
                 elif userIN[0] == "clear":  # if wishing to clear of create a new instance of MusicData.csv
@@ -74,6 +97,8 @@ if __name__ == "__main__":
                     yt.doneConvertion()
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
+                elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
+                    mh.printRows(mh.readData())
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()

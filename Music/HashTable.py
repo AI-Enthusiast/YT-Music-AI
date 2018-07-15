@@ -1,5 +1,6 @@
-from Music import MusicHashTable as mh
 import random
+
+from Music import MusicHashTable as mh
 
 
 class HashTable:
@@ -38,7 +39,7 @@ class HashTable:
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
-        if self.keys.__len__() >= self.capacity*.8:
+        if self.keys.__len__() >= self.capacity * .8:
             print(self.keys.__len__())
             return True
         else:
@@ -63,9 +64,9 @@ class HashTable:
     def get(self, key):
         if self.table[self.h1(key)] == []:  # if the fist location of hash is blank
             return None
-        elif self.table[self.h1(key)][0].Artist == key: # if the first location is the entry is the same
+        elif self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
             return self.table[self.h1(key)]
-        else: # else cycle to next artist place
+        else:  # else cycle to next artist place
             pos = self.search(key)
             return self.table[pos]
 
@@ -133,7 +134,7 @@ class HashTable:
             self.size += 1
             self.values.append(value)
         elif self.keys.__len__() >= self.capacity * 0.8:
-            print(self.capacity * 0.8)# if the table is too full and needs to be rehashed
+            print(self.capacity * 0.8)  # if the table is too full and needs to be rehashed
             self.rehash()
             self.put(key, value)
         else:  # there needs to be a second try (aka double hash it, baby!)
@@ -164,7 +165,6 @@ class HashTable:
             self.rehash()
         return removed
 
-
     def has(self, key):
         if self.search(key) is not False:
             return True
@@ -182,5 +182,6 @@ if __name__ == '__main__':
     ]
     for song in songs:
         table.put(song.Artist, song)
-    table.remove('Cast of Galavant', value=mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316))
+    table.remove('Cast of Galavant',
+                 value=mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316))
     print(table.__str__())

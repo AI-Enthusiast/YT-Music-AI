@@ -9,8 +9,6 @@ import os
 
 import youtube_dl
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from oauth2client.tools import argparser
 
 from Music import MusicHashTable
 

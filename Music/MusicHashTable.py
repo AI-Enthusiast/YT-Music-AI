@@ -54,7 +54,6 @@ class Data:
         self.views = views
         self.used = used
 
-
     # toString()
     def __str__(self):
         out = "{0},{1},{2},{3},{4},{5},{6}".format(
