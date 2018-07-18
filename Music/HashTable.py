@@ -1,5 +1,6 @@
-import random
 import _md5
+import random
+
 
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
@@ -64,7 +65,7 @@ class HashTable:
         return posFound, newPosition
 
     def get(self, key):
-        if self.table[self.h1(key)] == []:  # if the fist location of hash is blank
+        if self.table[self.h1(key)].__eq__(None):  # if the fist location of hash is blank
             return None
         elif self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
             return self.table[self.h1(key)]
@@ -76,20 +77,22 @@ class HashTable:
     # returns position of entry if found
     # else returns False
     def search(self, key):
-        position = self.h1(key)
-        if self.table[position][0].Artist == key:
-            return position
-        else:
-            i = 0
-            while i < self.table.__len__():
-                position = (i * self.h1(key) + self.h2(key)) % self.capacity
-                if not self.table[position]:
-                    i += 1
-                elif self.table[position][0].Artist == key:
-                    return position
-                else:
-                    i += 1
-            return False
+        position = self.h1(key)  # expected first hash value
+        if self.table[position]:  # if the item at this position in the table is not an empty list
+            if self.table[position][0].Artist.__eq__(key):  # if the artist here matches the inputted artist
+                return position
+            else:
+                i = 1
+                while i < self.table.__len__():
+                    position = (i * self.h1(key) + self.h2(key)) % self.capacity
+                    if not self.table[position]:
+                        i += 1
+                        break
+                    elif self.table[position][0].Artist.__eq__(key):
+                        return position
+                    else:
+                        i += 1
+        return False
 
 
     def rehash(self):
@@ -144,6 +147,8 @@ class HashTable:
 
     def remove(self, key, value=None):
         pos = self.search(key)
+        if not pos:
+            return False
         if value:
             value = self.get(key)
             idx = self.table[pos].index(value)

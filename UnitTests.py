@@ -44,8 +44,8 @@ class TestMusicHashTable(ut.TestCase):
         desiredResult = []
         mht.clear()
         try:
-            data = mht.readData()
-            self.assertEqual(data, desiredResult, 'Failed to read from file' + mht.FileName)
+            result = mht.readData()
+            self.assertEqual(desiredResult, result, 'Failed to read from file' + mht.FileName)
         except TypeError and ValueError and FileNotFoundError as e:
             error(str(e))
             pass
@@ -55,34 +55,38 @@ class TestMusicHashTable(ut.TestCase):
         try:
             mht.saveHeader(dataList=['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'])  # Test
             results = str(mht.readData()[0])  # gather results
-            self.assertEqual(results, desiredResult)
+            self.assertEqual(desiredResult, results)
         except TypeError and ValueError as e:
             error(str(e))
             pass
 
     def testSaveData(self):
         try:
-            desiredResult = "[['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False'], ['Crush,Tessa Violet,SiAuAJBZuGs,111000,4300,1969889,False'], ['gnash,home,6cwBLBCehGg,0,0,0,False'], ['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
+            desiredResult = "[['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False,0,0,0'], " \
+                            "['Crush,Tessa Violet,SiAuAJBZuGs,111000,4300,1969889,False,0,0,0'], " \
+                            "['gnash,home,6cwBLBCehGg,0,0,0,False,0,0,0'], " \
+                            "['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False,0,0,0']]"
+            mht.clear()
             dataList = ht.HashTable()
             dataList.put(testSong12.Artist, testSong12)
             dataList.put(testSong11.Artist, testSong11)
             dataList.put(testSong00.Artist, testSong00)
             dataList.put(testSong13.Artist, testSong13)
-            mht.clear()
             mht.saveData(dataList)
             results = str(mht.readData())  # gather results
-            self.assertEqual(results, desiredResult)
+            self.assertEqual(desiredResult, results)
         except ValueError and AttributeError as e:
             error(str(e))
             pass
 
     def testAppendData(self):
-        desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
+        desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False,0,0,0']]"
         try:
             mht.clear()
             mht.appendData(mht.Data("in cold blood", "alt-j", Url="rP0uuI80wuY", likes=74000,
                                     dislikes=2000, views=9059467))
             results = str(mht.readData()[mht.readData().__len__() - 1:])
+            mht.music.remove('alt-j')
             self.assertEqual(desiredResult, results)
         except TypeError and ValueError as e:
             error(str(e))
@@ -93,7 +97,7 @@ class TestMusicHashTable(ut.TestCase):
         ytPath = 'https://www.youtube.com/watch?v='
         try:
             results = mht.getStats(ytPath + TEST_VIDEO)
-            self.assertEqual(results, desiredResult)
+            self.assertEqual(desiredResult, results)
         except TypeError as e:
             error(str(e))
             pass
@@ -103,50 +107,77 @@ class TestMusicHashTable(ut.TestCase):
         try:
             mht.clear()
             results = mht.readData().__len__()
-            self.assertEqual(results, desiredResult)
+            self.assertEqual(desiredResult, results)
         except ValueError as e:
             error(str(e))
             pass
 
     def testToCurrent(self):
-        desiredResult = ['Music/Current\Test 0-title-6cwBLBCehGg.mp3',
-                         'Music/Current\Test 1-title-6cwBLBCehGg.mp3',
-                         'Music/Current\Test 2-title-6cwBLBCehGg.mp3',
-                         'Music/Current\Test 3-title-6cwBLBCehGg.mp3',
-                         'Music/Current\Test 4-title-6cwBLBCehGg.mp3']
+        desiredResult = ['Test 0-title-6cwBLBCehGg.mp3',
+                         'Test 1-title-6cwBLBCehGg.mp3',
+                         'Test 2-title-6cwBLBCehGg.mp3',
+                         'Test 3-title-6cwBLBCehGg.mp3',
+                         'Test 4-title-6cwBLBCehGg.mp3']
         try:
-            musicList = glob.glob(mht.TestMusicPath + '*.mp3')  # gather a list of tracks in /Test/
+            musicList = glob.glob(mht.TestMusicPath + '*.mp3')
             for track in musicList:
                 if str(track.split(' ')[0])[-4:] == "Test":
                     track = track[mht.TestMusicPath.__len__():]
-                    mht.toCurrent(track, '-1')
+                    mht.toCurrent(track, '-1')  # send track to current
 
-            results = glob.glob(mht.CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
-            for track in results:  # return Test*.mp3 to /Test/
+            fileList = glob.glob(mht.CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
+            result = []
+            for track in fileList:  # return Test*.mp3 to /Test/
                 track = track[mht.CurrentMusicPath.__len__():]
                 if track.split(' ')[0] == "Test":
+                    result.append(track)
                     os.rename(mht.CurrentMusicPath + track, mht.TestMusicPath + track)
-            self.assertEqual(results, desiredResult)
+            self.assertEqual(desiredResult, result)
         except TypeError and FileNotFoundError and AttributeError and OSError as e:
             error(str(e))
             pass
 
     def testUpdateCSV(self):
-        desiredResult = [["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'"],
-                         ['Test 0,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 1,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 2,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 3,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 4,title,6cwBLBCehGg,0,0,0,False']]
+        desiredResult = [["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
+                          "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'"],
+                         ['Test 0,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 1,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 2,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 3,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 4,title,6cwBLBCehGg,0,0,0,False,0,0,0']]
         try:
             mht.clear()
-            print(mht.music.__str__())
-            mht.music.remove('alt-j')
-            print(mht.readData())
             mht.updateCSV(-1)
             results = mht.readData()
-            print(results)
-            self.assertEqual(results, desiredResult)
+            mht.clear()
+            self.assertEqual(desiredResult, results)
+        except AttributeError as e:
+            error(str(e))
+            pass
+
+    def testGetTrackInfo(self):
+        desiredResult = ['Test/Test 0', 'title', '6cwBLBCehGg']
+        try:
+            results = mht.getTrackInfo(mht.TestMusicPath + 'Test 0-title-6cwBLBCehGg.mp3')
+            self.assertEqual(desiredResult, results)
+        except TypeError as e:
+            error(str(e))
+            pass
+
+    def testGetRatios(self):
+        desiredResult = [0.9, 9.0, .09]
+        try:
+            results = mht.getRatios([9, 1, 100])
+            self.assertEqual(desiredResult, results)
+        except TypeError as e:
+            error(str(e))
+            pass
+
+    def testRemoveCommas(self):
+        desiredResult = 'Test'
+        try:
+            results = mht.removeCommas(',T,e,s,t,')
+            self.assertEqual(desiredResult, results)
         except TypeError as e:
             error(str(e))
             pass
@@ -156,13 +187,13 @@ class TestHashTable(ut.TestCase):
         desiredResult = 374
         Table = ht.HashTable()
         result = Table.h1(key="test")
-        self.assertEqual(result, desiredResult)
+        self.assertEqual(desiredResult, result)
 
     def testH2(self):
         desiredResult = 24
         Table = ht.HashTable()
         result = Table.h2(key="test")
-        self.assertEqual(result, desiredResult)
+        self.assertEqual(desiredResult, result)
 
     def testCutOff(self):
         Table = ht.HashTable(10)
@@ -193,13 +224,18 @@ class TestHashTable(ut.TestCase):
         self.assertEqual([testSong04], Table.get(testSong04.Artist))
 
     def testSearch(self):
-        Table = ht.HashTable(5)
-        Table.put(testSong00.Artist, testSong00)
-        Table.put(testSong02.Artist, testSong02)
-        expectedLocation1 = Table.h1(testSong00.Artist)
-        expectedLocation2 = Table.doubleHashing(testSong02.Artist)[1] + 1
-        self.assertEqual(expectedLocation1, Table.search(testSong00.Artist))
-        self.assertEqual(expectedLocation2, Table.search(testSong02.Artist))
+        Table = ht.HashTable(10)
+        Table.put(testSong10.Artist, testSong10)
+        Table.put(testSong09.Artist, testSong09)
+        Table.put(testSong03.Artist, testSong03)
+        Table.put(testSong05.Artist, testSong05)
+        print(Table.__str__())
+        expectedLocation1 = Table.h1(testSong10.Artist)
+        expectedLocation2 = Table.doubleHashing(testSong09.Artist)
+        self.assertEqual(expectedLocation1, Table.search(testSong10.Artist))
+        self.assertEqual(expectedLocation2, Table.search(testSong09.Artist))
+        self.assertEqual(Table.h1(testSong03.Artist), Table.search(testSong03.Artist))
+        self.assertEqual(Table.h1(testSong05.Artist), Table.search(testSong05.Artist))
 
     def testRehash(self):
         desiredResult1 = 10
@@ -218,6 +254,7 @@ class TestHashTable(ut.TestCase):
         self.assertEqual(desiredResult6, Table.rehashed)
 
         self.assertEqual(desiredResult1, Table.capacity)
+        self.assertNotEqual(desiredResult2, Table.seed)
         Table.keys.sort()
         self.assertEqual(desiredResult3, Table.keys)
         self.assertEqual(desiredResult4, Table.values)
@@ -254,6 +291,7 @@ class TestHashTable(ut.TestCase):
         Table.put(testSong00.Artist, testSong00)
         self.assertTrue(Table.has(testSong00.Artist))
         self.assertFalse(Table.has(testSong01.Artist))
+
 
 if __name__ == '__main__':
     ut.main()

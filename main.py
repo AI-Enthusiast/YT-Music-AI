@@ -69,6 +69,8 @@ if __name__ == "__main__":
                     yt.doneConvertion()
                     break
                 elif userIN[0] == "test":  # if wanting to run tests
+                    print(">COMMENCE TESTING...")
+                    dic = mh.convertCSVtoDict()  # stored so that info is not lost
                     stream = StringIO()
                     runner = unittest.TextTestRunner(stream=stream)
                     result = runner.run(unittest.makeSuite(ut.TestHashTable))
@@ -89,6 +91,7 @@ if __name__ == "__main__":
                     pprint(result.failures)
                     stream.seek(0)
                     print('Test output\n', stream.read())
+                    mh.saveData(dic)  # return original data to csv
                 elif userIN[0] == "read":  # if wanting to read MusicData.csv
                     mh.printRows(mh.readData())
                 elif userIN[0] == "clear":  # if wishing to clear of create a new instance of MusicData.csv
@@ -130,6 +133,7 @@ if __name__ == "__main__":
                 # TODO auto mode
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
                     yt.doneConvertion()
+                    mh.isEnoughData()
                     mh.updateCSV(0)
                     musicDic = mh.convertCSVtoDict()
 

@@ -1,7 +1,6 @@
 # YT Music AI
 
-Scraps music from YT as MP3 and stores data about music on CSV. Muisc is given a general score based on how well
-it performs on YT. It then analizes the MP3 files and learns the characteristics of high performing music. Model is then trained to predict high performing songs, selects underated music from downloaded music for YT upload.
+Scraps music from YT as MP3 and stores data about music on CSV. Muisc is given a general score based on how well it performs on YT. It then analizes the MP3 files and learns the characteristics of high performing music. Model is then trained to predict high performing songs, selects underated music from downloaded music for YT upload.
 
 ## Dependencies
 
@@ -14,11 +13,14 @@ it performs on YT. It then analizes the MP3 files and learns the characteristics
 * urllib - For connecting and decoding webpage for beautifulSoup.
 
 ## Running the Tests
+Testing is done through unitTests for HashTable, MusicHashTable, and YT_Bot 
 
 Run testing from 'main.py'
 1. Run main.py
 2. Type your path to 'main.py' at the '>>' prompt
 3. Type 'test'
+or
+1. Run UnitTests.py directly
 
 Hopefully it looks like this:
 ```
