@@ -1,4 +1,7 @@
-# Convolutional DNN
+# MusicAI.py started on 7/17/2018
+# Authors: Cormac Dacker, Marilyn Groppe
+# Version # 0.0.1
+
 from sklearn import tree
 
 from Music import MusicHashTable as mht
@@ -12,22 +15,40 @@ OldMusicPath = user.OldPath
 TestMusicPath = user.TestPath
 
 
-def label(data):
+def label(data):  # ratios
     labels = []
     for i in range(1, data.__len__()):
         entry = (str(data[i]).split(','))
-        mht.printRows(entry)  # we want the ratios to get an initial idea on the videos performance
-        labels.append(entry[7:])
+        info = []
+        info.append(float("{0:.6f}".format(float(entry[7]))))
+        info.append(float("{0:.6f}".format(float(entry[8]))))
+        info.append(float("{0:.6f}".format(float(entry[9][:entry[9].__len__() - 2]))))
+        labels.append(info)
     return labels
 
 
-features = mht.readData()
-labels = label()
+def feature(data):  # likes, dislikes, views
+    labels = []
+    for i in range(1, data.__len__()):
+        entry = (str(data[i]).split(','))
+        info = []
+        info.append(float("{0:.6f}".format(float(entry[3]))))
+        info.append(float("{0:.6f}".format(float(entry[4]))))
+        info.append(float("{0:.6f}".format(float(entry[5]))))
+        labels.append(info)
+    return labels
 
-# we are going to train a simple decition tree baised on the statistics rather than the music itself as an alpha ai
-clf = tree.DecisionTreeClassifir()
-clf = clf.fit(features, labels)
-print(clf.prdict['Flight of the Conchords', 'Robots', 'BNC61-OOPdA', 4100, 59, 559964, False, .9858, 69.49, .0073])
 
 # the next step will be to analize the music and understand that in the context of the ratios
 # then select similar sounding music that will have high performing ratios
+if __name__ == "__main__":
+    print("Please run from main.py")
+
+    features = mht.readData()[1:]
+    labels = label(features)
+    features = feature(features)
+
+    # we are going to train a simple decision tree based on the statistics rather than the music itself as an alpha ai
+    clf = tree.DecisionTreeRegressor()
+    clf = clf.fit(features, labels)
+    print(clf.predict([[4100, 59, 559964]]))

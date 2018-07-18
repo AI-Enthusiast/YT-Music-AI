@@ -1,6 +1,6 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Version # 0.0.8
+# Version # 0.0.9
 
 import csv
 import glob
@@ -28,7 +28,8 @@ class User:
         self.TestPath = self.BASEPATH + 'Test/'
 
 
-user = User('', '')
+user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
+marilyn = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
@@ -146,20 +147,19 @@ def clear():
         csvfile.close()
 
 
-# TO TEST
 def toCurrent(musicFile, setting):
-    if str(setting) == '-1':  # if in testing mode
+    musicFile = str(str(musicFile).split('/')[-1:]).replace('\'', '').split("\\")[-1:]
+    n = 2
+    if setting == -1:  # if in testing mode
         path = TestMusicPath
+        n += 2
     else:
         path = NewMusicPath
-
+    musicFile = str(musicFile)[n:-3]
+    musicFile.replace('\\', '')
     os.rename(path + musicFile, CurrentMusicPath + musicFile)
 
 
-# def cleanCSV(self):
-
-
-# TO TEST
 # gets (likes, dislikes, and views)
 def getStats(url):
     soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
@@ -207,7 +207,7 @@ def getStats(url):
 # get's the info of the track (url, artist, title)
 def getTrackInfo(file):
     url = file[file.__len__() - 15:file.__len__() - 4]
-    fx = file.split('-')
+    fx = (str(file.split('/')[-1:])[2:-6]).split('-')  # file string manipulation
     artist = removeCommas(fx[0])
     title = removeCommas(fx[1])
     return [artist, title, url]
@@ -259,7 +259,9 @@ def convertCSVtoDict():
     while index < dataList.__len__():  # dataList to dict
         artist = (str(dataList[index]).split(',')[0])
         artist = artist[2:]
-        entry = dataList[index]
+        entry = dataList[index][0].split(",")
+        entry = Data(entry[1], entry[0], entry[2], entry[3], entry[4],
+                     entry[5], entry[6], entry[7], entry[8], entry[9])
         music.put(artist, entry)
         index += 1
 
@@ -268,13 +270,16 @@ def convertCSVtoDict():
 def updateCSV(setting):
     if setting == -1:  # if testing mode
         path = TestMusicPath
+        FileName = 'Test.csv'
     else:
         path = NewMusicPath
+        FileName = 'MusicData.csv'
 
     ytPath = 'https://www.youtube.com/watch?v='
     # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
+    # TODO integrate old data
     existing = convertCSVtoDict()
     clear()
     # Setting up the basic CSV
@@ -292,7 +297,6 @@ def updateCSV(setting):
         entry = Data(force_to_unicode(info[1]).decode('utf8'), force_to_unicode(info[0]).decode('utf8'),
                      force_to_unicode(info[2]).decode('utf8'), data[0], data[1], data[2], False,
                      ratios[0], ratios[1], ratios[2])
-        music.put(entry.Artist, entry)
         if music.has(info[0]):  # if there is an existing entry under the same artist
             song = entry.__str__().split(",")[1]  # get the song from the entry
             if song[1] == info[1]:  # if the song names match
@@ -305,8 +309,10 @@ def updateCSV(setting):
             # TODO iterate through songs by artist (key) to ensure track does not already exist
             else:  # if new track under existing artist
                 print(">NEW ENTRY UNDER:\t" + info[0])
+
+        music.put(entry.Artist, entry)
         if setting != -1:  # if not a test
-            toCurrent(musicFile[10:], 0)  # send track to /Current/
+            toCurrent(musicFile, 0)  # send track to /Current/
             print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
     saveData(dataList=music)
     if setting != -1:  # if not a test

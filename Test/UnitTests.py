@@ -20,11 +20,13 @@ testSong09 = mht.Data('This House', 'Gregory Alan Isakov')
 testSong10 = mht.Data('What Makes You Beautiful', 'One Direction')
 testSong11 = mht.Data('Tessa Violet', 'Crush', 'SiAuAJBZuGs', 111000, 4300, 1969889)
 testSong12 = mht.Data('Robots', 'Flight of the Conchords', 'BNC61-OOPdA', 4100, 59, 559964)
-testSong13 = mht.Data('in cold blood', 'alt-j','rP0uuI80wuY',74000,2000,9059467)
+testSong13 = mht.Data('in cold blood', 'alt-j', 'rP0uuI80wuY', 74000, 2000, 9059467)
+
 
 # prints error message
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
+
 
 class TestYT_Bot(ut.TestCase):
 
@@ -34,10 +36,12 @@ class TestYT_Bot(ut.TestCase):
         self.assertTrue(yt.isLive(['test', 'test', 'test', 'live']))
         self.assertFalse(yt.isLive(['test', 'test', 'test', 'test']))
 
+
 class TestMusicHashTable(ut.TestCase):
-    mht.FileName = 'Test.csv'
 
     def testMode(self):
+        mht.FileName = 'Test.csv'
+
         self.assertEqual(mht.FileName, 'Test.csv')
 
     def testReadData(self):
@@ -119,11 +123,11 @@ class TestMusicHashTable(ut.TestCase):
                          'Test 3-title-6cwBLBCehGg.mp3',
                          'Test 4-title-6cwBLBCehGg.mp3']
         try:
-            musicList = glob.glob(mht.TestMusicPath + '*.mp3')
+            musicList = glob.glob(mht.TestMusicPath + '*.mp3')  # gather list of test music
             for track in musicList:
-                if str(track.split(' ')[0])[-4:] == "Test":
-                    track = track[mht.TestMusicPath.__len__():]
-                    mht.toCurrent(track, '-1')  # send track to current
+                if str(track.split(' ')[0])[-4:] == "Test":  # if they are a test file
+                    track = track[mht.TestMusicPath.__len__():]  # truncate track name
+                    mht.toCurrent(track, -1)  # send track to current
 
             fileList = glob.glob(mht.CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
             result = []
@@ -156,7 +160,7 @@ class TestMusicHashTable(ut.TestCase):
             pass
 
     def testGetTrackInfo(self):
-        desiredResult = ['Test/Test 0', 'title', '6cwBLBCehGg']
+        desiredResult = ['Test 0', 'title', '6cwBLBCehGg']
         try:
             results = mht.getTrackInfo(mht.TestMusicPath + 'Test 0-title-6cwBLBCehGg.mp3')
             self.assertEqual(desiredResult, results)
@@ -181,6 +185,7 @@ class TestMusicHashTable(ut.TestCase):
         except TypeError as e:
             error(str(e))
             pass
+
 
 class TestHashTable(ut.TestCase):
     def testH1(self):

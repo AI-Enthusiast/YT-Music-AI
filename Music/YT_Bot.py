@@ -106,7 +106,7 @@ def my_hook(d):
 # A function to move files from general folder to New folder
 def toNew(filename):
     try:
-        os.rename(user.BASEPATH + filename, user.NewPath + filename)
+        os.rename(user.BASEPATH + filename, str(user.NewPath + filename).replace('\'', ''))
         print(">FILE Moved: " + str(filename) + " to /Music/New/")
     except FileNotFoundError as e:
         error(e)

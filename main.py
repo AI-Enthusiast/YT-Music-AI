@@ -1,6 +1,6 @@
 # main.py started on 6/30/2018
 # Authors: Marilyn Groppe, Cormac Dacker
-# Version # 0.0.8
+# Version # 0.0.9
 from __future__ import unicode_literals
 
 import os
@@ -11,9 +11,10 @@ from pprint import pprint
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 
-import UnitTests as ut
+from Music import MusicAI as mai
 from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
+from Test import UnitTests as ut
 
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
 user = mh.User('', '')
@@ -101,7 +102,7 @@ if __name__ == "__main__":
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
-                    mh.printRows(mh.readData())
+                    mai
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()
@@ -143,5 +144,5 @@ if __name__ == "__main__":
                           "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'"
                           "\nOr: 'done'(transfers *.mp3 to /New/ for processing), 'read'(reads MusicData.csv),"
                           "\n'clear'(clears MusicData.csv), or 'test'(run tests)")
-        except AttributeError as e:
+        except TypeError as e:
             error(e)

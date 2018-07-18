@@ -1,12 +1,13 @@
 import _md5
-import random
-
 
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
+
 def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
+
+
 class HashTable:
 
     # Constructor
@@ -27,18 +28,20 @@ class HashTable:
     def __str__(self):
         tab = ""
         for i in range(self.capacity):
-            if self.table[i]: #if not an empty list
+            if self.table[i]:  # if not an empty list
                 tab += '[' + str(i) + '] '
                 tab += "ARTIST: " + self.table[i][0].Artist + ' \n'
                 for j in self.table[i]:
                     tab += '\t'
                     tab += j.__str__() + '\n'
         return tab
+
     '''
     Quick note: smaller sized tables will result in an oscillating double hash
     value because of the current hash functions. However, we need constant hash functions, 
     so I'm not too mad about this right now. Important note though.
     '''
+
     # a hashing functionality
     def h1(self, key):
         return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.capacity
@@ -49,7 +52,7 @@ class HashTable:
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
-        return(self.keys.__len__() > int(self.capacity*0.8))
+        return (self.keys.__len__() > int(self.capacity * 0.8))
 
     # method to resolve collision by quadratic probing method
     def doubleHashing(self, key):
@@ -71,6 +74,7 @@ class HashTable:
         return posFound, newPosition
 
     def get(self, key):
+        print(self.table[self.h1(key)].__getitem__(0))
         if self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
             return self.table[self.h1(key)]
         else:  # else cycle to next artist place
@@ -85,25 +89,25 @@ class HashTable:
     # else returns False
     def search(self, key):
         position = self.h1(key)
-         # expected first hash value
-        if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
-            return position
-        else:
-            i = 2
-            while i < self.table.__len__():
-                position = (i * self.h1(key) + self.h2(key)) % self.capacity
-                if self.table[position] == []:
-                    i += 1
-                elif self.table[position][0].Artist == key:
-                    return position
+        # expected first hash value
+        if self.table[position] != []:
+            if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
+                return position
+            else:
+                i = 2
+                while i < self.table.__len__():
+                    position = (i * self.h1(key) + self.h2(key)) % self.capacity
+                    if self.table[position] == []:
+                        i += 1
+                    elif self.table[position][0].Artist == key:
+                        return position
         return False
-
 
     def rehash(self):
         # increases the number of artists
         self.capacity *= self.resize
         self.rehashed += 1
-        print("Rehashing... capacity is now " + str(self.capacity))
+        print(">INCREASING TABLE SIZE:\tNow " + str(self.capacity))
         # resets all other vars
         self.table = [[] for i in range(0, self.capacity)]
         vals = self.values
@@ -115,7 +119,7 @@ class HashTable:
 
     def put(self, key, value):
         location = self.h1(key)
-        if self.cutoff(): #if max size reached
+        if self.cutoff():  # if max size reached
             self.rehash()
             self.put(key, value)
         elif self.table[location] == []:  # if the desired location in the hashtable is empty
@@ -136,14 +140,14 @@ class HashTable:
             self.put(key, value)
         else:  # there needs to be a second try (aka double hash it, baby!)
             poss = self.doubleHashing(key)
-            if poss[0] is True: # if double hashing works
-                newPos = poss[1]+1
+            if poss[0] is True:  # if double hashing works
+                newPos = poss[1] + 1
                 self.table[newPos] = [value]
                 #   upkeep
                 self.size += 1
                 self.values.append(value)
                 self.keys.append(key)
-            else: #fail safe
+            else:  # fail safe
                 self.rehash()
                 self.put(key, value)
 
@@ -176,4 +180,3 @@ class HashTable:
 
 if __name__ == '__main__':
     print(error("Please run from main.py"))
-
