@@ -1,7 +1,8 @@
 import _md5
 import random
+import hashlib
 
-
+random.seed(37)
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
@@ -38,14 +39,20 @@ class HashTable:
     Quick note: smaller sized tables will result in an oscillating double hash
     value because of the current hash functions. However, we need constant hash functions, 
     so I'm not too mad about this right now. Important note though.
+    
+    One thing we could do would be to use random generators with a constant seed value to keep
+    the numbers constant for testing. 
     '''
+    def h0(self, key):
+        hash_obj = hashlib.sha512(key.encode()).hexdigest()
+        return int(hash_obj, 16)
     # a hashing functionality
     def h1(self, key):
-        return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.capacity
+        return self.h0(key) % self.capacity
 
     # needed for doubleHashing algorithm
     def h2(self, key):
-        return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.seed
+        return self.h0(key) % self.seed
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
@@ -76,7 +83,7 @@ class HashTable:
         else:  # else cycle to next artist place
             pos = self.search(key)
             if pos:
-                return self.table[pos]
+                return self.table[pos+1]
             else:
                 return None
 
@@ -86,16 +93,17 @@ class HashTable:
     def search(self, key):
         position = self.h1(key)
          # expected first hash value
-        if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
-            return position
-        else:
-            i = 2
-            while i < self.table.__len__():
-                position = (i * self.h1(key) + self.h2(key)) % self.capacity
-                if self.table[position] == []:
-                    i += 1
-                elif self.table[position][0].Artist == key:
-                    return position
+        if self.table[position]:
+            if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
+                return position
+            else:
+                i = 2
+                while i < self.table.__len__():
+                    position = (i * self.h1(key) + self.h2(key)) % self.capacity
+                    if self.table[position+1] == []:
+                        i += 1
+                    elif self.table[position+1][0].Artist == key:
+                        return position
         return False
 
 
