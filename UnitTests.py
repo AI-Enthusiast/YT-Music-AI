@@ -224,22 +224,18 @@ class TestHashTable(ut.TestCase):
         self.assertEqual([testSong04], Table.get(testSong04.Artist))
 
     def testSearch(self):
-        Table = ht.HashTable(10)
+        Table = ht.HashTable(100)
         Table.put(testSong10.Artist, testSong10)
         Table.put(testSong09.Artist, testSong09)
         Table.put(testSong03.Artist, testSong03)
         Table.put(testSong05.Artist, testSong05)
-        print(Table.__str__())
-        expectedLocation1 = Table.h1(testSong10.Artist)
-        expectedLocation2 = Table.doubleHashing(testSong09.Artist)
-        self.assertEqual(expectedLocation1, Table.search(testSong10.Artist))
-        self.assertEqual(expectedLocation2, Table.search(testSong09.Artist))
+        self.assertEqual(Table.h1(testSong10.Artist), Table.search(testSong10.Artist))
+        self.assertEqual(Table.h1(testSong09.Artist), Table.search(testSong09.Artist))
         self.assertEqual(Table.h1(testSong03.Artist), Table.search(testSong03.Artist))
         self.assertEqual(Table.h1(testSong05.Artist), Table.search(testSong05.Artist))
 
     def testRehash(self):
         desiredResult1 = 10
-        desiredResult2 = 37
         desiredResult3 = [testSong01.Artist, testSong06.Artist, testSong05.Artist]
         desiredResult4 = [testSong01, testSong06, testSong05, testSong07]
         desiredResult5 = 4
@@ -254,7 +250,6 @@ class TestHashTable(ut.TestCase):
         self.assertEqual(desiredResult6, Table.rehashed)
 
         self.assertEqual(desiredResult1, Table.capacity)
-        self.assertNotEqual(desiredResult2, Table.seed)
         Table.keys.sort()
         self.assertEqual(desiredResult3, Table.keys)
         self.assertEqual(desiredResult4, Table.values)

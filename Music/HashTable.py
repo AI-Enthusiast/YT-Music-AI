@@ -34,7 +34,11 @@ class HashTable:
                     tab += '\t'
                     tab += j.__str__() + '\n'
         return tab
-
+    '''
+    Quick note: smaller sized tables will result in an oscillating double hash
+    value because of the current hash functions. However, we need constant hash functions, 
+    so I'm not too mad about this right now. Important note though.
+    '''
     # a hashing functionality
     def h1(self, key):
         return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.capacity
@@ -47,13 +51,14 @@ class HashTable:
     def cutoff(self):
         return(self.keys.__len__() > int(self.capacity*0.8))
 
-
     # method to resolve collision by quadratic probing method
     def doubleHashing(self, key):
         posFound = False
         limit = self.capacity * 0.8
         i = 2
         newPosition = 0
+        if self.keys.__contains__(key):
+            posFound = self.search(key)
         while i <= limit:
             newPosition = (i * self.h1(key) + self.h2(key)) % self.capacity
             if self.table[newPosition] == []:
@@ -61,37 +66,36 @@ class HashTable:
                 break
             else:
                 i += 1
-        self.doubleHashed += 1
+        if posFound:
+            self.doubleHashed += 1
         return posFound, newPosition
 
     def get(self, key):
-        if self.table[self.h1(key)].__eq__(None):  # if the fist location of hash is blank
-            return None
-        elif self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
+        if self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
             return self.table[self.h1(key)]
         else:  # else cycle to next artist place
             pos = self.search(key)
-            return self.table[pos]
+            if pos:
+                return self.table[pos]
+            else:
+                return None
 
     # method that searches for an entry in the table
     # returns position of entry if found
     # else returns False
     def search(self, key):
-        position = self.h1(key)  # expected first hash value
-        if self.table[position]:  # if the item at this position in the table is not an empty list
-            if self.table[position][0].Artist.__eq__(key):  # if the artist here matches the inputted artist
-                return position
-            else:
-                i = 1
-                while i < self.table.__len__():
-                    position = (i * self.h1(key) + self.h2(key)) % self.capacity
-                    if not self.table[position]:
-                        i += 1
-                        break
-                    elif self.table[position][0].Artist.__eq__(key):
-                        return position
-                    else:
-                        i += 1
+        position = self.h1(key)
+         # expected first hash value
+        if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
+            return position
+        else:
+            i = 2
+            while i < self.table.__len__():
+                position = (i * self.h1(key) + self.h2(key)) % self.capacity
+                if self.table[position] == []:
+                    i += 1
+                elif self.table[position][0].Artist == key:
+                    return position
         return False
 
 
@@ -106,11 +110,9 @@ class HashTable:
         self.values = []
         self.keys = []
         self.size = 0
-        self.seed = random.randint(7, 41)
         for value in vals:
             self.put(value.Artist, value)
 
-    #TODO make tests more thorough
     def put(self, key, value):
         location = self.h1(key)
         if self.cutoff(): #if max size reached
