@@ -1,8 +1,11 @@
 import random
+import _md5
 
-from Music import MusicHashTable as mh
+def error(errorMessage):
+    print(">ERROR:\t" + str(errorMessage))
 
-
+def force_to_unicode(text):
+    return text if isinstance(text, bytes) else text.encode('utf8')
 class HashTable:
 
     # Constructor
@@ -17,48 +20,47 @@ class HashTable:
         self.values = []
         self.keys = []
         self.rehashed = 0
+        self.doubleHashed = 0
 
-    # TODO return string instead of printing
     # toString()
     def __str__(self):
+        tab = ""
         for i in range(self.capacity):
-            if self.table[i]:
-                print("ARTIST: " + self.table[i][0].Artist)
+            if self.table[i]: #if not an empty list
+                tab += '[' + str(i) + '] '
+                tab += "ARTIST: " + self.table[i][0].Artist + ' \n'
                 for j in self.table[i]:
-                    print(j.__str__())
-        print(self.capacity)
-        print(self.size)
+                    tab += '\t'
+                    tab += j.__str__() + '\n'
+        return tab
 
     # a hashing functionality
     def h1(self, key):
-        return hash(key) % self.capacity
+        return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.capacity
 
     # needed for doubleHashing algorithm
     def h2(self, key):
-        return hash(key) % self.seed
+        return int(_md5.md5(force_to_unicode(key)).hexdigest(), 16) % self.seed
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
-        if self.keys.__len__() >= self.capacity * .8:
-            print(self.keys.__len__())
-            return True
-        else:
-            return False
+        return(self.keys.__len__() > int(self.capacity*0.8))
+
 
     # method to resolve collision by quadratic probing method
     def doubleHashing(self, key):
         posFound = False
-        limit = self.capacity * .8
+        limit = self.capacity * 0.8
         i = 2
         newPosition = 0
         while i <= limit:
-            newPosition = (i * self.h1(key) + self.h2(key)) % self.size
-            if self.table[newPosition] == 0:
+            newPosition = (i * self.h1(key) + self.h2(key)) % self.capacity
+            if self.table[newPosition] == []:
                 posFound = True
                 break
             else:
-                # as the position is not empty increase i
                 i += 1
+        self.doubleHashed += 1
         return posFound, newPosition
 
     def get(self, key):
@@ -70,39 +72,25 @@ class HashTable:
             pos = self.search(key)
             return self.table[pos]
 
-    # method that searches for an element in the table
-    # returns position of element if found
+    # method that searches for an entry in the table
+    # returns position of entry if found
     # else returns False
     def search(self, key):
-        found = False
         position = self.h1(key)
         if self.table[position][0].Artist == key:
             return position
-        # if element is not found at position returned hash function
-        # then we search element using double hashing
         else:
-            limit = 50
-            i = 2
-            newPosition = position
-            # start a loop to find the position
-            while i <= limit:
-                # calculate new position by double Hashing
-                position = (i * self.h1(key) + self.h2(key)) % self.size
-                # if element at newPosition is equal to the required element
-                if self.table[position][0].Artist == key:
-                    found = True
-                    break
-                elif self.table[position] == []:
-                    found = False
-                    break
-                else:
-                    # as the position is not empty increase i
+            i = 0
+            while i < self.table.__len__():
+                position = (i * self.h1(key) + self.h2(key)) % self.capacity
+                if not self.table[position]:
                     i += 1
-            if found:
-                return position
-            else:
-                print("Element not Found")
-                return found
+                elif self.table[position][0].Artist == key:
+                    return position
+                else:
+                    i += 1
+            return False
+
 
     def rehash(self):
         # increases the number of artists
@@ -119,9 +107,13 @@ class HashTable:
         for value in vals:
             self.put(value.Artist, value)
 
+    #TODO make tests more thorough
     def put(self, key, value):
         location = self.h1(key)
-        if self.table[location] == []:  # if the desired location in the hashtable is empty
+        if self.cutoff(): #if max size reached
+            self.rehash()
+            self.put(key, value)
+        elif self.table[location] == []:  # if the desired location in the hashtable is empty
             self.table[location].append(value)  # add the Data object to the list
             # upkeep
             self.size += 1
@@ -139,13 +131,16 @@ class HashTable:
             self.put(key, value)
         else:  # there needs to be a second try (aka double hash it, baby!)
             poss = self.doubleHashing(key)
-            newPos = poss[1]
-            value.pos = newPos
-            self.table[newPos] = [value]
-            # upkeep
-            self.size += 1
-            self.values.append(value)
-            self.keys.append(key)
+            if poss[0] is True: # if double hashing works
+                newPos = poss[1]+1
+                self.table[newPos] = [value]
+                #   upkeep
+                self.size += 1
+                self.values.append(value)
+                self.keys.append(key)
+            else: #fail safe
+                self.rehash()
+                self.put(key, value)
 
     def remove(self, key, value=None):
         pos = self.search(key)
@@ -173,15 +168,5 @@ class HashTable:
 
 
 if __name__ == '__main__':
-    table = HashTable(1000)
-    songs = [
-        mh.Data('A Real Life Happily Ever After', 'bCgjhkl08', 'Cast of Galavant', 34, 5, 45),
-        mh.Data('Whatever Happened to My Part', 'hgIG1Jlk0', 'Quinn Thomashow', 356, 1, 145),
-        mh.Data('Skinny Love', 'ghk1245UP', 'Quinn Thomashow', 1466, 224, 1352),
-        mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316)
-    ]
-    for song in songs:
-        table.put(song.Artist, song)
-    table.remove('Cast of Galavant',
-                 value=mh.Data('Jackass in a Can', '45TYGkjkk', 'Cast of Galavant', 5354, 132, 15316))
-    print(table.__str__())
+    print(error("Please run from main.py"))
+

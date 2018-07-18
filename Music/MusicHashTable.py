@@ -8,7 +8,7 @@ import os
 import urllib.request
 
 from bs4 import BeautifulSoup
-
+from Music import HashTable as ht
 
 def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
@@ -36,16 +36,14 @@ TestMusicPath = user.TestPath
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
-Fnames = []
 
-music = {}
+music = ht.HashTable()
 
 
 # A class used to create music file objects
 class Data:
     # Constructer
-    def __init__(self, Title="", Url="", Artist="", likes=0, dislikes=0, views=0,
-                 used=False):  # used, artist, tempo, etc
+    def __init__(self, Title, Artist, Url="6cwBLBCehGg", likes=0, dislikes=0, views=0, used=False):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title).decode('utf8')
         self.Url = Url
         self.Artist = force_to_unicode(Artist).decode('utf8')
@@ -69,18 +67,12 @@ class Data:
 
     def __eq__(self, other):
         if isinstance(other, Data):
-            if other.Url == self.Url:
+            if other.Url == self.Url and other.Artist == self.Artist and other.Title == self.Title:
                 return True
             else:
                 return False
         else:
             return False
-
-
-music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", 1900000, 80000, 297339999)
-music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)
-music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
-music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
 
 
 # Reads through data and outputs it as array eg out[row]
@@ -108,14 +100,13 @@ def saveHeader(dataList):
 
 # Saves dataList into csv file
 # TO TEST
-# DataList is a dictionary
+# DataList is a HashTable
 def saveData(dataList):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         dd = []
-        for key in dataList.keys():
-            val = dataList.get(key)
+        for val in dataList.values:
             string = val.__str__()
             el = [string]
             dd.append(el)
@@ -133,7 +124,7 @@ def appendData(song):
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
-            music[song.Artist] = song
+            music.put(song.Artist, song)
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError as e:
             error(e)
@@ -237,14 +228,12 @@ def error(errorMessage):
 # TODO convert CSV to Dict
 def convertCSVtoDict():
     dataList = readData()
-    dic = {}
     index = 1
     while index < dataList.__len__():  # dataList to dict
         artist = (str(dataList[index]).split(',')[0])
         artist = artist[2:]
-        dic[artist] = dataList[index]
+        music.put(artist, dataList[index])
         index += 1
-    return dic
 
 
 # control center for MusicHashTable.py
@@ -258,7 +247,7 @@ def updateCSV(setting):
     # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
-    music = convertCSVtoDict()
+    existing = convertCSVtoDict()
     clear()
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'")
@@ -267,15 +256,14 @@ def updateCSV(setting):
         try:
             info = getTrackInfo(file)  # (artist, title, url)
             data = getStats(ytPath + info[2])  # (likes, dislikes, views)
-        except urllib.error.HTTPError and ValueError as e:
+        except urllib.request.HTTPError and ValueError as e:
             error(str(e) + ' ' + file)
             continue
-        entry = Data(force_to_unicode(info[1]).decode('utf8'),
-                     force_to_unicode(info[2]).decode('utf8'),
-                     force_to_unicode(info[0]).decode('utf8'), data[0], data[1], data[2], False)
+        entry = Data(force_to_unicode(info[1]).decode('utf8'), force_to_unicode(info[0]).decode('utf8'),
+                     force_to_unicode(info[2]).decode('utf8'), data[0], data[1], data[2], False)
         if music.get(info[0]) != None:  # if there is an existing entry under the same artist
             song = str(music.get(info[0])).split(',')[1]  # get the song from the entry
-            if (song == info[1]):  # if the song names match
+            if song == info[1]:  # if the song names match
                 if setting != -1:  # if not a test
                     print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[10:])
                     os.remove(musicFile)
@@ -284,7 +272,7 @@ def updateCSV(setting):
             else:  # if new track under existing artist
                 print(">NEW ENTRY UNDER:\t" + info[0])
                 # TODO double hash the data
-        music[info[0]] = entry
+        music.put(info[0], entry)
         if setting != -1:  # if not a test
             toCurrent(musicFile, 0)  # send track to /Current/
             print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
@@ -314,8 +302,8 @@ def checkResults(test, desiredResults, results):
 def runTests():
     print(">COMMENCE TESTING...")
     results = None  # stores result of each test
-    dic = convertCSVtoDict()  # stored so that info is not lost
-    saveData(dic)  # return original data to csv
+    convertCSVtoDict()  # stored so that info is not lost
+    saveData(music)  # return original data to csv
 
 
 if __name__ == "__main__":

@@ -7,12 +7,24 @@ from Music import MusicHashTable as mht
 from Music import YT_Bot as yt
 
 TEST_VIDEO = '6cwBLBCehGg'
-
+testSong00 = mht.Data('home', 'gnash')
+testSong01 = mht.Data('SWEET', 'BROCKHAMPTON')
+testSong02 = mht.Data('Pillow Talk', 'Zayn')
+testSong03 = mht.Data('Kiss You', 'One Direction')
+testSong04 = mht.Data('Hurricane', 'Halsey')
+testSong05 = mht.Data('i hate u, i love u', 'gnash')
+testSong06 = mht.Data('Almost Cut My Hair (For Crosby)', 'Milo')
+testSong07 = mht.Data('CINEMA 1', 'BROCKHAMPTON')
+testSong08 = mht.Data('Black Car', 'Gregory Alan Isakov')
+testSong09 = mht.Data('This House', 'Gregory Alan Isakov')
+testSong10 = mht.Data('What Makes You Beautiful', 'One Direction')
+testSong11 = mht.Data('Tessa Violet', 'Crush', 'SiAuAJBZuGs', 111000, 4300, 1969889)
+testSong12 = mht.Data('Robots', 'Flight of the Conchords', 'BNC61-OOPdA', 4100, 59, 559964)
+testSong13 = mht.Data('in cold blood', 'alt-j','rP0uuI80wuY',74000,2000,9059467)
 
 # prints error message
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
-
 
 class TestYT_Bot(ut.TestCase):
 
@@ -22,13 +34,11 @@ class TestYT_Bot(ut.TestCase):
         self.assertTrue(yt.isLive(['test', 'test', 'test', 'live']))
         self.assertFalse(yt.isLive(['test', 'test', 'test', 'test']))
 
-
 class TestMusicHashTable(ut.TestCase):
     mht.FileName = 'Test.csv'
 
     def testMode(self):
-        self.assertEqual(mht.FileName, 'Test.csv'
-                         )
+        self.assertEqual(mht.FileName, 'Test.csv')
 
     def testReadData(self):
         desiredResult = []
@@ -51,13 +61,16 @@ class TestMusicHashTable(ut.TestCase):
             pass
 
     def testSaveData(self):
-        desiredResult = "[['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False']," \
-                        " ['Tessa Violet,Crush,SiAuAJBZuGs,111000,4300,1969889,False'], " \
-                        "['gnash,home,bYBLt_1HcQE,120000,20000,20243102,False'], " \
-                        "['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
         try:
-            mht.saveData(mht.music)
-            results = str(mht.readData()[1:])  # gather results
+            desiredResult = "[['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False'], ['Crush,Tessa Violet,SiAuAJBZuGs,111000,4300,1969889,False'], ['gnash,home,6cwBLBCehGg,0,0,0,False'], ['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
+            dataList = ht.HashTable()
+            dataList.put(testSong12.Artist, testSong12)
+            dataList.put(testSong11.Artist, testSong11)
+            dataList.put(testSong00.Artist, testSong00)
+            dataList.put(testSong13.Artist, testSong13)
+            mht.clear()
+            mht.saveData(dataList)
+            results = str(mht.readData())  # gather results
             self.assertEqual(results, desiredResult)
         except ValueError and AttributeError as e:
             error(str(e))
@@ -67,7 +80,8 @@ class TestMusicHashTable(ut.TestCase):
         desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
         try:
             mht.clear()
-            mht.appendData(mht.Data("in cold blood", "rP0uuI80wuY", "alt-j", 74000, 2000, 9059467, False))
+            mht.appendData(mht.Data("in cold blood", "alt-j", Url="rP0uuI80wuY", likes=74000,
+                                    dislikes=2000, views=9059467))
             results = str(mht.readData()[mht.readData().__len__() - 1:])
             self.assertEqual(desiredResult, results)
         except TypeError and ValueError as e:
@@ -126,112 +140,84 @@ class TestMusicHashTable(ut.TestCase):
                          ['Test 4,title,6cwBLBCehGg,0,0,0,False']]
         try:
             mht.clear()
+            print(mht.music.__str__())
+            mht.music.remove('alt-j')
+            print(mht.readData())
             mht.updateCSV(-1)
             results = mht.readData()
-            mht.clear()
+            print(results)
             self.assertEqual(results, desiredResult)
         except TypeError as e:
             error(str(e))
             pass
 
-
 class TestHashTable(ut.TestCase):
     def testH1(self):
-        desiredResult = 205
+        desiredResult = 374
         Table = ht.HashTable()
         result = Table.h1(key="test")
         self.assertEqual(result, desiredResult)
 
     def testH2(self):
-        desiredResult = 23
+        desiredResult = 24
         Table = ht.HashTable()
         result = Table.h2(key="test")
         self.assertEqual(result, desiredResult)
 
     def testCutOff(self):
-        desiredResult = True
-        Table = ht.HashTable()
-        Table.capacity = 10
-        Table.size = 4
-        result = Table.cutoff()
-        self.assertEqual(result, desiredResult)
-        desiredResult = False
-        Table.capacity = 10
-        Table.size = 5
-        result = Table.cutoff()
-        self.assertEqual(result, desiredResult)
+        Table = ht.HashTable(10)
+        Table.keys = [[] for i in range(0, 9)]
+        self.assertEqual(True, Table.cutoff())
+        Table.keys = [[] for i in range(0, 3)]
+        self.assertEqual(False, Table.cutoff())
 
     def testDoubleHashing(self):
-        desiredResult = True
-        Table = ht.HashTable()
-        Table.capacity = 10
-        result = Table.doubleHashing('testKey0', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = False
-        result = Table.doubleHashing('testKey1', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = True
-        result = Table.doubleHashing('testKey2', "[test0, test1, test2]")
-        print(result)
-        Table.__str__()
-        self.assertEqual(result, desiredResult)
+        Table = ht.HashTable(10)
+        Table.put(testSong00.Artist, testSong00)
+        Table.put(testSong01.Artist, testSong01)
+        self.assertEqual(1, Table.doubleHashed)
+        self.assertEqual(2 * Table.h1(testSong01.Artist) + Table.h2(testSong01.Artist) % Table.capacity,
+                         Table.doubleHashing(testSong01.Artist)[1])
 
     def testGet(self):
-        desiredResult = ''  # key exist
-        Table = ht.HashTable()
-        Table.put('testKey0', "[test0, test1, test2]")
-        result = Table.get('testKey0')
-        print(result)
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = ''  # key but different title
-        Table.put('testKey0', "[test3, test4, test5]")
-        result = Table.get('testKey0')
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = None  # key does not exist
-        Table.put('testKey1', "[test0, test1, test2]")
-        result = Table.get('testKey2')  # key does not exist
-        self.assertEqual(result, desiredResult)
+        Table = ht.HashTable(5)
+        Table.put(testSong00.Artist, testSong00)
+        Table.put(testSong02.Artist, testSong02)
+        Table.put(testSong03.Artist, testSong03)
+        Table.put(testSong04.Artist, testSong04)
+        Table.put(testSong05.Artist, testSong05)
+        self.assertEqual([testSong00, testSong05], Table.get(testSong00.Artist))
+        self.assertEqual([testSong00, testSong05], Table.get(testSong05.Artist))
+        self.assertEqual([testSong02], Table.get(testSong02.Artist))
+        self.assertEqual([testSong03], Table.get(testSong03.Artist))
+        self.assertEqual([testSong04], Table.get(testSong04.Artist))
 
     def testSearch(self):
-        Table = ht.HashTable()
-
-        desiredResult = ''
-        result = Table.put('testKey0', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = ''
-        result = Table.put('testKey1', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = ''
-        result = Table.put('testKey2', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
+        Table = ht.HashTable(5)
+        Table.put(testSong00.Artist, testSong00)
+        Table.put(testSong02.Artist, testSong02)
+        expectedLocation1 = Table.h1(testSong00.Artist)
+        expectedLocation2 = Table.doubleHashing(testSong02.Artist)[1] + 1
+        self.assertEqual(expectedLocation1, Table.search(testSong00.Artist))
+        self.assertEqual(expectedLocation2, Table.search(testSong02.Artist))
 
     def testRehash(self):
         desiredResult1 = 10
         desiredResult2 = 37
-        desiredResult3 = ['BROCKHAMPTON', 'Milo', 'gnash']
-        desiredResult4 = [mht.Data('SWEET', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0),
-                          mht.Data('Almost Cut My Hair (For Crosby)', TEST_VIDEO, 'Milo', 0, 0, 0),
-                          mht.Data('i hate u, i love u', TEST_VIDEO, 'gnash', 0, 0, 0),
-                          mht.Data('CINEMA 1', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0)]
+        desiredResult3 = [testSong01.Artist, testSong06.Artist, testSong05.Artist]
+        desiredResult4 = [testSong01, testSong06, testSong05, testSong07]
         desiredResult5 = 4
         desiredResult6 = 1
         Table = ht.HashTable(5)
-        Table.put('BROCKHAMPTON', mht.Data('SWEET', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0))
-        Table.put('Milo', mht.Data('Almost Cut My Hair (For Crosby)', TEST_VIDEO, 'Milo', 0, 0, 0))
-        Table.put('gnash', mht.Data('i hate u, i love u', TEST_VIDEO, 'gnash', 0, 0, 0))
-        Table.put('BROCKHAMPTON', mht.Data('CINEMA 1', TEST_VIDEO, 'BROCKHAMPTON', 0, 0, 0))
+        Table.put(testSong01.Artist, testSong01)
+        Table.put(testSong06.Artist, testSong06)
+        Table.put(testSong05.Artist, testSong05)
+        Table.put(testSong07.Artist, testSong07)
 
         Table.rehash()
         self.assertEqual(desiredResult6, Table.rehashed)
 
         self.assertEqual(desiredResult1, Table.capacity)
-        self.assertNotEqual(desiredResult2, Table.seed)
         Table.keys.sort()
         self.assertEqual(desiredResult3, Table.keys)
         self.assertEqual(desiredResult4, Table.values)
@@ -239,22 +225,21 @@ class TestHashTable(ut.TestCase):
 
     def testPut(self):
         Table = ht.HashTable(5)
-        Table.put('Gregory Alan Isakov', mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0))
-        self.assertEqual(1, Table.size)
-        self.assertEqual(['Gregory Alan Isakov'], Table.keys)
-        self.assertEqual([mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0)], Table.values)
-        self.assertEqual([mht.Data('Black Car', TEST_VIDEO, 'Gregory Alan Isakov', 0, 0, 0)],
-                         Table.table[Table.h1('Gregory Alan Isakov')])
+        Table.put(testSong08.Artist, testSong08)
+        Table.put(testSong09.Artist, testSong09)
+        self.assertEqual(2, Table.size)
+        self.assertEqual([testSong08.Artist], Table.keys)
+        self.assertEqual([testSong08, testSong09], Table.values)
 
     def testRemove(self):
         Table = ht.HashTable(10)
-        Table.put('One Direction', mht.Data('What Makes You Beautiful', TEST_VIDEO, 'One Direction', 0, 0, 0))
+        Table.put(testSong10.Artist, testSong10)
         desiredResult1 = 1
         desiredResult2 = 0
         desiredResult3 = []
-        desiredResult4 = [mht.Data('What Makes You Beautiful', TEST_VIDEO, 'One Direction', 0, 0, 0)]
+        desiredResult4 = [testSong10]
         desiredResult5 = [[], [], [], [], [], [], [], [], [], []]
-        desiredResult6 = ['One Direction']
+        desiredResult6 = [testSong10.Artist]
         self.assertEqual(desiredResult1, Table.size)
         self.assertEqual(desiredResult4, Table.values)
         self.assertEqual(desiredResult6, Table.keys)
@@ -265,20 +250,10 @@ class TestHashTable(ut.TestCase):
         self.assertEqual(desiredResult5, Table.table)
 
     def testHas(self):
-        desiredResult = ''
-        Table = ht.HashTable(10)
-        result = Table.doubleHashing('testKey0', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = ''
-        result = Table.doubleHashing('testKey1', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-
-        desiredResult = ''
-        result = Table.doubleHashing('testKey2', "[test0, test1, test2]")
-        self.assertEqual(result, desiredResult)
-        self.assertEqual(result, desiredResult)
-
+        Table = ht.HashTable(5)
+        Table.put(testSong00.Artist, testSong00)
+        self.assertTrue(Table.has(testSong00.Artist))
+        self.assertFalse(Table.has(testSong01.Artist))
 
 if __name__ == '__main__':
     ut.main()
