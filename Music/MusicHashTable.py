@@ -222,13 +222,19 @@ def getRatios(data):
         likes = data[0]
         dislikes = data[1]
         views = data[2]
-        if (likes + views != 0):
+        if dislikes != 0:
             likeToDislikeRatio = likes / dislikes
-            likeToViewRatio = likes / views
-            likesToTotalRatio = likes / (likes + dislikes)
-            return [likesToTotalRatio, likeToDislikeRatio, likeToViewRatio]
         else:
-            return [0, 0, 0]
+            likeToDislikeRatio = 0
+        if views != 0:
+            likeToViewRatio = likes / views
+        else:
+            likeToViewRatio = 0
+        if (likes + dislikes) != 0:
+            likesToTotalRatio = likes / (likes + dislikes)
+        else:
+            likesToTotalRatio = 0
+        return [likesToTotalRatio, likeToDislikeRatio, likeToViewRatio]
 
 
 def printRows(arr):
@@ -307,13 +313,14 @@ def updateCSV(setting):
                     music.remove(entry.Artist, entry)
                 continue  # determine tracks to be the same, add no entry
             # TODO iterate through songs by artist (key) to ensure track does not already exist
-            else:  # if new track under existing artist
+            elif setting != -1:  # if new track under existing artist
                 print(">NEW ENTRY UNDER:\t" + info[0])
 
         music.put(entry.Artist, entry)
         if setting != -1:  # if not a test
             toCurrent(musicFile, 0)  # send track to /Current/
             print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
+        music.put(entry.Artist, entry)
     saveData(dataList=music)
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
