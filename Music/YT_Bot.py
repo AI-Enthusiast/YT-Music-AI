@@ -155,7 +155,7 @@ def error(errorMessage):
 
 # options needed for youtube-dl library
 ydl_opts = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio/best', 'ignoreerrors': 'i', 'max_filesize': '10m',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',

@@ -286,7 +286,7 @@ def updateCSV(setting):
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
     # TODO integrate old data
-    existing = convertCSVtoDict()
+    convertCSVtoDict()
     clear()
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
