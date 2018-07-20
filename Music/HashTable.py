@@ -49,8 +49,10 @@ class HashTable:
     the numbers constant for testing. 
     '''
     def h0(self, key):
-        hash_obj = hashlib.sha512(key.encode()).hexdigest()
-        return int(hash_obj, 16)
+        sum = 0
+        for char in key:
+            sum += ord(char)
+        return sum
 
     # a hashing functionality
     def h1(self, key):
@@ -64,6 +66,9 @@ class HashTable:
     def cutoff(self):
         return (self.keys.__len__() > int(self.capacity * 0.8))
 
+    def quadProbe(self, key, i):
+        return (i * self.h1(key) + self.h2(key)) % self.capacity
+
     # method to resolve collision by quadratic probing method
     def doubleHashing(self, key):
         posFound = False
@@ -73,7 +78,7 @@ class HashTable:
         if self.keys.__contains__(key):
             posFound = self.search(key)
         while i <= limit:
-            newPosition = (i * self.h1(key) + self.h2(key)) % self.capacity
+            newPosition = self.quadProbe(key, i)
             if self.table[newPosition] == []:
                 posFound = True
                 break
@@ -84,32 +89,35 @@ class HashTable:
         return posFound, newPosition
 
     def get(self, key):
-        if self.table[self.h1(key)][0].Artist == key:  # if the first location is the entry is the same
-            return self.table[self.h1(key)]
-        else:  # else cycle to next artist place
-            pos = self.search(key)
-            if pos:
-                return self.table[pos+1]
-            else:
-                return None
+        pos = self.search(key)
+        if pos:
+            return self.table[pos]
+        else:
+            return None
 
     # method that searches for an entry in the table
     # returns position of entry if found
     # else returns False
     def search(self, key):
-        position = self.h1(key)
-        # expected first hash value
-        if self.table[position] != []:
-            if self.table[position][0].Artist == key:  # if the artist here matches the inputted artist
-                return position
-            else:
-                i = 2
-                while i < self.table.__len__():
-                    position = (i * self.h1(key) + self.h2(key)) % self.capacity
-                    if self.table[position] == []:
-                        i += 1
-                    elif self.table[position][0].Artist == key:
-                        return position
+        # maybe a more clear way to search would be to first create
+        # an array of indices to search and then check each one
+        lst = []
+        print("LOOKING FOR... " + key)
+        print(self.__str__())
+        if not self.keys.__contains__(key):
+            return False
+        lst.append(self.h1(key))
+        for i in range(2, (self.capacity*80)//100):
+            idx = self.quadProbe(key, i)
+            if not lst.__contains__(idx):
+                lst.append(idx)
+        print(lst)
+        for j in lst:
+            item = self.table[j]
+            if item:
+                if item[0].Artist == key:
+                    print("FOUND AT: " + str(j))
+                    return j
         return False
 
     def rehash(self):
@@ -131,7 +139,7 @@ class HashTable:
         if self.cutoff():  # if max size reached
             self.rehash()
             self.put(key, value)
-        elif self.table[location] == []:  # if the desired location in the hashtable is empty
+        elif not self.table[location]:  # if the desired location in the hashtable is empty
             self.table[location].append(value)  # add the Data object to the list
             # upkeep
             self.size += 1
@@ -143,10 +151,6 @@ class HashTable:
             # upkeep
             self.size += 1
             self.values.append(value)
-        elif self.keys.__len__() >= self.capacity * 0.8:
-            print(self.capacity * 0.8)  # if the table is too full and needs to be rehashed
-            self.rehash()
-            self.put(key, value)
         else:  # there needs to be a second try (aka double hash it, baby!)
             poss = self.doubleHashing(key)
             if poss[0] is True:  # if double hashing works
