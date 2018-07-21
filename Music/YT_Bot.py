@@ -13,7 +13,7 @@ from googleapiclient.discovery import build
 from Music import MusicHashTable
 
 # different words to identify mixes and livestreams
-liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
+liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#", 'compilation', 'hour']
 user = MusicHashTable.User('', '')
 BASEPATH = user.BASEPATH
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
@@ -107,17 +107,26 @@ def my_hook(d):
 def toNew(filename):
     try:
         os.rename(user.BASEPATH + filename, str(user.NewPath + filename).replace('\'', ''))
-        print(">FILE Moved: " + str(filename) + " to /Music/New/")
-    except FileNotFoundError as e:
+        print(">FILE MOVED:\t" + str(filename) + " to /Music/New/")
+    except FileExistsError:  # if file aready exists
+        raise FileExistsError
+    except FileNotFoundError as e:  # if the file cannot be found
         error(e)
+    except PermissionError:  # if the file is currently being accesced (suck as mid conversion)
+        pass
 
 
 # Moves all files done converting to New
 def doneConvertion():
-    arr = glob.glob(user.BASEPATH + '*.mp3')
-    for i in arr:
-        file = i[44:]
-        toNew(file)
+    musicList = glob.glob(user.BASEPATH + '*.mp3')
+    for track in musicList:
+        file = track[44:]
+        try:
+            toNew(file)
+        except FileExistsError:
+            error(str(track) + ' aready exists')
+            os.remove(track)
+    print('>FILES MOVED:\t' + str(musicList.__len__()))
 
 
 def convertVid(url):
@@ -155,7 +164,7 @@ def error(errorMessage):
 
 # options needed for youtube-dl library
 ydl_opts = {
-    'format': 'bestaudio/best', 'ignoreerrors': 'i', 'max_filesize': '10m',
+    'format': 'bestaudio/best', 'ignoreerrors': 'i',
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',

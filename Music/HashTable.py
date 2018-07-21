@@ -1,6 +1,4 @@
-import _md5
 import random
-import hashlib
 
 random.seed(37)
 
@@ -102,8 +100,7 @@ class HashTable:
         # maybe a more clear way to search would be to first create
         # an array of indices to search and then check each one
         lst = []
-        print("LOOKING FOR... " + key)
-        print(self.__str__())
+
         if not self.keys.__contains__(key):
             return False
         lst.append(self.h1(key))
@@ -111,12 +108,10 @@ class HashTable:
             idx = self.quadProbe(key, i)
             if not lst.__contains__(idx):
                 lst.append(idx)
-        print(lst)
         for j in lst:
             item = self.table[j]
             if item:
                 if item[0].Artist == key:
-                    print("FOUND AT: " + str(j))
                     return j
         return False
 
@@ -169,19 +164,26 @@ class HashTable:
         if not pos:
             return False
         if value:
-            value = self.get(key)
-            idx = self.table[pos].index(value)
-            removed = self.table[pos].pop(idx)
-            self.values.remove(value)
+            try:
+                value = self.get(key)
+                idx = self.table[pos].index(value)
+                removed = self.table[pos].pop(idx)
+                self.values.remove(value)
+                self.size -= 1
+            except ValueError:
+                return False
         else:
-            for i in self.table[pos]:
-                self.values.remove(i)
-            self.table[pos] = []
-            removed = True
-        self.keys.remove(key)
-        self.size -= 1
-        if self.size != 0:
-            self.rehash()
+            try:
+                for i in self.table[pos]:
+                    self.values.remove(i)
+                self.table[pos] = []
+                removed = True
+                self.keys.remove(key)
+                self.size -= 1
+                if self.size != 0:
+                    self.rehash()
+            except ValueError:
+                return False
         return removed
 
     def has(self, key):

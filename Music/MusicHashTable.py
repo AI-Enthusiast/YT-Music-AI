@@ -5,6 +5,7 @@
 import csv
 import glob
 import os
+import urllib.error
 import urllib.request
 
 from bs4 import BeautifulSoup
@@ -13,7 +14,10 @@ from Music import HashTable as ht
 
 
 def force_to_unicode(text):
-    return text if isinstance(text, bytes) else text.encode('utf8')
+    if isinstance(text, str) or isinstance(text, bytes):
+        return text if isinstance(text, bytes) else text.encode('utf8').decode('utf8')
+    else:
+        return text
 
 
 class User:
@@ -48,9 +52,9 @@ class Data:
     # Constructer
     def __init__(self, Title="", Artist="", Url="6cwBLBCehGg", likes=0, dislikes=0, views=0,
                  used=False, likesToTotalRatio=0, likeToDislikeRatio=0, likeToViewRatio=0):  # used, artist, tempo, etc
-        self.Title = force_to_unicode(Title).decode('utf8')
+        self.Title = force_to_unicode(Title)
         self.Url = Url
-        self.Artist = force_to_unicode(Artist).decode('utf8')
+        self.Artist = force_to_unicode(Artist)
         self.likes = likes
         self.dislikes = dislikes
         self.views = views
@@ -157,13 +161,23 @@ def toCurrent(musicFile, setting):
         path = NewMusicPath
     musicFile = str(musicFile)[n:-3]
     musicFile.replace('\\', '')
-    os.rename(path + musicFile, CurrentMusicPath + musicFile)
+    try:
+        os.rename(path + musicFile, CurrentMusicPath + musicFile)
+        print(">FILE MOVED:\t" + str(musicFile) + " to /Music/Current/")
+    except FileNotFoundError as e:
+        error(e)
+    except OSError as e:
+        error(e)
 
 
 # gets (likes, dislikes, and views)
 def getStats(url):
-    soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
-                         ('utf-8', 'ignore'), 'html.parser')
+    try:
+        soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
+                             ('utf-8', 'ignore'), 'html.parser')
+    except urllib.error.HTTPError as e:
+        error(e)
+        return [-1, -1, -1]  # if bad url
     ratings = soup.find_all('button')
     likes = ratings[24]
     dislikes = ratings[26]
@@ -210,7 +224,7 @@ def getTrackInfo(file):
     fx = (str(file.split('/')[-1:])[2:-6]).split('-')  # file string manipulation
     artist = removeCommas(fx[0])
     title = removeCommas(fx[1])
-    return [artist, title, url]
+    return [str(artist).title(), str(title).title(), url]
 
 
 # gets the ratios of the track (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
@@ -285,7 +299,6 @@ def updateCSV(setting):
     # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
-    # TODO integrate old data
     convertCSVtoDict()
     clear()
     # Setting up the basic CSV
@@ -293,37 +306,46 @@ def updateCSV(setting):
                         "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'")
     for musicFile in musicFileList:
         file = musicFile[path.__len__():]
+        new = False  # bool to represent a new track under an existing artist
         try:
             info = getTrackInfo(file)  # (artist, title, url)
             data = getStats(ytPath + info[2])  # (likes, dislikes, views)
             ratios = getRatios(data)  # (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
+
         except urllib.request.HTTPError and ValueError as e:
             error(str(e) + ' ' + file)
             continue
-        entry = Data(force_to_unicode(info[1]).decode('utf8'), force_to_unicode(info[0]).decode('utf8'),
-                     force_to_unicode(info[2]).decode('utf8'), data[0], data[1], data[2], False,
-                     ratios[0], ratios[1], ratios[2])
+        if (data[0] == -1 and data[1] == -1 and data[2] == -1):  # if bad url
+            print('>BAD URL FOUND:\t ' + str(musicFile))
+            os.remove(musicFile)
+            continue
+        entry = Data(force_to_unicode(info[1]), force_to_unicode(info[0]),
+                     force_to_unicode(info[2]), force_to_unicode(data[0]),
+                     force_to_unicode(data[1]), force_to_unicode(data[2]),
+                     False, ratios[0], ratios[1], ratios[2])
         if music.has(info[0]):  # if there is an existing entry under the same artist
             song = entry.__str__().split(",")[1]  # get the song from the entry
-            if song[1] == info[1]:  # if the song names match
-                if setting != -1:  # if not a test
-                    print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[10:])
-                    os.remove(musicFile)
-                    # TODO compare stats with duplicate and keep best one
-                    music.remove(entry.Artist, entry)
-                continue  # determine tracks to be the same, add no entry
-            # TODO iterate through songs by artist (key) to ensure track does not already exist
-            elif setting != -1:  # if new track under existing artist
-                print(">NEW ENTRY UNDER:\t" + info[0])
-
-        music.put(entry.Artist, entry)
+            lst = music.get(info[0])
+            for el in lst:
+                if str(song) == el.Title:  # if the song names match
+                    if setting != -1:  # if not a test
+                        print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[str(NewMusicPath).__len__():])
+                        os.remove(musicFile)
+                        # TODO compare stats with duplicate and keep best one
+                    continue  # determine tracks to be the same, add no entry
+            if setting != -1:  # if new track under existing artist
+                print(">NEW ENTRY UNDER:\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
+                new = True
         if setting != -1:  # if not a test
             toCurrent(musicFile, 0)  # send track to /Current/
-            print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
+            if not new:  # if there hasn't already been a print
+                print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
+    # TODO figure out why the data isn't all being written to the CSV
     saveData(dataList=music)
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
+        print(music.__str__())
 
 
 if __name__ == "__main__":

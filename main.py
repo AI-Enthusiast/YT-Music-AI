@@ -102,7 +102,8 @@ if __name__ == "__main__":
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
-                    mai
+                    if __name__ == '__main__':
+                        mai
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()
@@ -144,5 +145,5 @@ if __name__ == "__main__":
                           "\n\tE.G: 'v LGeaZwunIFk' or 's lofi'"
                           "\nOr: 'done'(transfers *.mp3 to /New/ for processing), 'read'(reads MusicData.csv),"
                           "\n'clear'(clears MusicData.csv), or 'test'(run tests)")
-        except TypeError as e:
+        except AttributeError as e:
             error(e)
