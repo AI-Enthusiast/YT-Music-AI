@@ -7,6 +7,7 @@ import glob
 import os
 import urllib.error
 import urllib.request
+import sys
 
 from bs4 import BeautifulSoup
 
@@ -26,16 +27,25 @@ class User:
         self.BASEPATH = BASEPATH
         self.code = code
 
-        self.MusicPath = self.BASEPATH + 'Music/'
-        self.NewPath = self.MusicPath + 'New/'
-        self.OldPath = self.MusicPath + 'Old/'
-        self.CurrentPath = self.MusicPath + 'Current/'
-        self.TestPath = self.BASEPATH + 'Test/'
+        self.MusicPath = self.BASEPATH + '\\Music\\'
+        self.NewPath = self.MusicPath + 'New\\'
+        self.OldPath = self.MusicPath + 'Old\\'
+        self.CurrentPath = self.MusicPath + 'Current\\'
+        self.TestPath = self.BASEPATH + '\\Test\\'
 
 
-cormac = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
-user = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
-Path = user.BASEPATH
+cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI', 'cd')
+marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI', 'mg')
+
+if sys.path.__contains__(marilyn.BASEPATH):
+    user = marilyn
+    print("Hello, Marilyn!")
+
+elif sys.path.__contains__(cormac.BASEPATH):
+    user = cormac
+    print("Hello, Cormac!")
+
+Path = user.BASEPATH + '\\'
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
@@ -345,7 +355,6 @@ def updateCSV(setting):
             if not new:  # if there hasn't already been a print
                 print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
-    # TODO figure out why the data isn't all being written to the CSV
     saveData(dataList=music)
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")

@@ -78,12 +78,16 @@ def youtube_search(options):
     print("Playlists:\n", "\n".join(playlists), "\n")
 
 
+# A class to aide in importing -- logs errors
 class MyLogger(object):
     def debug(self, msg):
         pass
 
     def warning(self, msg):
         pass
+
+    def error(self, errorMessage):
+        print(str(errorMessage))
 
 
 def printRows(arr):
@@ -162,7 +166,8 @@ def error(errorMessage):
 
 # options needed for youtube-dl library
 ydl_opts = {
-    'format': 'bestaudio/best', 'ignoreerrors': 'i',
+    'format': 'bestaudio/best', 'ignorerrors': True,
+    'max_filesize': 10*2**20,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',
