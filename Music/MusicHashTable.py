@@ -32,8 +32,8 @@ class User:
         self.TestPath = self.BASEPATH + 'Test/'
 
 
-user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
-marilyn = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
+cormac = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
+user = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
@@ -156,7 +156,10 @@ def toCurrent(musicFile, setting):
     n = 2
     if setting == -1:  # if in testing mode
         path = TestMusicPath
-        n += 2
+        if user.code == 'mg':
+            n += 1
+        elif user.code == 'cd':
+            n += 2
     else:
         path = NewMusicPath
     musicFile = str(musicFile)[n:-3]

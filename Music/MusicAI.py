@@ -51,7 +51,7 @@ def temp():
     clf.__str__()
 
 
-temp()
+#temp()
 
 # TODO pic a song from /current/
 # TODO the next step will be to analize the music and understand that in the context of the ratios

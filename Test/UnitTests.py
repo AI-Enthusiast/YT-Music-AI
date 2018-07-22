@@ -123,6 +123,7 @@ class TestMusicHashTable(ut.TestCase):
                          'Test 3-title-6cwBLBCehGg.mp3',
                          'Test 4-title-6cwBLBCehGg.mp3']
         try:
+            print(mht.TestMusicPath)
             musicList = glob.glob(mht.TestMusicPath + '*.mp3')  # gather list of test music
             for track in musicList:
                 if str(track.split(' ')[0])[-4:] == "Test":  # if they are a test file
@@ -144,11 +145,11 @@ class TestMusicHashTable(ut.TestCase):
     def testUpdateCSV(self):
         desiredResult = [["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
                           "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'"],
-                         ['Test 0,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
-                         ['Test 1,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
-                         ['Test 2,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
-                         ['Test 3,title,6cwBLBCehGg,0,0,0,False,0,0,0'],
-                         ['Test 4,title,6cwBLBCehGg,0,0,0,False,0,0,0']]
+                         ['Test 0,Title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 1,Title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 2,Title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 3,Title,6cwBLBCehGg,0,0,0,False,0,0,0'],
+                         ['Test 4,Title,6cwBLBCehGg,0,0,0,False,0,0,0']]
         try:
             mht.clear()
             mht.updateCSV(-1)
@@ -160,7 +161,7 @@ class TestMusicHashTable(ut.TestCase):
             pass
 
     def testGetTrackInfo(self):
-        desiredResult = ['Test 0', 'title', '6cwBLBCehGg']
+        desiredResult = ['Test 0', 'Title', '6cwBLBCehGg']
         try:
             results = mht.getTrackInfo(mht.TestMusicPath + 'Test 0-title-6cwBLBCehGg.mp3')
             self.assertEqual(desiredResult, results)
