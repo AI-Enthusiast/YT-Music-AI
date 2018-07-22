@@ -102,9 +102,7 @@ if __name__ == "__main__":
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
-                    if __name__ == '__main__':
-                        #run mai
-                        pass
+                    mai.temp()
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()

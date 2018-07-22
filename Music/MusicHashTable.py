@@ -141,12 +141,14 @@ def appendData(song):
         try:
             if not music.values.__contains__(song):
                 music.put(song.Artist, song)
+            song.Artist = force_to_unicode(song.Artist)
+            song.Title = force_to_unicode(song.Title)
+            music.put(song.Artist, song)
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError as e:
             error(e)
         except UnicodeEncodeError as e:
-            error(e)
-            pass
+            error(str(e) + str(song.__str__()))
         csvfile.close()
 
 
@@ -237,7 +239,7 @@ def getTrackInfo(file):
 # gets the ratios of the track (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
 def getRatios(data):
     if data.__len__() < 3:
-        error("Insufficient args given to getRatios()")
+        error("Insuficient args given to getRatios()")
         quit()
     else:
         likes = data[0]
@@ -307,7 +309,6 @@ def updateCSV(setting):
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
     convertCSVtoDict()
-    clear()
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
                         "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'")
@@ -351,7 +352,8 @@ def updateCSV(setting):
             if not new:  # if there hasn't already been a print
                 print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
-    saveData(dataList=music)
+        appendData(entry)
+    # TODO figure out why the data isn't all being written to the CSV
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
         print(music.__str__())
