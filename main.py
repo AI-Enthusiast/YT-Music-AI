@@ -131,16 +131,15 @@ if __name__ == "__main__":
                         yt.youtube_search(args)
                     except HttpError and argparser.ArgumentError as e:
                         error(e)
-                # TODO auto mode
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
                     yt.doneConversion()
-                    # TODO write this function
-                    mh.isEnoughData()  # TODO check if there is enough data (always want more)
-                    # TODO automate data accumulation
+                    if not mh.isEnoughData():
+                        pass
+                        #TODO automate music gathering
                     mh.updateCSV(0)
                     # TODO trigger Mai
                     # TODO check copyright
-                    # TODO trigger wallpaper bot to select a background
+                    # TODO trigger wallpaper bot (Waide) to select a background
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
                     # TODO upload video to youtube

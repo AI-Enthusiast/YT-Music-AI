@@ -14,6 +14,8 @@ from bs4 import BeautifulSoup
 from Music import HashTable as ht
 
 
+IDEAL_SIZE = 3000
+
 # noinspection PyUnresolvedReferences
 def force_to_unicode(text):
     if isinstance(text, str) or isinstance(text, bytes):
@@ -361,7 +363,10 @@ def updateCSV(setting):
 def isEnoughData():
     currCount = glob.glob(CurrentMusicPath + '*.mp3').__len__()
     newCount = glob.glob(NewMusicPath + '*.mp3').__len__()
-    if currCount + newCount >
+    if currCount + newCount >= IDEAL_SIZE:
+        return True
+    else:
+        return False
 
 if __name__ == "__main__":
     error("Please run from main.py")
