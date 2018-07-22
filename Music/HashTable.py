@@ -194,4 +194,4 @@ class HashTable:
 
 
 if __name__ == '__main__':
-    print(error("Please run from main.py"))
+    error("Please run from main.py")

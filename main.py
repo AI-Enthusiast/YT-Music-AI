@@ -135,10 +135,17 @@ if __name__ == "__main__":
                 # TODO auto mode
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
                     yt.doneConvertion()
-                    mh.isEnoughData()
+                    mh.isEnoughData()  # TODO check if there is enough data (always want more)
+                    # TODO automate data acumilation
                     mh.updateCSV(0)
-                    musicDic = mh.convertCSVtoDict()
-
+                    # TODO trigger Mai
+                    # TODO check copyright
+                    # TODO trigger wallpaper bot to select a backgrount
+                    # TODO trigger AEbot to make video with music and background
+                    # TODO compress vid
+                    # TODO upload video to youtube
+                    # TODO automate aquisition of new data and deletion of old
+                    # TODO posiibly create a director or a job queue for this so that it never stops
                 else:
                     print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), or 'c'(for channel)"
                           "\nfollowed by the end url or the search term."

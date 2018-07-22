@@ -329,7 +329,10 @@ def updateCSV(setting):
                 if str(song) == el.Title:  # if the song names match
                     if setting != -1:  # if not a test
                         print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[str(NewMusicPath).__len__():])
-                        os.remove(musicFile)
+                        try:
+                            os.remove(musicFile)
+                        except FileNotFoundError as e:
+                            error(e)
                         # TODO compare stats with duplicate and keep best one
                     continue  # determine tracks to be the same, add no entry
             if setting != -1:  # if new track under existing artist
@@ -348,4 +351,4 @@ def updateCSV(setting):
 
 
 if __name__ == "__main__":
-    print(error("Please run from main.py"))
+    error("Please run from main.py")

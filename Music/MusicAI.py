@@ -39,12 +39,7 @@ def feature(data):  # likes, dislikes, views
     return labels
 
 
-# TODO pic a song from /current/
-# TODO the next step will be to analize the music and understand that in the context of the ratios
-# then select similar sounding music that will have high performing ratios
-if __name__ == "__main__":
-    print("Please run from main.py")
-
+def temp():
     features = mht.readData()[1:]
     labels = label(features)
     features = feature(features)
@@ -53,3 +48,14 @@ if __name__ == "__main__":
     clf = tree.DecisionTreeRegressor()
     clf = clf.fit(features, labels)
     print(clf.predict([[4100, 59, 559964]]))
+    clf.__str__()
+
+
+temp()
+
+# TODO pic a song from /current/
+# TODO the next step will be to analize the music and understand that in the context of the ratios
+# then select similar sounding music that will have high performing ratios
+if __name__ == "__main__":
+    print("Please run from main.py")
+

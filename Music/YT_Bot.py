@@ -136,6 +136,8 @@ def convertVid(url):
     doneConvertion()
 
 
+# TODO skip dem long songs
+# TODO parse playlist index and skip songs already downloaded
 # Converts playlists using youtube-dl library
 def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url
@@ -174,4 +176,4 @@ ydl_opts = {
 }
 
 if __name__ == "__main__":
-    print(error("Please run from main.py"))
+    error("Please run from main.py")
