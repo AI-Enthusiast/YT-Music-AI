@@ -25,11 +25,11 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
-# A function to check the list to predict if its a live vide
+# A function to check the list to predict if its a live video
 # params: list of title words
 # returns a Boolean depicting whether it is assumed to be live or not
 
-def isLive(title=[]):
+def isLive(title):
     for i in liveVidKeyWords:
         for word in title:
             if i == word:
@@ -78,16 +78,12 @@ def youtube_search(options):
     print("Playlists:\n", "\n".join(playlists), "\n")
 
 
-# A class to aide in importing -- logs errors
 class MyLogger(object):
     def debug(self, msg):
         pass
 
     def warning(self, msg):
         pass
-
-    def error(self, errorMessage):
-        print(str(errorMessage))
 
 
 def printRows(arr):
@@ -108,23 +104,23 @@ def toNew(filename):
     try:
         os.rename(user.BASEPATH + filename, str(user.NewPath + filename).replace('\'', ''))
         print(">FILE MOVED:\t" + str(filename) + " to /Music/New/")
-    except FileExistsError:  # if file aready exists
+    except FileExistsError:  # if file already exists
         raise FileExistsError
     except FileNotFoundError as e:  # if the file cannot be found
         error(e)
-    except PermissionError:  # if the file is currently being accesced (suck as mid conversion)
+    except PermissionError:  # if the file is currently being accessed
         pass
 
 
 # Moves all files done converting to New
-def doneConvertion():
+def doneConversion():
     musicList = glob.glob(user.BASEPATH + '*.mp3')
     for track in musicList:
         file = track[44:]
         try:
             toNew(file)
         except FileExistsError:
-            error(str(track) + ' aready exists')
+            error(str(track) + ' already exists')
             os.remove(track)
     print('>FILES MOVED:\t' + str(musicList.__len__()))
 
@@ -133,7 +129,7 @@ def convertVid(url):
     videoURL = "https://www.youtube.com/watch?v=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([videoURL])
-    doneConvertion()
+    doneConversion()
 
 
 # TODO skip dem long songs
@@ -143,7 +139,7 @@ def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlistURL])
-    doneConvertion()
+    doneConversion()
 
 
 # Converts channels using youtube-dl library
@@ -151,7 +147,7 @@ def convertChannel(url):
     channelURL = "https://www.youtube.com/channel/" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channelURL])
-    doneConvertion()
+    doneConversion()
 
 
 # prints downloading. Purely OCD aesthetic

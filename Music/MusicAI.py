@@ -19,10 +19,8 @@ def label(data):  # ratios
     labels = []
     for i in range(1, data.__len__()):
         entry = (str(data[i]).split(','))
-        info = []
-        info.append(float("{0:.6f}".format(float(entry[7]))))
-        info.append(float("{0:.6f}".format(float(entry[8]))))
-        info.append(float("{0:.6f}".format(float(entry[9][:entry[9].__len__() - 2]))))
+        info = [float("{0:.6f}".format(float(entry[7]))), float("{0:.6f}".format(float(entry[8]))),
+                float("{0:.6f}".format(float(entry[9][:entry[9].__len__() - 2])))]
         labels.append(info)
     return labels
 
@@ -31,10 +29,8 @@ def feature(data):  # likes, dislikes, views
     labels = []
     for i in range(1, data.__len__()):
         entry = (str(data[i]).split(','))
-        info = []
-        info.append(float("{0:.6f}".format(float(entry[3]))))
-        info.append(float("{0:.6f}".format(float(entry[4]))))
-        info.append(float("{0:.6f}".format(float(entry[5]))))
+        info = [float("{0:.6f}".format(float(entry[3]))), float("{0:.6f}".format(float(entry[4]))),
+                float("{0:.6f}".format(float(entry[5])))]
         labels.append(info)
     return labels
 
@@ -54,7 +50,7 @@ def temp():
 #temp()
 
 # TODO pic a song from /current/
-# TODO the next step will be to analize the music and understand that in the context of the ratios
+# TODO the next step will be to analyze the music and understand that in the context of the ratios
 # then select similar sounding music that will have high performing ratios
 if __name__ == "__main__":
     print("Please run from main.py")

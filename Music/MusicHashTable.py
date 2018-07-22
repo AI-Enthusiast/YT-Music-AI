@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 from Music import HashTable as ht
 
 
+# noinspection PyUnresolvedReferences
 def force_to_unicode(text):
     if isinstance(text, str) or isinstance(text, bytes):
         return text if isinstance(text, bytes) else text.encode('utf8').decode('utf8')
@@ -49,7 +50,7 @@ music = ht.HashTable()
 
 # A class used to create music file objects
 class Data:
-    # Constructer
+    # Constructor
     def __init__(self, Title="", Artist="", Url="6cwBLBCehGg", likes=0, dislikes=0, views=0,
                  used=False, likesToTotalRatio=0, likeToDislikeRatio=0, likeToViewRatio=0):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title)
@@ -102,7 +103,6 @@ def readData():
 
 
 # Saves Header dataList into csv file
-# TO TEST
 # DataList is a LIST object
 def saveHeader(dataList):
     with open(FileName, 'w', newline='\n') as csvfile:
@@ -113,7 +113,6 @@ def saveHeader(dataList):
 
 
 # Saves dataList into csv file
-# TO TEST
 # DataList is a HashTable
 def saveData(dataList):
     with open(FileName, 'a', newline='') as csvfile:
@@ -145,7 +144,6 @@ def appendData(song):
         csvfile.close()
 
 
-# TO TEST
 def clear():
     with open(FileName, 'w', newline='\n') as csvfile:
         csvfile.close()
@@ -213,7 +211,7 @@ def getStats(url):
     views = Views[0]
     views = (str(views).split('>'))[1]
     views = views[:views.__len__() - 11]
-    if (str(views) == "No"):  # if no views
+    if str(views) == "No":  # if no views
         views = '0'
     try:
         return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
@@ -233,7 +231,7 @@ def getTrackInfo(file):
 # gets the ratios of the track (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
 def getRatios(data):
     if data.__len__() < 3:
-        error("Insuficient args given to getRatios()")
+        error("Insufficient args given to getRatios()")
         quit()
     else:
         likes = data[0]
@@ -289,6 +287,7 @@ def convertCSVtoDict():
 
 
 # control center for MusicHashTable.py
+# noinspection PyShadowingNames
 def updateCSV(setting):
     if setting == -1:  # if testing mode
         path = TestMusicPath
@@ -317,7 +316,7 @@ def updateCSV(setting):
         except urllib.request.HTTPError and ValueError as e:
             error(str(e) + ' ' + file)
             continue
-        if (data[0] == -1 and data[1] == -1 and data[2] == -1):  # if bad url
+        if data[0] == -1 and data[1] == -1 and data[2] == -1:  # if bad url
             print('>BAD URL FOUND:\t ' + str(musicFile))
             os.remove(musicFile)
             continue

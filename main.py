@@ -45,10 +45,10 @@ if __name__ == "__main__":
                         print("Welcome Cormac :)")
                     elif path == "mg":
                         print("Welcome Marilyn :)")
-                    elif (len(path) < 1):
+                    elif len(path) < 1:
                         path = str(input("TERMINATE PROGRAM (Y/N)?: ")).lower()
-                        if (path == 'y' or path == 'yes'):
-                            yt.doneConvertion()
+                        if path == 'y' or path == 'yes':
+                            yt.doneConversion()
                             print(">PROGRAM TERMINATED: By user command")
                             quit()
                         else:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 userIN = input('>>').split()
                 if len(userIN) == 0:  # if there is not input end program
                     print("\n yt.py has been Terminated...")
-                    yt.doneConvertion()
+                    yt.doneConversion()
                     break
                 elif userIN[0] == "test":  # if wanting to run tests
                     print(">COMMENCE TESTING...")
@@ -98,12 +98,13 @@ if __name__ == "__main__":
                 elif userIN[0] == "clear":  # if wishing to clear of create a new instance of MusicData.csv
                     mh.clear()
                 elif userIN[0] == "done":  # if wishing to clear BASEPATH of *.mp3 files
-                    yt.doneConvertion()
+                    yt.doneConversion()
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
                     if __name__ == '__main__':
-                        mai
+                        #run mai
+                        pass
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()
@@ -134,18 +135,19 @@ if __name__ == "__main__":
                         error(e)
                 # TODO auto mode
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
-                    yt.doneConvertion()
+                    yt.doneConversion()
+                    # TODO write this function
                     mh.isEnoughData()  # TODO check if there is enough data (always want more)
-                    # TODO automate data acumilation
+                    # TODO automate data accumulation
                     mh.updateCSV(0)
                     # TODO trigger Mai
                     # TODO check copyright
-                    # TODO trigger wallpaper bot to select a backgrount
+                    # TODO trigger wallpaper bot to select a background
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
                     # TODO upload video to youtube
-                    # TODO automate aquisition of new data and deletion of old
-                    # TODO posiibly create a director or a job queue for this so that it never stops
+                    # TODO automate acquisition of new data and deletion of old
+                    # TODO possibly create a director or a job queue for this so that it never stops
                 else:
                     print("Please type 's'(for search), 'v'(for video), 'p'(for playlist), or 'c'(for channel)"
                           "\nfollowed by the end url or the search term."

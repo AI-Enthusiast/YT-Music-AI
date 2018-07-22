@@ -10,6 +10,14 @@ def force_to_unicode(text):
     return text if isinstance(text, bytes) else text.encode('utf8')
 
 
+def h0(key):
+    s = 0
+    for char in key:
+        s += ord(char)
+    return s
+
+
+# noinspection PyUnresolvedReferences,PyUnusedLocal
 class HashTable:
 
     # Constructor
@@ -46,23 +54,18 @@ class HashTable:
     One thing we could do would be to use random generators with a constant seed value to keep
     the numbers constant for testing. 
     '''
-    def h0(self, key):
-        sum = 0
-        for char in key:
-            sum += ord(char)
-        return sum
 
     # a hashing functionality
     def h1(self, key):
-        return self.h0(key) % self.capacity
+        return h0(key) % self.capacity
 
     # needed for doubleHashing algorithm
     def h2(self, key):
-        return self.h0(key) % self.seed
+        return h0(key) % self.seed
 
     # tells the program when to double hash and when to rehash
     def cutoff(self):
-        return (self.keys.__len__() > int(self.capacity * 0.8))
+        return self.keys.__len__() > int(self.capacity * 0.8)
 
     def quadProbe(self, key, i):
         return (i * self.h1(key) + self.h2(key)) % self.capacity
@@ -77,7 +80,7 @@ class HashTable:
             posFound = self.search(key)
         while i <= limit:
             newPosition = self.quadProbe(key, i)
-            if self.table[newPosition] == []:
+            if not self.table[newPosition]:
                 posFound = True
                 break
             else:

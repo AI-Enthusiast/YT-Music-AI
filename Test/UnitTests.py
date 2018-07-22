@@ -201,6 +201,7 @@ class TestHashTable(ut.TestCase):
         result = Table.h2(key="test")
         self.assertEqual(desiredResult, result)
 
+    # noinspection PyUnusedLocal
     def testCutOff(self):
         Table = ht.HashTable(10)
         Table.keys = [[] for i in range(0, 9)]
