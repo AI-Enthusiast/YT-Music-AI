@@ -39,7 +39,8 @@ def feature(data):  # likes, dislikes, views
     return labels
 
 
-# the next step will be to analize the music and understand that in the context of the ratios
+# TODO pic a song from /current/
+# TODO the next step will be to analize the music and understand that in the context of the ratios
 # then select similar sounding music that will have high performing ratios
 if __name__ == "__main__":
     print("Please run from main.py")

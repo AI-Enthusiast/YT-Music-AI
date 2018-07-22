@@ -272,7 +272,6 @@ def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
 
-# TODO convert CSV to Dict
 def convertCSVtoDict():
     dataList = readData()
     index = 1
@@ -334,12 +333,12 @@ def updateCSV(setting):
                         # TODO compare stats with duplicate and keep best one
                     continue  # determine tracks to be the same, add no entry
             if setting != -1:  # if new track under existing artist
-                print(">NEW ENTRY UNDER:\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
+                print(">NEW ENTRY UNDER:\t" + info[0] + '-' + info[1] + ' ' + info[2])
                 new = True
         if setting != -1:  # if not a test
             toCurrent(musicFile, 0)  # send track to /Current/
             if not new:  # if there hasn't already been a print
-                print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
+                print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
     # TODO figure out why the data isn't all being written to the CSV
     saveData(dataList=music)
