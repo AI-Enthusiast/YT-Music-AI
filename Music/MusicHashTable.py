@@ -296,6 +296,75 @@ def convertCSVtoDict():
         index += 1
 
 
+def onlyKeepOne(a, b):
+    if a.likesToTotalRatio > b.likesToTotalRatio:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # a a b
+            else:
+                return a  # a a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # a b b
+            else:
+                return a  # a b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # a = b
+            else:
+                return a  # a = =
+    elif b.likesToTotalRatio > a.likesToTotalRatio:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # b a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # b a b
+            else:
+                return a  # b a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return b # b b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b # b b b
+            else:
+                return b # b b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # b = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # b = b
+            else:
+                return a  # b = =
+    else:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # = a b
+            else:
+                return a  # = a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # = b b
+            else:
+                return b  # = b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # = = b
+            else:
+                return a  # = = =
+
+
 # control center for MusicHashTable.py
 # noinspection PyShadowingNames
 def updateCSV(setting):
@@ -334,13 +403,14 @@ def updateCSV(setting):
                      force_to_unicode(data[1]), force_to_unicode(data[2]),
                      False, ratios[0], ratios[1], ratios[2])
         if music.has(info[0]):  # if there is an existing entry under the same artist
-            song = entry.__str__().split(",")[1]  # get the song from the entry
+            #  get the song from the entry
             lst = music.get(info[0])
             for el in lst:
-                if str(song) == el.Title:  # if the song names match
+                if entry.Title == el.Title:  # if the song names match
                     if setting != -1:  # if not a test
                         print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[str(NewMusicPath).__len__():])
                         try:
+                            keeper = onlyKeepOne(el, entry)
                             os.remove(musicFile)
                         except FileNotFoundError as e:
                             error(e)
