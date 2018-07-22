@@ -128,16 +128,8 @@ def saveData(dataList):
     with open(FileName, 'a', newline='') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
-        dd = []
         for val in dataList.values:
-            string = val.__str__()
-            el = [string]
-            dd.append(el)
-        try:
-            DataWriter.writerows(dd)
-        except UnicodeEncodeError as e:
-            error(e)
-            pass
+            appendData(val)
         csvfile.close()
 
 
@@ -147,10 +139,14 @@ def appendData(song):
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
-            music.put(song.Artist, song)
+            if not music.values.__contains__(song):
+                music.put(song.Artist, song)
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError as e:
             error(e)
+        except UnicodeEncodeError as e:
+            error(e)
+            pass
         csvfile.close()
 
 
@@ -359,6 +355,8 @@ def updateCSV(setting):
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
         print(music.__str__())
+
+def isEnoughData():
 
 
 if __name__ == "__main__":
