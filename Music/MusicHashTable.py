@@ -359,7 +359,9 @@ def updateCSV(setting):
         print(music.__str__())
 
 def isEnoughData():
-
+    currCount = glob.glob(CurrentMusicPath + '*.mp3').__len__()
+    newCount = glob.glob(NewMusicPath + '*.mp3').__len__()
+    if currCount + newCount >
 
 if __name__ == "__main__":
     error("Please run from main.py")
