@@ -102,8 +102,7 @@ if __name__ == "__main__":
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
-                    if __name__ == '__main__':
-                        mai
+                    mai.temp()
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()
@@ -138,7 +137,7 @@ if __name__ == "__main__":
                     mh.isEnoughData()  # TODO check if there is enough data (always want more)
                     # TODO automate data acumilation
                     mh.updateCSV(0)
-                    # TODO trigger Mai
+                    mai  # Mai trigger
                     # TODO check copyright
                     # TODO trigger wallpaper bot to select a backgrount
                     # TODO trigger AEbot to make video with music and background

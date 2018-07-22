@@ -32,8 +32,8 @@ class User:
         self.TestPath = self.BASEPATH + 'Test/'
 
 
-cormac = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
-user = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
+user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
+marilyn = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
@@ -138,10 +138,14 @@ def appendData(song):
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
+            song.Artist = force_to_unicode(song.Artist)
+            song.Title = force_to_unicode(song.Title)
             music.put(song.Artist, song)
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError as e:
             error(e)
+        except UnicodeEncodeError as e:
+            error(str(e) + str(song.__str__()))
         csvfile.close()
 
 
@@ -302,7 +306,6 @@ def updateCSV(setting):
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
     convertCSVtoDict()
-    clear()
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
                         "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'")
@@ -346,8 +349,8 @@ def updateCSV(setting):
             if not new:  # if there hasn't already been a print
                 print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
+        appendData(entry)
     # TODO figure out why the data isn't all being written to the CSV
-    saveData(dataList=music)
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
         print(music.__str__())
