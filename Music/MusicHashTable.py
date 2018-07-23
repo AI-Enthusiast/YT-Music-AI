@@ -141,11 +141,8 @@ def appendData(song):
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
-            if not music.values.__contains__(song):
-                music.put(song.Artist, song)
             song.Artist = force_to_unicode(song.Artist)
             song.Title = force_to_unicode(song.Title)
-            music.put(song.Artist, song)
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError as e:
             error(e)
