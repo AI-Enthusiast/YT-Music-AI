@@ -19,7 +19,7 @@ IDEAL_SIZE = 3000
 # noinspection PyUnresolvedReferences
 def force_to_unicode(text):
     if isinstance(text, str) or isinstance(text, bytes):
-        return text if isinstance(text, bytes) else text.encode('utf8').decode('utf8')
+        return text if isinstance(text, bytes) else text.encode('utf-8', 'strict').decode('utf-8', 'strict')
     else:
         return text
 
@@ -104,7 +104,7 @@ class Data:
 
 # Reads through data and outputs it as array eg out[row]
 def readData():
-    with open(FileName, "r", newline='') as csvfile:
+    with open(FileName, "r", newline='', encoding='utf8') as csvfile:
         DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         out = []
@@ -117,7 +117,7 @@ def readData():
 # Saves Header dataList into csv file
 # DataList is a LIST object
 def saveHeader(dataList):
-    with open(FileName, 'w', newline='\n') as csvfile:
+    with open(FileName, 'w', newline='\n', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         DataWriter.writerow([dataList])
@@ -127,7 +127,7 @@ def saveHeader(dataList):
 # Saves dataList into csv file
 # DataList is a HashTable
 def saveData(dataList):
-    with open(FileName, 'a', newline='') as csvfile:
+    with open(FileName, 'a', newline='', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         for val in dataList.values:
@@ -137,22 +137,21 @@ def saveData(dataList):
 
 # appends dataList into csv file
 def appendData(song):
-    with open(FileName, 'a', newline='') as csvfile:
+    with open(FileName, 'a', newline='', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
             song.Artist = force_to_unicode(song.Artist)
             song.Title = force_to_unicode(song.Title)
+            print(force_to_unicode(song.Artist))
             DataWriter.writerow([song.__str__()])
-        except TypeError and AttributeError as e:
+        except TypeError and AttributeError and UnicodeEncodeError as e:
             error(e)
-        except UnicodeEncodeError as e:
-            error(str(e) + str(song.__str__()))
         csvfile.close()
 
 
 def clear():
-    with open(FileName, 'w', newline='\n') as csvfile:
+    with open(FileName, 'w', newline='\n', encoding='utf8') as csvfile:
         csvfile.close()
 
 
@@ -182,7 +181,7 @@ def toCurrent(musicFile, setting):
 def getStats(url):
     try:
         soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
-                             ('utf-8', 'ignore'), 'html.parser')
+                             ('utf-8', 'strict'), 'html.parser')
     except urllib.error.HTTPError as e:
         error(e)
         return [-1, -1, -1]  # if bad url
@@ -221,9 +220,21 @@ def getStats(url):
     if str(views) == "No":  # if no views
         views = '0'
     try:
-        return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
-    except ValueError and AttributeError as e:
-        error(e)
+        l = int(removeCommas(likes))
+    except ValueError and AttributeError:
+        l = 0
+        pass
+    try:
+        d = int(removeCommas(dislikes))
+    except ValueError and AttributeError:
+        d = 0
+        pass
+    try:
+        v = int(removeCommas(views))
+    except ValueError and AttributeError:
+        v = 0
+        pass
+    return [l, d, v]
 
 
 # get's the info of the track (url, artist, title)
@@ -408,10 +419,14 @@ def updateCSV(setting):
                         print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[str(NewMusicPath).__len__():])
                         try:
                             keeper = onlyKeepOne(el, entry)
-                            os.remove(musicFile)
+                            if keeper == el:
+                                os.remove(musicFile)
+                            else:
+                                music.remove(info[0], el)
+                                music.put(info[0], entry)
+                                os.remove(musicFile)
                         except FileNotFoundError as e:
                             error(e)
-                        # TODO compare stats with duplicate and keep best one
                     continue  # determine tracks to be the same, add no entry
             if setting != -1:  # if new track under existing artist
                 print(">NEW ENTRY UNDER:\t" + info[0] + '-' + info[1] + ' ' + info[2])
