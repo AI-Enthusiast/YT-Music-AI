@@ -17,7 +17,7 @@ from Music import YT_Bot as yt
 from Test import UnitTests as ut
 
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
-user = mh.User('', '')
+#user = mh.User('', '')
 
 
 def error(errorMessage):
@@ -30,13 +30,15 @@ if __name__ == "__main__":
         mh.clear()
         print(">FILE CREATED: 'MusicData.csv' in /Music/")
 
-    print('Insert the path to the directory on your computer that '
-          'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
-    path = input('>>')
 
+    argparser.add_argument("--q", help="Search term", default="")
+    argparser.add_argument("--max-results", help="Max results", default=25)
     while True:
         try:
-            if user.BASEPATH == '':
+            if mh.user.BASEPATH == '':
+                print('Insert the path to the directory on your computer that '
+          'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
+                path = input('>>')
                 if codes.keys().__contains__(path):
                     user = mh.User(codes.get(path), path)
                     yt.user = user
@@ -122,15 +124,9 @@ if __name__ == "__main__":
                     except yt.youtube_dl.utils.PostProcessingError and yt.youtube_dl.utils.DownloadError as e:
                         yt.error(e)
                 elif userIN[0] == "s":  # if search s
-
-                    try:
-                        argparser.add_argument("--q", help="Search term", default=path[1])
-                        argparser.add_argument("--max-results", help="Max results", default=25)
-                        argparser.set_defaults(q=userIN[1])
-                        args = argparser.parse_args()
-                        yt.youtube_search(args)
-                    except HttpError and argparser.ArgumentError as e:
-                        error(e)
+                    argparser.set_defaults(q=userIN[1:])
+                    args = argparser.parse_args()
+                    yt.youtube_search(args)
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
                     yt.doneConversion()
                     if not mh.isEnoughData():
