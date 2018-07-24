@@ -119,14 +119,24 @@ def toNew(filename):
 # Moves all files done converting to New
 def doneConversion():
     musicList = glob.glob(user.BASEPATH + '*.mp3')
+    deadList = glob.glob(user.BASEPATH + '*.part') # abandond remanants of yt vids
+    deleted = 0
     for track in musicList:
-        file = track[44:]
+        file = track[str(user.BASEPATH).__len__():]
         try:
             toNew(file)
         except FileExistsError:
             error(str(track) + ' already exists')
             os.remove(track)
-    print('>FILES MOVED:\t' + str(musicList.__len__()))
+            deleted +=1
+    for track in deadList:
+        try:
+            os.remove(track)
+        except PermissionError as e:
+            continue
+            error(e)
+    print('>FILES MOVED:\t' + str((musicList.__len__() - deleted)))
+    print('>FILES REMOVED:\t' + str(deleted + str(deadList).__len__()))
 
 
 def convertVid(url):
