@@ -1,0 +1,1 @@
+Folder will have a mp3 and jpeg/png added to it for rendering in after effects. MusicTrack.csv purpose is to have the artist and track name such that it is automatically added to the composition.

@@ -19,7 +19,10 @@ IDEAL_SIZE = 3000
 # noinspection PyUnresolvedReferences
 def force_to_unicode(text):
     if isinstance(text, str) or isinstance(text, bytes):
-        return text if isinstance(text, bytes) else text.encode('utf-8', 'strict').decode('utf-8', 'strict')
+        try:
+            return text if isinstance(text, bytes) else text.encode('utf-8', 'strict').decode('utf-8', 'strict')
+        except UnicodeEncodeError as e:
+            error(e)
     else:
         return text
 

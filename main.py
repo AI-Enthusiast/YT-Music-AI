@@ -11,6 +11,7 @@ from pprint import pprint
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 
+from Music import AE_Bot as ae
 from Music import MusicAI as mai
 from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
@@ -137,9 +138,10 @@ if __name__ == "__main__":
                         pass
                         #TODO automate music gathering
                     mh.updateCSV(0)
-                    # TODO trigger Mai
+                    mai.temp()  # tigger mai
                     # TODO check copyright
                     # TODO trigger wallpaper bot (Waide) to select a background
+                    ae  # writes info about mp3 so ae has acces to the title
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
                     # TODO upload video to youtube
