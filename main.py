@@ -18,7 +18,9 @@ from Music import YT_Bot as yt
 from Test import UnitTests as ut
 
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
-#user = mh.User('', '')
+
+
+# user = mh.User('', '')
 
 
 def error(errorMessage):
@@ -33,11 +35,12 @@ if __name__ == "__main__":
 
     argparser.add_argument("--q", help="Search term", default="")
     argparser.add_argument("--max-results", help="Max results", default=25)
+    first = True
     while True:
         try:
             if mh.user.BASEPATH == '':
                 print('Insert the path to the directory on your computer that '
-          'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
+                      'leads to the directory that contains your \'New\' \n\tand \'Current\' folders, or your initials\n')
                 path = input('>>')
                 if codes.keys().__contains__(path):
                     user = mh.User(codes.get(path), path)
@@ -69,7 +72,9 @@ if __name__ == "__main__":
                 user = mh.user
                 ut.user = mh.user
                 userIN = input('>>').split()
-                mh.convertCSVtoDict()
+                if first:
+                    mh.convertCSVtoDict()
+                    first = False
                 if len(userIN) == 0:  # if there is not input end program
                     print("\n yt.py has been Terminated...")
                     yt.doneConversion()
@@ -142,7 +147,7 @@ if __name__ == "__main__":
                     mai.train()  # tigger mai
                     # TODO check copyright
                     # TODO trigger wallpaper bot (Waide) to select a background
-                    ae  # writes info about mp3 so ae has access to the title
+                    ae.trgr()  # writes info about mp3 so ae has access to the title
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
                     # TODO upload video to youtube

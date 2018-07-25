@@ -5,16 +5,16 @@
 import csv
 import glob
 import os
+import sys
 import urllib.error
 import urllib.request
-import sys
 
 from bs4 import BeautifulSoup
 
 from Music import HashTable as ht
 
-
 IDEAL_SIZE = 3000
+
 
 # noinspection PyUnresolvedReferences
 def force_to_unicode(text):
@@ -39,7 +39,6 @@ def force_to_unicode(text):
         return text
 
 
-
 def printability(text):
     if isinstance(text, str):
         new = ""
@@ -52,11 +51,13 @@ def printability(text):
     else:
         return text
 
+
 def invert(byte):
     if isinstance(byte, bytes):
         return byte.decode('utf-8', 'strict').encode('utf-8', 'strict')
     else:
         return byte
+
 
 class User:
     def __init__(self, BASEPATH, code):
@@ -73,6 +74,7 @@ class User:
 cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI\\', 'cd')
 marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI\\', 'mg')
 
+
 def setUser():
     if sys.path.__contains__(marilyn.BASEPATH[:-1]):
         user = marilyn
@@ -83,9 +85,10 @@ def setUser():
         print("Hello, Cormac!")
 
     else:
-        user = User(sys.path[0]+'\\', 'nu')
+        user = User(sys.path[0] + '\\', 'nu')
         print("Welcome, New User!")
     return user
+
 
 user = setUser()
 FileName = "MusicData.csv"
@@ -104,7 +107,8 @@ music = ht.HashTable()
 class Data:
     # Constructor
     def __init__(self, Title="", Artist="", Url="6cwBLBCehGg", likes=0, dislikes=0, views=0,
-                 used=False, likesToTotalRatio=0.0, likeToDislikeRatio=0.0, likeToViewRatio=0.0):  # used, artist, tempo, etc
+                 used=False, likesToTotalRatio=0.0, likeToDislikeRatio=0.0,
+                 likeToViewRatio=0.0):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title)
         self.Url = Url
         self.Artist = force_to_unicode(Artist)
@@ -389,11 +393,11 @@ def onlyKeepOne(a, b):
                 return a  # b a =
         elif b.likeToViewRatio > a.likeToViewRatio:
             if a.likeToDislikeRatio > b.likeToDislikeRatio:
-                return b # b b a
+                return b  # b b a
             elif b.likeToDislikeRatio > a.likeToDislikeRatio:
-                return b # b b b
+                return b  # b b b
             else:
-                return b # b b =
+                return b  # b b =
         else:
             if a.likeToDislikeRatio > b.likeToDislikeRatio:
                 return a  # b = a
@@ -440,6 +444,7 @@ def updateCSV(setting):
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
     convertCSVtoDict()
+    saveData(music)
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
                         "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'")
@@ -491,8 +496,9 @@ def updateCSV(setting):
         appendData(entry)
     # TODO figure out why the data isn't all being written to the CSV
     if setting != -1:  # if not a test
-        print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
-        print(music.__str__())
+        print(">FILE UPDATED:\t" + str(FileName) + " in /Music/ with " + str(musicFileList.__len__()) + ' tracks')
+        # print(music.__str__())
+
 
 def isEnoughData():
     currCount = glob.glob(CurrentMusicPath + '*.mp3').__len__()
@@ -501,6 +507,7 @@ def isEnoughData():
         return True
     else:
         return False
+
 
 if __name__ == "__main__":
     error("Please run from main.py")

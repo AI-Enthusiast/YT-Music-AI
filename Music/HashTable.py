@@ -1,6 +1,12 @@
+# HashTable.py started on 7/8/2018
+# Authors: Marilyn Groppe, Cormac Dacker
+# Version # 0.0.10
+# Utilizing Open addressing and double hashing
+
 import random
 
 random.seed(37)
+
 
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
@@ -45,15 +51,6 @@ class HashTable:
                     tab += '\t'
                     tab += j.__str__() + '\n'
         return tab
-
-    '''
-    Quick note: smaller sized tables will result in an oscillating double hash
-    value because of the current hash functions. However, we need constant hash functions, 
-    so I'm not too mad about this right now. Important note though.
-    
-    One thing we could do would be to use random generators with a constant seed value to keep
-    the numbers constant for testing. 
-    '''
 
     # a hashing functionality
     def h1(self, key):
@@ -107,7 +104,7 @@ class HashTable:
         if not self.keys.__contains__(key):
             return False
         lst.append(self.h1(key))
-        for i in range(2, (self.capacity*80)//100):
+        for i in range(2, (self.capacity * 80) // 100):
             idx = self.quadProbe(key, i)
             if not lst.__contains__(idx):
                 lst.append(idx)

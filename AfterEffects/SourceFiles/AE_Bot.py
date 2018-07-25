@@ -1,5 +1,6 @@
-import csv
-
+# AE_Bot.py started on 7/23/2018
+# Authors: Cormac Dacker, Marilyn Groppe
+# Version # 0.0.2
 from glob import glob
 
 class User:
@@ -31,7 +32,7 @@ AESourcePath = user.AESourcePath
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))\
 
-def csvToXML(entry):
+def setTrack(track):
     xmlFile = 'musicTrack.xml'
     xmlData = open(xmlFile, 'w')
     write = '''
@@ -60,7 +61,7 @@ def csvToXML(entry):
             <Cell ss:Index="2">\n
               <Data ss:Type="String">
               '''
-    write += entry + '''
+    write += track + '''
               </Data>\n
             </Cell>\n
           </Row>\n
@@ -71,8 +72,7 @@ def csvToXML(entry):
     xmlData.write(write)
     xmlData.close()
 
-
-if __name__ == "__main__":
+def trgr():
     # TODO move selected song and wallpaper to /AfterEffects/SourceFiles/
     # Write Track info for AscentTemplate
     musicFileList = glob(AESourcePath + '*.mp3')
@@ -84,4 +84,9 @@ if __name__ == "__main__":
         artist = track[0]
         song = track[1]
         entry = str(str(artist.title() + '-' + song.title()))
-        csvToXML(entry)
+        setTrack(entry)
+
+
+#TODO move stuff out of main
+if __name__ == "__main__":
+    error("Please run from main.py")

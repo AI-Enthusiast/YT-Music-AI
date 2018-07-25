@@ -109,5 +109,4 @@ def test(clf):
 # TODO pic a song from /current/
 # then select similar sounding music that will have high performing ratios
 if __name__ == "__main__":
-    print("Please run from main.py")
-    train()
+    error("Please run from main.py")
