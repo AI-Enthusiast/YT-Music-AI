@@ -119,7 +119,7 @@ def toNew(filename):
 # Moves all files done converting to New
 def doneConversion():
     musicList = glob.glob(user.BASEPATH + '*.mp3')
-    deadList = glob.glob(user.BASEPATH + '*.part') # abandond remanants of yt vids
+    deadList = glob.glob(user.BASEPATH + '*.part') # abandoned parts of yt videos
     deleted = 0
     for track in musicList:
         file = track[str(user.BASEPATH).__len__():]
@@ -133,8 +133,8 @@ def doneConversion():
         try:
             os.remove(track)
         except PermissionError as e:
-            continue
             error(e)
+            continue
     print('>FILES MOVED:\t' + str((musicList.__len__() - deleted)))
     print('>FILES REMOVED:\t' + str(deleted + str(deadList).__len__()))
 
@@ -146,8 +146,6 @@ def convertVid(url):
     doneConversion()
 
 
-# TODO skip dem long songs
-# TODO parse playlist index and skip songs already downloaded
 # Converts playlists using youtube-dl library
 def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url

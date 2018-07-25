@@ -31,7 +31,6 @@ if __name__ == "__main__":
         mh.clear()
         print(">FILE CREATED: 'MusicData.csv' in /Music/")
 
-
     argparser.add_argument("--q", help="Search term", default="")
     argparser.add_argument("--max-results", help="Max results", default=25)
     while True:
@@ -67,6 +66,8 @@ if __name__ == "__main__":
                     yt.user = user
                     mh.user = user
             else:
+                user = mh.user
+                ut.user = mh.user
                 userIN = input('>>').split()
                 if len(userIN) == 0:  # if there is not input end program
                     print("\n yt.py has been Terminated...")
@@ -125,19 +126,22 @@ if __name__ == "__main__":
                     except yt.youtube_dl.utils.PostProcessingError and yt.youtube_dl.utils.DownloadError as e:
                         yt.error(e)
                 elif userIN[0] == "s":  # if search s
-                    argparser.set_defaults(q=userIN[1:])
-                    args = argparser.parse_args()
-                    yt.youtube_search(args)
+                    try:
+                        argparser.set_defaults(q=userIN[1:])
+                        args = argparser.parse_args()
+                        yt.youtube_search(args)
+                    except HttpError and AttributeError as e:
+                        error(e)
                 elif userIN[0] == "auto":  # if wanting to enter automatic stage
                     yt.doneConversion()
                     if not mh.isEnoughData():
                         pass
                         #TODO automate music gathering
                     mh.updateCSV(0)
-                    mai.temp()  # tigger mai
+                    mai.temp()  # trigger mai
                     # TODO check copyright
                     # TODO trigger wallpaper bot (Waide) to select a background
-                    ae  # writes info about mp3 so ae has acces to the title
+                    ae  # writes info about mp3 so ae has access to the title
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
                     # TODO upload video to youtube

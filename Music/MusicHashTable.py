@@ -18,6 +18,7 @@ IDEAL_SIZE = 3000
 
 # noinspection PyUnresolvedReferences
 def force_to_unicode(text):
+    '''
     if isinstance(text, str) or isinstance(text, bytes):
         try:
             return text if isinstance(text, bytes) else text.encode('utf-8', 'strict').decode('utf-8', 'strict')
@@ -25,32 +26,68 @@ def force_to_unicode(text):
             error(e)
     else:
         return text
+'''
+    if isinstance(text, str):
+        new = ""
+        for char in text:
+            if char.isprintable():
+                new += char
+            else:
+                new += " "
+        return new
+    else:
+        return text
 
+
+
+def printability(text):
+    if isinstance(text, str):
+        new = ""
+        for char in text:
+            if char.isprintable():
+                new += char
+            else:
+                new += " "
+        return new
+    else:
+        return text
+
+def invert(byte):
+    if isinstance(byte, bytes):
+        return byte.decode('utf-8', 'strict').encode('utf-8', 'strict')
+    else:
+        return byte
 
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
         self.code = code
 
-        self.MusicPath = self.BASEPATH + '\\Music\\'
+        self.MusicPath = self.BASEPATH + 'Music\\'
         self.NewPath = self.MusicPath + 'New\\'
         self.OldPath = self.MusicPath + 'Old\\'
         self.CurrentPath = self.MusicPath + 'Current\\'
-        self.TestPath = self.BASEPATH + '\\Test\\'
+        self.TestPath = self.BASEPATH + 'Test\\'
 
 
-cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI', 'cd')
-marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI', 'mg')
+cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI\\', 'cd')
+marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI\\', 'mg')
 
-if sys.path.__contains__(marilyn.BASEPATH):
-    user = marilyn
-    print("Hello, Marilyn!")
+def setUser():
+    if sys.path.__contains__(marilyn.BASEPATH[:-1]):
+        user = marilyn
+        print("Hello, Marilyn!")
 
-elif sys.path.__contains__(cormac.BASEPATH):
-    user = cormac
-    print("Hello, Cormac!")
+    elif sys.path.__contains__(cormac.BASEPATH):
+        user = cormac
+        print("Hello, Cormac!")
 
-Path = user.BASEPATH + '\\'
+    else:
+        user = User(sys.path[0]+'\\', 'nu')
+        print("Welcome, New User!")
+    return user
+
+user = setUser()
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
@@ -112,7 +149,12 @@ def readData():
                                 quoting=csv.QUOTE_NONNUMERIC)
         out = []
         for Item in DataReader:
-            out.append(Item)
+            try:
+                out.append(invert(Item))
+            except UnicodeDecodeError as e:
+                error(e)
+                pass
+
         csvfile.close()
         return out
 
@@ -167,6 +209,8 @@ def toCurrent(musicFile, setting):
             n += 1
         elif user.code == 'cd':
             n += 2
+        else:
+            n += 0
     else:
         path = NewMusicPath
     musicFile = str(musicFile)[n:-3]
@@ -240,7 +284,7 @@ def getStats(url):
     return [l, d, v]
 
 
-# get's the info of the track (url, artist, title)
+# gets the info of the track (url, artist, title)
 def getTrackInfo(file):
     url = file[file.__len__() - 15:file.__len__() - 4]
     fx = (str(file.split('/')[-1:])[2:-6]).split('-')  # file string manipulation
@@ -252,12 +296,12 @@ def getTrackInfo(file):
 # gets the ratios of the track (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
 def getRatios(data):
     if data.__len__() < 3:
-        error("Insuficient args given to getRatios()")
+        error("Insufficient args given to getRatios()")
         quit()
     else:
-        likes = data[0]
-        dislikes = data[1]
-        views = data[2]
+        likes = int(data[0])
+        dislikes = int(data[1])
+        views = int(data[2])
         if dislikes != 0:
             likeToDislikeRatio = likes / dislikes
         else:
