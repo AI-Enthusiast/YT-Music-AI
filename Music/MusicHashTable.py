@@ -104,7 +104,7 @@ music = ht.HashTable()
 class Data:
     # Constructor
     def __init__(self, Title="", Artist="", Url="6cwBLBCehGg", likes=0, dislikes=0, views=0,
-                 used=False, likesToTotalRatio=0, likeToDislikeRatio=0, likeToViewRatio=0):  # used, artist, tempo, etc
+                 used=False, likesToTotalRatio=0.0, likeToDislikeRatio=0.0, likeToViewRatio=0.0):  # used, artist, tempo, etc
         self.Title = force_to_unicode(Title)
         self.Url = Url
         self.Artist = force_to_unicode(Artist)
@@ -313,7 +313,7 @@ def getRatios(data):
             likesToTotalRatio = likes / (likes + dislikes)
         else:
             likesToTotalRatio = 0
-        return [likesToTotalRatio, likeToDislikeRatio, likeToViewRatio]
+        return [float(likesToTotalRatio), float(likeToDislikeRatio), float(likeToViewRatio)]
 
 
 def printRows(arr):
@@ -351,6 +351,12 @@ def convertCSVtoDict():
 
 
 def onlyKeepOne(a, b):
+    a.likesToTotalRatio = float(a.likesToTotalRatio)
+    b.likesToTotalRatio = float(b.likesToTotalRatio)
+    a.likeToViewRatio = float(a.likeToViewRatio)
+    b.likeToViewRatio = float(b.likeToViewRatio)
+    a.likeToDislikeRatio = float(a.likeToDislikeRatio)
+    b.likeToDislikeRatio = float(b.likeToDislikeRatio)
     if a.likesToTotalRatio > b.likesToTotalRatio:
         if a.likeToViewRatio > b.likeToViewRatio:
             if a.likeToDislikeRatio > b.likeToDislikeRatio:
@@ -455,7 +461,7 @@ def updateCSV(setting):
         entry = Data(force_to_unicode(info[1]), force_to_unicode(info[0]),
                      force_to_unicode(info[2]), force_to_unicode(data[0]),
                      force_to_unicode(data[1]), force_to_unicode(data[2]),
-                     False, ratios[0], ratios[1], ratios[2])
+                     False, float(ratios[0]), float(ratios[1]), float(ratios[2]))
         if music.has(info[0]):  # if there is an existing entry under the same artist
             #  get the song from the entry
             lst = music.get(info[0])
