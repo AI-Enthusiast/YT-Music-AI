@@ -78,7 +78,7 @@ def setUser():
         user = marilyn
         print("Hello, Marilyn!")
 
-    elif sys.path.__contains__(cormac.BASEPATH):
+    elif sys.path.__contains__(cormac.BASEPATH[:-1]):
         user = cormac
         print("Hello, Cormac!")
 
@@ -188,7 +188,6 @@ def appendData(song):
         try:
             song.Artist = force_to_unicode(song.Artist)
             song.Title = force_to_unicode(song.Title)
-            print(force_to_unicode(song.Artist))
             DataWriter.writerow([song.__str__()])
         except TypeError and AttributeError and UnicodeEncodeError as e:
             error(e)

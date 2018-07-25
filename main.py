@@ -11,7 +11,7 @@ from pprint import pprint
 from googleapiclient.errors import HttpError
 from oauth2client.tools import argparser
 
-from Music import AE_Bot as ae
+from AfterEffects.SourceFiles import AE_Bot as ae
 from Music import MusicAI as mai
 from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 elif userIN[0] == "update":  # if wishing to update csv with new music info
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
-                    mai.temp()
+                    mai.train()
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()
@@ -136,9 +136,9 @@ if __name__ == "__main__":
                     yt.doneConversion()
                     if not mh.isEnoughData():
                         pass
-                        #TODO automate music gathering
+                        # TODO automate music gathering
                     mh.updateCSV(0)
-                    mai.temp()  # trigger mai
+                    mai.train()  # tigger mai
                     # TODO check copyright
                     # TODO trigger wallpaper bot (Waide) to select a background
                     ae  # writes info about mp3 so ae has access to the title
