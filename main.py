@@ -69,6 +69,7 @@ if __name__ == "__main__":
                 user = mh.user
                 ut.user = mh.user
                 userIN = input('>>').split()
+                mh.convertCSVtoDict()
                 if len(userIN) == 0:  # if there is not input end program
                     print("\n yt.py has been Terminated...")
                     yt.doneConversion()
