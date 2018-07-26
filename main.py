@@ -113,6 +113,8 @@ if __name__ == "__main__":
                     mh.updateCSV(0)
                 elif userIN[0] == "mai":  # if wanting to initiate MusicAI.py
                     mai.train()
+                elif userIN[0] == 'ae':
+                    ae.setTrack(userIN[1])
                 elif userIN[0] == "v":  # if video v
                     try:
                         yt.downloading()

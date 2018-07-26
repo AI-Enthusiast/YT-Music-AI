@@ -1,0 +1,29 @@
+{
+  "name": "AE_Script.js",
+  "version": "0.0.1",
+  "description": "A script to build videos in After Effects",
+  "main": "AE_Script.jsx",
+  "scripts": {
+    "start": "node AE_Script.jsx"
+  },
+  "engines": {
+    "node": "8.11"
+  },
+  "node_modules" : [
+
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AI-Enthusiast/YT-Music-AI"
+  },
+  "keywords": [
+    "node",
+    "AI", "Neural Network"
+  ],
+  "author": "Marilyn Groppe",
+  "contributors": [
+    "Cormac Dacker <cormacdacker@gmail.com>",
+    "Marilyn Groppe <mjgroppe@gmail.com>"
+  ],
+  "license": "RIT"
+}
