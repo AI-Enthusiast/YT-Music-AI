@@ -9,9 +9,10 @@
   "engines": {
     "node": "8.11"
   },
-  "node_modules" : [
-
-  ],
+  "node_modules" : ["nexrender"],
+  "dependencies": {
+    "nexrender": "0.6.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/AI-Enthusiast/YT-Music-AI"

@@ -1,9 +1,14 @@
 // AE_Script.js started on 7/25/2018
 // Authors: Marilyn Groppe, Cormac Dacker
 // Version # 0.0.01
+'use strict';
 
-path = require('path');
-fs   = require('fs');
+const path = require('path');
+const fs   = require('fs');
+const Project = require('nexrender').Project;
+const renderer = require('nexrender').renderer;
+const api = require('nexrender').api;
+
 /*
 STEPS:
 1. Grab and store the song and image from IN directory DONE!
@@ -13,7 +18,12 @@ STEPS:
 3. Ensure the render time matches the song length
 4. Render at the proper bitrate and store in the OUT directory
  */
-PATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/AfterEffects/In/';
+var PATH = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/AfterEffects/In/';
+var OUT = 'C:/Users/corma/Documents/GitHub/YT-Music-AI/AfterEffects/Out/';
+
+
+
+
 
 //Thanks to Nicolas S.Xu on StackOverflow for this method!
 function findFilesInDir(startPath,filter){
@@ -42,31 +52,89 @@ function findFilesInDir(startPath,filter){
 
 
 function buildVideo(song, name, image) {
-    var video = app.newProject();
+    api.config({
+        host: 'localhost',
+        port: 9988
+    });
+    let ff = name.file;
+    let s = "";
+    for(let i = 0; i < ff.length; i++) {
+        if(ff[i] === ' ') {
+            s += '%20';
+        } else {
+            s += ff[i];
+        }
+        console.log(s);
+    }
+    let assets = [
+        {
+            type: 'project',
+            src: 'C:/Users/corma/Documents/GitHub/YT-Music-AI/AfterEffects/AscentTemplate.aep',
+            name: name.songName
+        },
+        {
+            type: 'image',
+            src: image.imageUrl,
+            name: 'wallhaven-3020.jpg'
+        },
+        {
+            type: 'audio',
+            src: song.songUrl,
+            name: s
+        }
+    ];
+
+    let model = {
+        template: 'C:/Users/corma/Documents/GitHub/YT-Music-AI/AfterEffects/AscentTemplate.aep',
+        composition: 'Render Me!!',
+        settings: {
+            outputModule: 'h264',
+            outputExt: 'mp4'
+        },
+        assets: assets
+    };
+
+    api.create(model).then(
+        (project) => {
+            console.log('project saved');
+            project.on('uncaughtException', function (err) {
+                console.log(err);
+            });
+            project.on('rendering', function(err, project) {
+                console.log('project rendering started');
+            });
+            project.on('finished', function(err, project) {
+                console.log('project rendered');
+                //move project to Out folder
+            });
+            project.on('failure', function(err, project) {
+                console.log('project failed.');
+            });
+
+    });
 }
 
 
 function main() {
-    var imgs = findFilesInDir(PATH, '.jpg');
-    var songs = findFilesInDir(PATH, '.mp3');
-    for(var i = 0; i < songs.length && i < imgs.length; i++) {
+    let imgs = findFilesInDir(PATH, '.jpg');
+    let songs = findFilesInDir(PATH, '.mp3');
+    for(let i = 0; i < songs.length && i < imgs.length; i++) {
         console.log("Rendering... (" + (i+1) + "/" + songs.length + ")");
-        var desired = songs[i].length - (PATH.length + 16);
-        var img = {
+        const desired = songs[i].length - (PATH.length + 16);
+        const img = {
             imageUrl: imgs[i],
             name: 'IMAGE'
         };
-        var sng = {
+        const sng = {
             songUrl: songs[i],
             name: 'SONG'
         };
-        var name = {
+        const name = {
             songName: songs[i].substr(PATH.length, desired),
-            name: 'NAME'
+            name: 'NAME',
+            file: songs[i].substr(PATH.length)
         };
-
-
-
+        buildVideo(sng, name, img);
     }
 
 

@@ -494,7 +494,6 @@ def updateCSV(setting):
                 print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
         music.put(entry.Artist, entry)
         appendData(entry)
-    # TODO figure out why the data isn't all being written to the CSV
     if setting != -1:  # if not a test
         print(">FILE UPDATED:\t" + str(FileName) + " in /Music/ with " + str(musicFileList.__len__()) + ' tracks')
         # print(music.__str__())

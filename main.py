@@ -26,7 +26,7 @@ codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/c
 def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
-
+# main's main
 if __name__ == "__main__":
     if not os.path.isfile(mh.FileName):
         mh.error("'MusicData.csv' could not be found")
