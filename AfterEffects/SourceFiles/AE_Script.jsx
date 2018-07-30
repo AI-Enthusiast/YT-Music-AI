@@ -1,5 +1,5 @@
 // AE_Script.js started on 7/25/2018
-// Authors: Cormac Dacker, Marilyn Groppe
+// Authors: Marilyn Groppe, Cormac Dacker
 // Version # 0.0.01
 
 path = require('path');

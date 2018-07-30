@@ -2,7 +2,7 @@
 # Authors: Cormac Dacker, Marilyn Groppe
 # Version # 0.0.2
 from glob import glob
-
+from Naked.toolshed.shell import execute_js, muterun_js
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
@@ -21,6 +21,7 @@ user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
 marilyn = User('C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'mg')
 Path = user.BASEPATH
 FileName = "MusicData.csv"
+AE_Script = 'AE_Script.jsx'
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
 OldMusicPath = user.OldPath
@@ -72,7 +73,7 @@ def setTrack(track):
     xmlData.write(write)
     xmlData.close()
 
-def trgr():
+def trgr(songFileName= None, wallpaperFileName = None):
     # TODO move selected song and wallpaper to /AfterEffects/SourceFiles/
     # Write Track info for AscentTemplate
     musicFileList = glob(AESourcePath + '*.mp3')
@@ -85,6 +86,7 @@ def trgr():
         song = track[1]
         entry = str(str(artist.title() + '-' + song.title()))
         setTrack(entry)
+    muterun_js(AE_Script) # run ae script
 
 
 #TODO move stuff out of main
