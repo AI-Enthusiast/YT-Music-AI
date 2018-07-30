@@ -15,6 +15,7 @@ class User:
         self.TestPath = self.BASEPATH + 'Test/'
         self.AEPath = self.BASEPATH + 'AfterEffects/'
         self.AESourcePath = self.AEPath + 'SourceFiles/'
+        self.AEOut = self.AEPath + 'Out/'
 
 
 user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
@@ -27,6 +28,7 @@ OldMusicPath = user.OldPath
 TestMusicPath = user.TestPath
 AEPath = user.AEPath
 AESourcePath = user.AESourcePath
+AEOut = user.AEPath
 
 
 def error(errorMessage):
@@ -72,6 +74,9 @@ def setTrack(track):
     xmlData.write(write)
     xmlData.close()
 
+def upload():
+    #temp bc i'm bad
+
 def trgr():
     # TODO move selected song and wallpaper to /AfterEffects/SourceFiles/
     # Write Track info for AscentTemplate
@@ -85,6 +90,12 @@ def trgr():
         song = track[1]
         entry = str(str(artist.title() + '-' + song.title()))
         setTrack(entry)
+
+    #check is song is present
+    musicFileList = glob(AEPath + '*.mov')
+    if musicFileList.__len__() != 1:
+        error('To many files in /Out/')
+    else:
 
 
 #TODO move stuff out of main
