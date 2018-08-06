@@ -76,6 +76,8 @@ def setTrack(track):
 
 def upload():
     #temp bc i'm bad
+    print('temp print replace me later')  # oops
+
 
 def trgr():
     # TODO move selected song and wallpaper to /AfterEffects/SourceFiles/
@@ -96,7 +98,7 @@ def trgr():
     if musicFileList.__len__() != 1:
         error('To many files in /Out/')
     else:
-
+        print('temp print replace me later')  # oops
 
 #TODO move stuff out of main
 if __name__ == "__main__":
