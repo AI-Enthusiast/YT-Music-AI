@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns="urn:schemas-microsoft-com:office:spreadsheet">
+
+    <Styles>
+
+        <Style ss:ID="Default" ss:Name="Normal">
+
+            <Alignment ss:WrapText="1"/>
+
+        </Style>
+
+    </Styles>
+
+    <Worksheet ss:Name="AscentTemplate.aep">
+
+        <Table>
+
+            <Row ss:Index="1">
+
+                <Cell ss:Index="1">
+
+                    <Data ss:Type="String">ID</Data>
+
+                </Cell>
+
+                <Cell ss:Index="2">
+
+                    <Data ss:Type="String">original text</Data>
+
+                </Cell>
+
+            </Row>
+
+            <Row ss:Index="2">
+
+                <Cell ss:Index="1">
+
+                    <Data ss:Type="Number">1</Data>
+
+                </Cell>
+
+                <Cell ss:Index="2">
+
+                    <Data ss:Type="String">
+                        Aimless - Please Dont Go
+                    </Data>
+
+                </Cell>
+
+            </Row>
+
+        </Table>
+
+    </Worksheet>
+
+</Workbook>
+
+    

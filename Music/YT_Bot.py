@@ -9,13 +9,11 @@ import os
 
 import youtube_dl
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from oauth2client.tools import argparser
 
 from Music import MusicHashTable
 
 # different words to identify mixes and livestreams
-liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#"]
+liveVidKeyWords = ["24/7", "radio", "mix", "live", "2018", "lofi", "lo-fi", "songs", "#", 'compilation', 'hour']
 user = MusicHashTable.User('', '')
 BASEPATH = user.BASEPATH
 # Set DEVELOPER_KEY to the API key value from the APIs & auth > Registered apps
@@ -27,11 +25,11 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
-# A function to check the list to predict if its a live vide
+# A function to check the list to predict if its a live video
 # params: list of title words
 # returns a Boolean depicting whether it is assumed to be live or not
 
-def isLive(title=[]):
+def isLive(title):
     for i in liveVidKeyWords:
         for word in title:
             if i == word:
@@ -108,25 +106,44 @@ def my_hook(d):
 # A function to move files from general folder to New folder
 def toNew(filename):
     try:
-        os.rename(user.BASEPATH + filename, user.NewPath + filename)
-        print(">FILE Moved: " + str(filename) + " to /Music/New/")
-    except FileNotFoundError as e:
+        os.rename(user.BASEPATH + filename, str(user.NewPath + filename).replace('\'', ''))
+        print(">FILE MOVED:\t" + str(filename) + " to /Music/New/")
+    except FileExistsError:  # if file already exists
+        raise FileExistsError
+    except FileNotFoundError as e:  # if the file cannot be found
         error(e)
+    except PermissionError:  # if the file is currently being accessed
+        pass
 
 
 # Moves all files done converting to New
-def doneConvertion():
-    arr = glob.glob(user.BASEPATH + '*.mp3')
-    for i in arr:
-        file = i[44:]
-        toNew(file)
+def doneConversion():
+    musicList = glob.glob(user.BASEPATH + '*.mp3')
+    deadList = glob.glob(user.BASEPATH + '*.part') # abandoned parts of yt videos
+    deleted = 0
+    for track in musicList:
+        file = track[str(user.BASEPATH).__len__():]
+        try:
+            toNew(file)
+        except FileExistsError:
+            error(str(track) + ' already exists')
+            os.remove(track)
+            deleted +=1
+    for track in deadList:
+        try:
+            os.remove(track)
+        except PermissionError as e:
+            error(e)
+            continue
+    print('>FILES MOVED:\t' + str((musicList.__len__() - deleted)))
+    print('>FILES REMOVED:\t' + str(deleted + str(deadList).__len__()))
 
 
 def convertVid(url):
     videoURL = "https://www.youtube.com/watch?v=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([videoURL])
-    doneConvertion()
+    doneConversion()
 
 
 # Converts playlists using youtube-dl library
@@ -134,7 +151,7 @@ def convertPlaylist(url):
     playlistURL = "https://www.youtube.com/playlist?list=" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([playlistURL])
-    doneConvertion()
+    doneConversion()
 
 
 # Converts channels using youtube-dl library
@@ -142,7 +159,7 @@ def convertChannel(url):
     channelURL = "https://www.youtube.com/channel/" + url
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channelURL])
-    doneConvertion()
+    doneConversion()
 
 
 # prints downloading. Purely OCD aesthetic
@@ -157,7 +174,8 @@ def error(errorMessage):
 
 # options needed for youtube-dl library
 ydl_opts = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio/best', 'ignorerrors': True,
+    'max_filesize': 10*2**20,
     'postprocessors': [{
         'key': 'FFmpegExtractAudio',
         'preferredcodec': 'mp3',
@@ -167,4 +185,4 @@ ydl_opts = {
 }
 
 if __name__ == "__main__":
-    print(error("Please run from main.py"))
+    error("Please run from main.py")

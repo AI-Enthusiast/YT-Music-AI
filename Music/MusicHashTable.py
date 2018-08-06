@@ -1,19 +1,62 @@
 # MusicHashTable.py started on 6/25/2018
 # Authors: Cormac Dacker, Marilyn Groppe
-# Version # 0.0.8
+# Version # 0.0.9
 
 import csv
 import glob
 import os
+import sys
+import urllib.error
 import urllib.request
 
 from bs4 import BeautifulSoup
 
 from Music import HashTable as ht
 
+IDEAL_SIZE = 3000
 
+
+# noinspection PyUnresolvedReferences
 def force_to_unicode(text):
-    return text if isinstance(text, bytes) else text.encode('utf8')
+    '''
+    if isinstance(text, str) or isinstance(text, bytes):
+        try:
+            return text if isinstance(text, bytes) else text.encode('utf-8', 'strict').decode('utf-8', 'strict')
+        except UnicodeEncodeError as e:
+            error(e)
+    else:
+        return text
+'''
+    if isinstance(text, str):
+        new = ""
+        for char in text:
+            if char.isprintable():
+                new += char
+            else:
+                new += "_"
+        return new
+    else:
+        return text
+
+
+def printability(text):
+    if isinstance(text, str):
+        new = ""
+        for char in text:
+            if char.isprintable():
+                new += char
+            else:
+                new += " "
+        return new
+    else:
+        return text
+
+
+def invert(byte):
+    if isinstance(byte, bytes):
+        return byte.decode('utf-8', 'strict').encode('utf-8', 'strict')
+    else:
+        return byte
 
 
 class User:
@@ -21,15 +64,33 @@ class User:
         self.BASEPATH = BASEPATH
         self.code = code
 
-        self.MusicPath = self.BASEPATH + 'Music/'
-        self.NewPath = self.MusicPath + 'New/'
-        self.OldPath = self.MusicPath + 'Old/'
-        self.CurrentPath = self.MusicPath + 'Current/'
-        self.TestPath = self.BASEPATH + 'Test/'
+        self.MusicPath = self.BASEPATH + 'Music\\'
+        self.NewPath = self.MusicPath + 'New\\'
+        self.OldPath = self.MusicPath + 'Old\\'
+        self.CurrentPath = self.MusicPath + 'Current\\'
+        self.TestPath = self.BASEPATH + 'Test\\'
 
 
-user = User('', '')
-Path = user.BASEPATH
+cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI\\', 'cd')
+marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI\\', 'mg')
+
+
+def setUser():
+    if sys.path.__contains__(marilyn.BASEPATH[:-1]):
+        user = marilyn
+        print("Hello, Marilyn!")
+
+    elif sys.path.__contains__(cormac.BASEPATH[:-1]):
+        user = cormac
+        print("Hello, Cormac!")
+
+    else:
+        user = User(sys.path[0] + '\\', 'nu')
+        print("Welcome, New User!")
+    return user
+
+
+user = setUser()
 FileName = "MusicData.csv"
 NewMusicPath = user.NewPath
 CurrentMusicPath = user.CurrentPath
@@ -38,32 +99,30 @@ TestMusicPath = user.TestPath
 DEVELOPER_KEY = "AIzaSyDsEUDbBKzBE6HS96PJ7FQpS5a8qfEV3Sk"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
-Fnames = []
 
-music = {}
+music = ht.HashTable()
 
 
 # A class used to create music file objects
 class Data:
-    # Constructer
-    def __init__(self, Title="", Url="", Artist="", likes=0, dislikes=0, views=0,
-                 used=False):  # used, artist, tempo, etc
-        self.Title = force_to_unicode(Title).decode('utf8')
+    # Constructor
+    def __init__(self, Title="", Artist="", Url="6cwBLBCehGg", likes=0, dislikes=0, views=0,
+                 used=False, likesToTotalRatio=0.0, likeToDislikeRatio=0.0,
+                 likeToViewRatio=0.0):  # used, artist, tempo, etc
+        self.Title = force_to_unicode(Title)
         self.Url = Url
-        self.Artist = force_to_unicode(Artist).decode('utf8')
+        self.Artist = force_to_unicode(Artist)
         self.likes = likes
         self.dislikes = dislikes
         self.views = views
         self.used = used
-        try:
-            self.pos = hash(Artist)%(1000)
-        except ZeroDivisionError:
-            self.pos = 0
-        self.isDoubleHashed = False
+        self.likesToTotalRatio = likesToTotalRatio
+        self.likeToDislikeRatio = likeToDislikeRatio
+        self.likeToViewRatio = likeToViewRatio
 
     # toString()
     def __str__(self):
-        out = "{0},{1},{2},{3},{4},{5},{6},{7},{8}".format(
+        out = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}".format(
             self.Artist,
             self.Title,
             self.Url,
@@ -71,43 +130,43 @@ class Data:
             self.dislikes,
             self.views,
             self.used,
-            self.pos,
-            self.isDoubleHashed
+            self.likesToTotalRatio,
+            self.likeToDislikeRatio,
+            self.likeToViewRatio
         )
         return out
 
     def __eq__(self, other):
         if isinstance(other, Data):
-            if other.Url == self.Url:
+            if other.Url == self.Url and other.Artist == self.Artist and other.Title == self.Title:
                 return True
             else:
                 return False
         else:
             return False
 
-music['Khalid'] = Data("Location", "by3yRdlQvzs", "Khalid", 1900000, 80000, 297339999)
-music['Flight of the Conchords'] = Data("Robots", "BNC61-OOPdA", "Flight of the Conchords", 4100, 59, 559964)
-music['Tessa Violet'] = Data("Crush", "SiAuAJBZuGs", "Tessa Violet", 111000, 4300, 1969889)
-music['gnash'] = Data("home", "bYBLt_1HcQE", "gnash", 120000, 20000, 20243102)
-
 
 # Reads through data and outputs it as array eg out[row]
 def readData():
-    with open(FileName, "r", newline='') as csvfile:
+    with open(FileName, "r", newline='', encoding='utf8') as csvfile:
         DataReader = csv.reader(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         out = []
         for Item in DataReader:
-            out.append(Item)
+            try:
+                out.append(invert(Item))
+            except UnicodeDecodeError as e:
+                error(e)
+                pass
+
         csvfile.close()
         return out
 
 
 # Saves Header dataList into csv file
-# TO TEST
 # DataList is a LIST object
 def saveHeader(dataList):
-    with open(FileName, 'w', newline='\n') as csvfile:
+    with open(FileName, 'w', newline='\n', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         DataWriter.writerow([dataList])
@@ -115,63 +174,67 @@ def saveHeader(dataList):
 
 
 # Saves dataList into csv file
-# TO TEST
-# DataList is a dictionary
+# DataList is a HashTable
 def saveData(dataList):
-    with open(FileName, 'a', newline='') as csvfile:
+    with open(FileName, 'a', newline='', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
-        dd = []
-        for key in dataList.keys():
-            val = dataList.get(key)
-            string = val.__str__()
-            el = [string]
-            dd.append(el)
-        try:
-            DataWriter.writerows(dd)
-        except UnicodeEncodeError as e:
-            error(e)
-            pass
+        for val in dataList.values:
+            appendData(val)
         csvfile.close()
 
 
 # appends dataList into csv file
 def appendData(song):
-    with open(FileName, 'a', newline='') as csvfile:
+    with open(FileName, 'a', newline='', encoding='utf8') as csvfile:
         DataWriter = csv.writer(csvfile, delimiter="\n", quotechar=" ",
                                 quoting=csv.QUOTE_NONNUMERIC)
         try:
-            music[song.Artist] = song
+            song.Artist = force_to_unicode(song.Artist)
+            song.Title = force_to_unicode(song.Title)
             DataWriter.writerow([song.__str__()])
-        except TypeError and AttributeError as e:
+        except TypeError and AttributeError and UnicodeEncodeError as e:
             error(e)
         csvfile.close()
 
 
-# TO TEST
 def clear():
-    with open(FileName, 'w', newline='\n') as csvfile:
+    with open(FileName, 'w', newline='\n', encoding='utf8') as csvfile:
         csvfile.close()
 
 
-# TO TEST
 def toCurrent(musicFile, setting):
-    if str(setting) == '-1':  # if in testing mode
+    musicFile = str(str(musicFile).split('/')[-1:]).replace('\'', '').split("\\")[-1:]
+    n = 2
+    if setting == -1:  # if in testing mode
         path = TestMusicPath
+        if user.code == 'mg':
+            n += 1
+        elif user.code == 'cd':
+            n += 2
+        else:
+            n += 0
     else:
-        path = Path
+        path = NewMusicPath
+    musicFile = str(musicFile)[n:-3]
+    musicFile.replace('\\', '')
+    try:
+        os.rename(path + musicFile, CurrentMusicPath + musicFile)
+        print(">FILE MOVED:\t" + str(musicFile) + " to /Music/Current/")
+    except FileNotFoundError as e:
+        error(e)
+    except OSError as e:
+        error(e)
 
-    os.rename(path + musicFile, CurrentMusicPath + musicFile)
 
-
-# def cleanCSV(self):
-
-
-# TO TEST
 # gets (likes, dislikes, and views)
 def getStats(url):
-    soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
-                         ('utf-8', 'ignore'), 'html.parser')
+    try:
+        soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
+                             ('utf-8', 'strict'), 'html.parser')
+    except urllib.error.HTTPError as e:
+        error(e)
+        return [-1, -1, -1]  # if bad url
     ratings = soup.find_all('button')
     likes = ratings[24]
     dislikes = ratings[26]
@@ -187,7 +250,7 @@ def getStats(url):
         dislikes = str(dislikes).split('>')
         dislikes = dislikes[dislikes.__len__() - 3]
         dislikes = dislikes[:dislikes.__len__() - 6]
-    elif likes == "Transcript":
+    elif likes == "Transcript":  # if there is an additional button present
         likes = ratings[26]
         dislikes = ratings[28]
         likes = str(likes).split('>')
@@ -196,7 +259,7 @@ def getStats(url):
         dislikes = str(dislikes).split('>')
         dislikes = dislikes[dislikes.__len__() - 3]
         dislikes = dislikes[:dislikes.__len__() - 6]
-    else:
+    else:  # if normal
         dislikes = str(dislikes).split('>')
         dislikes = dislikes[dislikes.__len__() - 3]
         dislikes = dislikes[:dislikes.__len__() - 6]
@@ -204,21 +267,57 @@ def getStats(url):
     views = Views[0]
     views = (str(views).split('>'))[1]
     views = views[:views.__len__() - 11]
-    if (str(views) == "No"):  # if no views
+    if str(views) == "No":  # if no views
         views = '0'
     try:
-        return [int(removeCommas(likes)), int(removeCommas(dislikes)), int(removeCommas(views))]
-    except ValueError and AttributeError as e:
-        error(e)
+        l = int(removeCommas(likes))
+    except ValueError and AttributeError:
+        l = 0
+        pass
+    try:
+        d = int(removeCommas(dislikes))
+    except ValueError and AttributeError:
+        d = 0
+        pass
+    try:
+        v = int(removeCommas(views))
+    except ValueError and AttributeError:
+        v = 0
+        pass
+    return [l, d, v]
 
 
-# get's the info of the track (url, artist, title)
+# gets the info of the track (url, artist, title)
 def getTrackInfo(file):
     url = file[file.__len__() - 15:file.__len__() - 4]
-    fx = file.split('-')
+    fx = (str(file.split('/')[-1:])[2:-6]).split('-')  # file string manipulation
     artist = removeCommas(fx[0])
     title = removeCommas(fx[1])
-    return [artist, title, url]
+    return [str(artist).title(), str(title).title(), url]
+
+
+# gets the ratios of the track (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
+def getRatios(data):
+    if data.__len__() < 3:
+        error("Insufficient args given to getRatios()")
+        quit()
+    else:
+        likes = int(data[0])
+        dislikes = int(data[1])
+        views = int(data[2])
+        if dislikes != 0:
+            likeToDislikeRatio = likes / dislikes
+        else:
+            likeToDislikeRatio = 0
+        if views != 0:
+            likeToViewRatio = likes / views
+        else:
+            likeToViewRatio = 0
+        if (likes + dislikes) != 0:
+            likesToTotalRatio = likes / (likes + dislikes)
+        else:
+            likesToTotalRatio = 0
+        return [float(likesToTotalRatio), float(likeToDislikeRatio), float(likeToViewRatio)]
 
 
 def printRows(arr):
@@ -242,193 +341,173 @@ def error(errorMessage):
     print(">ERROR:\t" + str(errorMessage))
 
 
-# TODO convert CSV to Dict
 def convertCSVtoDict():
     dataList = readData()
-    dic = ht
     index = 1
     while index < dataList.__len__():  # dataList to dict
         artist = (str(dataList[index]).split(',')[0])
         artist = artist[2:]
-        dic.put(artist, dataList[index])
+        entry = dataList[index][0].split(",")
+        entry = Data(entry[1], entry[0], entry[2], entry[3], entry[4],
+                     entry[5], entry[6], entry[7], entry[8], entry[9])
+        music.put(artist, entry)
         index += 1
-    return dic
+
+
+def onlyKeepOne(a, b):
+    a.likesToTotalRatio = float(a.likesToTotalRatio)
+    b.likesToTotalRatio = float(b.likesToTotalRatio)
+    a.likeToViewRatio = float(a.likeToViewRatio)
+    b.likeToViewRatio = float(b.likeToViewRatio)
+    a.likeToDislikeRatio = float(a.likeToDislikeRatio)
+    b.likeToDislikeRatio = float(b.likeToDislikeRatio)
+    if a.likesToTotalRatio > b.likesToTotalRatio:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # a a b
+            else:
+                return a  # a a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # a b b
+            else:
+                return a  # a b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # a = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # a = b
+            else:
+                return a  # a = =
+    elif b.likesToTotalRatio > a.likesToTotalRatio:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # b a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # b a b
+            else:
+                return a  # b a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return b  # b b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # b b b
+            else:
+                return b  # b b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # b = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # b = b
+            else:
+                return a  # b = =
+    else:
+        if a.likeToViewRatio > b.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = a a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return a  # = a b
+            else:
+                return a  # = a =
+        elif b.likeToViewRatio > a.likeToViewRatio:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = b a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # = b b
+            else:
+                return b  # = b =
+        else:
+            if a.likeToDislikeRatio > b.likeToDislikeRatio:
+                return a  # = = a
+            elif b.likeToDislikeRatio > a.likeToDislikeRatio:
+                return b  # = = b
+            else:
+                return a  # = = =
 
 
 # control center for MusicHashTable.py
+# noinspection PyShadowingNames
 def updateCSV(setting):
     if setting == -1:  # if testing mode
         path = TestMusicPath
+        FileName = 'Test.csv'
     else:
         path = NewMusicPath
+        FileName = 'MusicData.csv'
 
     ytPath = 'https://www.youtube.com/watch?v='
     # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
-    music = convertCSVtoDict()
-    clear()
+    convertCSVtoDict()
+    saveData(music)
     # Setting up the basic CSV
-    saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'DOUBLE-HASHED?'")
+    saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
+                        "'LIKES to DISLIKES RATIO', 'LIKES to VIEWS RATIO'")
     for musicFile in musicFileList:
         file = musicFile[path.__len__():]
+        new = False  # bool to represent a new track under an existing artist
         try:
             info = getTrackInfo(file)  # (artist, title, url)
             data = getStats(ytPath + info[2])  # (likes, dislikes, views)
-        except urllib.request.error.HTTPError and ValueError as e:
+            ratios = getRatios(data)  # (likesToTotalRatio, likeToDislikeRatio, likeToViewRatio)
+
+        except urllib.request.HTTPError and ValueError as e:
             error(str(e) + ' ' + file)
             continue
-        entry = Data(force_to_unicode(info[1]).decode('utf8'),
-                     force_to_unicode(info[2]).decode('utf8'),
-                     force_to_unicode(info[0]).decode('utf8'), data[0], data[1], data[2], False)
-        if music.get(info[0]) != None:  # if there is an existing entry under the same artist
-            song = str(music.get(info[0])).split(',')[1]  # get the song from the entry
-            if (song == info[1]):  # if the song names match
-                if setting != -1:  # if not a test
-                    print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[10:])
-                    os.remove(musicFile)
-                continue  # determine tracks to be the same, add no entry
-            # TODO iterate through songs by artist (key) to ensure track does not already exist
-            else:  # if new track under existing artist
-                print(">NEW ENTRY UNDER:\t" + info[0])
-                # TODO double hash the data
-        music[info[0]] = entry
+        if data[0] == -1 and data[1] == -1 and data[2] == -1:  # if bad url
+            print('>BAD URL FOUND:\t ' + str(musicFile))
+            os.remove(musicFile)
+            continue
+        entry = Data(force_to_unicode(info[1]), force_to_unicode(info[0]),
+                     force_to_unicode(info[2]), force_to_unicode(data[0]),
+                     force_to_unicode(data[1]), force_to_unicode(data[2]),
+                     False, float(ratios[0]), float(ratios[1]), float(ratios[2]))
+        if music.has(info[0]):  # if there is an existing entry under the same artist
+            #  get the song from the entry
+            lst = music.get(info[0])
+            for el in lst:
+                if entry.Title == el.Title:  # if the song names match
+                    if setting != -1:  # if not a test
+                        print(">FILE DUPLICATE FOUND:\t" + str(musicFile)[str(NewMusicPath).__len__():])
+                        try:
+                            keeper = onlyKeepOne(el, entry)
+                            if keeper == el:
+                                os.remove(musicFile)
+                            else:
+                                music.remove(info[0], el)
+                                music.put(info[0], entry)
+                                os.remove(musicFile)
+                        except FileNotFoundError as e:
+                            error(e)
+                    continue  # determine tracks to be the same, add no entry
+            if setting != -1:  # if new track under existing artist
+                print(">NEW ENTRY UNDER:\t" + info[0] + '-' + info[1] + ' ' + info[2])
+                new = True
         if setting != -1:  # if not a test
             toCurrent(musicFile, 0)  # send track to /Current/
-            print(">NEW ENTRY:\t\t" + info[0] + ' - ' + info[1] + ' ' + info[2])
-    saveData(dataList=music)
+            if not new:  # if there hasn't already been a print
+                print(">NEW ENTRY:\t\t" + info[0] + '-' + info[1] + ' ' + info[2])
+        music.put(entry.Artist, entry)
+        appendData(entry)
+    # TODO figure out why the data isn't all being written to the CSV
     if setting != -1:  # if not a test
-        print(">FILE UPDATED:\t" + str(FileName) + " in /Music/")
+        print(">FILE UPDATED:\t" + str(FileName) + " in /Music/ with " + str(musicFileList.__len__()) + ' tracks')
+        # print(music.__str__())
 
 
-def checkResults(test, desiredResults, results):
-    test += ":"
-    if test.__len__() <= 9:
-        test += '\t'
-    if test.__len__() <= 13:
-        test += '\t'
-    if test.__len__() <= 16:
-        test += '\t'
-    if test.__len__() < 19:
-        test += '\t'
-    if str(results) == str(desiredResults):
-        print(">TEST " + test + "\tPASS")
+def isEnoughData():
+    currCount = glob.glob(CurrentMusicPath + '*.mp3').__len__()
+    newCount = glob.glob(NewMusicPath + '*.mp3').__len__()
+    if currCount + newCount >= IDEAL_SIZE:
+        return True
     else:
-        print(">TEST " + test + "\tFAIL")
-        print("\tExpected Output: " + str(desiredResults))
-        print("\tOutput Received: " + str(results))
-
-
-def runTests():
-    print(">COMMENCE TESTING...")
-    results = None  # stores result of each test
-    dic = convertCSVtoDict()  # stored so that info is not lost
-    # TEST readData()
-    desiredResult = []  # stores desired result of each test
-    clear()
-    try:
-        results = readData()
-    except TypeError and ValueError and FileNotFoundError as e:
-        error(str(e))
-        pass
-    checkResults("readData()", desiredResult, results)
-
-    # TEST saveHeader()
-    desiredResult = "[\"['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?']\"]"
-    try:
-        saveHeader(dataList=['ARTIST', 'TITLE', 'URL', 'HASH', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'])  # Test
-        results = str(readData()[0])  # gather results
-    except TypeError and ValueError as e:
-        error(str(e))
-        pass
-    checkResults('saveHeader()', desiredResult, results)
-
-    # TEST saveData()
-    desiredResult = "[['Khalid,Location,by3yRdlQvzs,1900000,80000,297339999,False'], " \
-                    "['Flight of the Conchords,Robots,BNC61-OOPdA,4100,59,559964,False']," \
-                    " ['Tessa Violet,Crush,SiAuAJBZuGs,111000,4300,1969889,False'], " \
-                    "['gnash,home,bYBLt_1HcQE,120000,20000,20243102,False']]"
-    try:
-        saveData(music)
-        results = str(readData()[1:])  # gather results
-    except ValueError and AttributeError as e:
-        error(str(e))
-        pass
-    checkResults("saveData()", desiredResult, results)
-
-    # TEST appendData()
-    desiredResult = "[['alt-j,in cold blood,rP0uuI80wuY,74000,2000,9059467,False']]"
-    try:
-        clear()
-        appendData(Data("in cold blood", "rP0uuI80wuY", "alt-j", 74000, 2000, 9059467, False))
-        results = str(readData()[readData().__len__() - 1:])
-    except TypeError and ValueError as e:
-        error(str(e))
-        pass
-    checkResults("appendData()", desiredResult, results)
-
-    # TEST getStats()
-    desiredResult = [0, 0, 0]
-    ytPath = 'https://www.youtube.com/watch?v='
-    try:
-        results = getStats(ytPath + "6cwBLBCehGg")
-    except TypeError as e:
-        error(str(e))
-        pass
-    checkResults("getStats()", desiredResult, results)
-
-    # TEST clear()
-    desiredResult = 0
-    try:
-        clear()
-        results = readData().__len__()
-    except ValueError as e:
-        error(str(e))
-        pass
-    checkResults("clear()", desiredResult, results)
-
-    # TEST toCurrent()
-    desiredResult = "['Music/Current\\\\Test 0-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 1-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 2-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 3-title-6cwBLBCehGg.mp3', " \
-                    "'Music/Current\\\\Test 4-title-6cwBLBCehGg.mp3']"
-    try:
-        musicList = glob.glob(TestMusicPath + '*.mp3')  # gather a list of tracks in /Test/
-        for track in musicList:
-            if str(track.split(' ')[0])[-4:] == "Test":
-                track = track[TestMusicPath.__len__():]
-                toCurrent(track, '-1')
-
-        results = glob.glob(CurrentMusicPath + '*.mp3')  # gather a list of tracks in /Music/Current/
-        for track in results:  # return Test*.mp3 to /Test/
-            track = track[CurrentMusicPath.__len__():]
-            if track.split(' ')[0] == "Test":
-                os.rename(CurrentMusicPath + track, TestMusicPath + track)
-    except TypeError and FileNotFoundError and AttributeError and OSError as e:
-        error(str(e))
-        pass
-    checkResults("toCurrent()", desiredResult, results)
-
-    # TEST updateCSV()
-    desiredResult = str([["'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?'"],
-                         ['Test 0,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 1,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 2,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 3,title,6cwBLBCehGg,0,0,0,False'],
-                         ['Test 4,title,6cwBLBCehGg,0,0,0,False']])
-    try:
-        clear()
-        updateCSV(-1)
-        results = readData()
-        clear()
-    except TypeError as e:
-        error(str(e))
-        pass
-    checkResults("updateCSV()", desiredResult, results)
-
-    saveData(dic)  # return original data to csv
+        return False
 
 
 if __name__ == "__main__":
-    print(error("Please run from main.py"))
+    error("Please run from main.py")
