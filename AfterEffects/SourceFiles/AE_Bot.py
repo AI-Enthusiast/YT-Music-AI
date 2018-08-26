@@ -15,6 +15,7 @@ class User:
         self.TestPath = self.BASEPATH + 'Test/'
         self.AEPath = self.BASEPATH + 'AfterEffects/'
         self.AESourcePath = self.AEPath + 'SourceFiles/'
+        self.AEOut = self.AEPath + 'Out/'
 
 
 user = User('C:/Users/corma/Documents/GitHub/YT-Music-AI/', 'cd')
@@ -28,6 +29,7 @@ OldMusicPath = user.OldPath
 TestMusicPath = user.TestPath
 AEPath = user.AEPath
 AESourcePath = user.AESourcePath
+AEOut = user.AEPath
 
 
 def error(errorMessage):
@@ -72,6 +74,11 @@ def setTrack(track):
     '''
     xmlData.write(write)
     xmlData.close()
+
+def upload():
+    #temp bc i'm bad
+    print('temp print replace me later')  # oops
+
 
 def trgr(songFileName= None, wallpaperFileName = None):
     # TODO move selected song and wallpaper to /AfterEffects/SourceFiles/

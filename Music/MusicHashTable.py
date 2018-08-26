@@ -33,7 +33,7 @@ def force_to_unicode(text):
             if char.isprintable():
                 new += char
             else:
-                new += " "
+                new += "_"
         return new
     else:
         return text
