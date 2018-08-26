@@ -52,6 +52,7 @@ class HashTable:
                     tab += j.__str__() + '\n'
         return tab
 
+
     # a hashing functionality
     def h1(self, key):
         return h0(key) % self.capacity

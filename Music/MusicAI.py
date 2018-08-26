@@ -78,7 +78,7 @@ def feature(path, test=0):  # MP3 to array
         b = np.int16
         print(a)
         print(b)
-        print(np.fromstring(a, b))
+        print(np.fromstring(a, dtype=b))
         features.append(np.fromstring(data[data.find(data) + 4:], np.int16))
     print(features)  # debuging
     return features
@@ -89,7 +89,7 @@ def train():
     if not data:
         error("MusicData.csv has no data to train decision tree")
         mht.isEnoughData()  # TODO add jobs top queue to gather and index data
-        quit()
+        pass
     labels = label(data, 0)
     features = feature(CurrentMusicPath)
     clf = tree.DecisionTreeRegressor(random_state=0)
@@ -110,3 +110,4 @@ def test(clf):
 # then select similar sounding music that will have high performing ratios
 if __name__ == "__main__":
     error("Please run from main.py")
+    train()

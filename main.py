@@ -35,7 +35,9 @@ if __name__ == "__main__":
 
     argparser.add_argument("--q", help="Search term", default="")
     argparser.add_argument("--max-results", help="Max results", default=25)
-    first = True
+    print('Please wait while previous data is saved')
+    mh.convertCSVtoDict()
+    print('Thank you for your patience, proceed.')
     while True:
         try:
             if mh.user.BASEPATH == '':
@@ -72,9 +74,6 @@ if __name__ == "__main__":
                 user = mh.user
                 ut.user = mh.user
                 userIN = input('>>').split()
-                if first:
-                    mh.convertCSVtoDict()
-                    first = False
                 if len(userIN) == 0:  # if there is not input end program
                     print("\n yt.py has been Terminated...")
                     yt.doneConversion()

@@ -226,57 +226,63 @@ def toCurrent(musicFile, setting):
     except OSError as e:
         error(e)
 
-
+#TODO clean this function
 # gets (likes, dislikes, and views)
 def getStats(url):
     try:
-        soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
-                             ('utf-8', 'strict'), 'html.parser')
-    except urllib.error.HTTPError as e:
-        error(e)
-        return [-1, -1, -1]  # if bad url
-    ratings = soup.find_all('button')
-    likes = ratings[24]
-    dislikes = ratings[26]
-    likes = str(likes).split('>')
-    likes = likes[likes.__len__() - 3]
-    likes = likes[:likes.__len__() - 6]
-    if likes == "Statistics":  # if there is an additional button present
-        likes = ratings[25]
-        dislikes = ratings[27]
+        try:
+            soup = BeautifulSoup(urllib.request.urlopen(url).read().decode
+                                 ('utf-8', 'strict'), 'html.parser')
+        except urllib.error.HTTPError as e:
+            error(e)
+            return [-1, -1, -1]  # if bad url
+        ratings = soup.find_all('button')
+        likes = ratings[24]
+        dislikes = ratings[26]
         likes = str(likes).split('>')
         likes = likes[likes.__len__() - 3]
         likes = likes[:likes.__len__() - 6]
-        dislikes = str(dislikes).split('>')
-        dislikes = dislikes[dislikes.__len__() - 3]
-        dislikes = dislikes[:dislikes.__len__() - 6]
-    elif likes == "Transcript":  # if there is an additional button present
-        likes = ratings[26]
-        dislikes = ratings[28]
-        likes = str(likes).split('>')
-        likes = likes[likes.__len__() - 3]
-        likes = likes[:likes.__len__() - 6]
-        dislikes = str(dislikes).split('>')
-        dislikes = dislikes[dislikes.__len__() - 3]
-        dislikes = dislikes[:dislikes.__len__() - 6]
-    else:  # if normal
-        dislikes = str(dislikes).split('>')
-        dislikes = dislikes[dislikes.__len__() - 3]
-        dislikes = dislikes[:dislikes.__len__() - 6]
-    Views = soup.find_all('div', class_="watch-view-count")
-    views = Views[0]
-    views = (str(views).split('>'))[1]
-    views = views[:views.__len__() - 11]
-    if str(views) == "No":  # if no views
+        if likes == "Statistics":  # if there is an additional button present
+            likes = ratings[25]
+            dislikes = ratings[27]
+            likes = str(likes).split('>')
+            likes = likes[likes.__len__() - 3]
+            likes = likes[:likes.__len__() - 6]
+            dislikes = str(dislikes).split('>')
+            dislikes = dislikes[dislikes.__len__() - 3]
+            dislikes = dislikes[:dislikes.__len__() - 6]
+        elif likes == "Transcript":  # if there is an additional button present
+            likes = ratings[26]
+            dislikes = ratings[28]
+            likes = str(likes).split('>')
+            likes = likes[likes.__len__() - 3]
+            likes = likes[:likes.__len__() - 6]
+            dislikes = str(dislikes).split('>')
+            dislikes = dislikes[dislikes.__len__() - 3]
+            dislikes = dislikes[:dislikes.__len__() - 6]
+        else:  # if normal
+            dislikes = str(dislikes).split('>')
+            dislikes = dislikes[dislikes.__len__() - 3]
+            dislikes = dislikes[:dislikes.__len__() - 6]
+        Views = soup.find_all('div', class_="watch-view-count")
+        views = Views[0]
+        views = (str(views).split('>'))[1]
+        views = views[:views.__len__() - 11]
+    except IndexError:
+        ''
+    try:
+        if str(views) == "No":  # if no views
+            views = '0'
+    except UnboundLocalError as e:
         views = '0'
     try:
         l = int(removeCommas(likes))
-    except ValueError and AttributeError:
+    except ValueError and AttributeError and UnboundLocalError:
         l = 0
         pass
     try:
         d = int(removeCommas(dislikes))
-    except ValueError and AttributeError:
+    except ValueError and AttributeError and UnboundLocalError:
         d = 0
         pass
     try:
@@ -431,7 +437,7 @@ def onlyKeepOne(a, b):
 
 # control center for MusicHashTable.py
 # noinspection PyShadowingNames
-def updateCSV(setting):
+def updateCSV(setting=0):
     if setting == -1:  # if testing mode
         path = TestMusicPath
         FileName = 'Test.csv'
@@ -443,7 +449,6 @@ def updateCSV(setting):
     # grabbing all the files in the set path
     musicFileList = glob.glob(path + '*.mp3')
     # creating a dictionary and shoving those in there
-    convertCSVtoDict()
     saveData(music)
     # Setting up the basic CSV
     saveHeader(dataList="'ARTIST', 'TITLE', 'URL', 'LIKES', 'DISLIKES', 'VIEWS', 'USED?', 'LIKES to TOTAL RATIO', "
