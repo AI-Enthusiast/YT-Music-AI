@@ -17,6 +17,9 @@ from Music import MusicHashTable as mh
 from Music import YT_Bot as yt
 from Test import UnitTests as ut
 
+#TODO update README
+#TODO update unit tests
+
 codes = {'mg': 'C:/Users/mjgro/Documents/GitHub/YT-Music-AI/', 'cd': 'C:/Users/corma/Documents/GitHub/YT-Music-AI/'}
 
 
@@ -146,12 +149,11 @@ if __name__ == "__main__":
                         # TODO automate music gathering
                     mh.updateCSV(0)
                     mai.train()  # tigger mai
-                    # TODO check copyright
+                    # TODO check copyright (https://developers.google.com/youtube/v3/docs/videos#contentDetails.licensedContent seems promising)
                     # TODO trigger wallpaper bot (Waide) to select a background
                     ae.trgr()  # writes info about mp3 so ae has access to the title
                     # TODO trigger AEbot to make video with music and background
                     # TODO compress vid
-                    # TODO upload video to youtube
                     # TODO automate acquisition of new data and deletion of old
                     # TODO possibly create a director or a job queue for this so that it never stops
                 else:
