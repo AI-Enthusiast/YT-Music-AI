@@ -59,6 +59,8 @@ def invert(byte):
         return byte
 
 
+# TODO Fix unit testing, broken bc of user integration
+
 class User:
     def __init__(self, BASEPATH, code):
         self.BASEPATH = BASEPATH
@@ -71,7 +73,7 @@ class User:
         self.TestPath = self.BASEPATH + 'Test\\'
 
 
-cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI\\', 'cd')
+cormac = User('C:\\Users\\corma\\Documents\\GitHub\\YT-Music-AI\\', 'cd'),
 marilyn = User('C:\\Users\\mjgro\\Documents\\GitHub\\YT-Music-AI\\', 'mg')
 
 
